@@ -5,11 +5,13 @@ import com.snafu.todss.sig.sessies.domain.Person;
 import com.snafu.todss.sig.sessies.domain.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.enums.Role;
 import javassist.NotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Service
 public class PersonService {
     private final SpringPersonRepository REPOSITORY;
 
