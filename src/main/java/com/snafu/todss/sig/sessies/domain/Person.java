@@ -16,8 +16,7 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "person_id")
     private Long id;
-    private String email;
-    private String firstname, lastname, expertise;
+    private String email, firstname, lastname, expertise;
     private LocalDate employedSince;
     @ManyToOne(cascade={CascadeType.ALL})
     @JoinColumn(name="manager_id")
@@ -155,6 +154,10 @@ public class Person {
 //                ", manager=" + manager +
 //                ", organizer=" + organizer +
                 '}';
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getEmail() {
