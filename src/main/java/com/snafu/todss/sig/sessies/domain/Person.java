@@ -3,36 +3,47 @@ package com.snafu.todss.sig.sessies.domain;
 import com.snafu.todss.sig.sessies.domain.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.enums.Role;
 
+import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Entity(name = "person")
 public class Person {
-    private String email, firstname, lastname, expertise;
-    private LocalDateTime employedSince;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "person_id")
+    private Long id;
+    private String email;
+    private String firstname, lastname, expertise;
+    private LocalDate employedSince;
+    @ManyToOne(cascade={CascadeType.ALL})
+    @JoinColumn(name="manager_id")
     private Person supervisor;
     private Branch branch;
     private Role role;
 
-    private List<Attendance> attendances;
+    @OneToMany(mappedBy = "person")
+    private List<Attendance> attendance;
+    @OneToMany(mappedBy = "manager")
     private List<SpecialInterestGroup> manager;
+    @OneToMany(mappedBy = "organizer")
     private List<SpecialInterestGroup> organizer;
+
+    public Person() {
+
+    }
 
     public Person(String email,
                   String firstname,
                   String lastname,
                   String expertise,
-                  LocalDateTime employedSince,
+                  LocalDate employedSince,
                   Person supervisor,
                   Branch branch,
-                  Role role) throws NullPointerException {
-
-        if (email.isBlank() || email.isEmpty() ||
-                firstname.isBlank() || firstname.isEmpty() ||
-                lastname.isBlank() || lastname.isEmpty()) {
-            throw new NullPointerException();
-        }
+                  Role role) {
 
         this.email = email;
         this.firstname = firstname;
@@ -43,22 +54,22 @@ public class Person {
         this.branch = branch;
         this.role = role;
 
-        this.attendances = new ArrayList<>();
+        this.attendance = new ArrayList<>();
         this.manager = new ArrayList<>();
         this.organizer = new ArrayList<>();
     }
 
     public Boolean addAttendance(Attendance attendance) {
-        if (!this.attendances.contains(attendance)) {
-            this.attendances.add(attendance);
+        if (!this.attendance.contains(attendance)) {
+            this.attendance.add(attendance);
             return true;
         }
         return false;
     }
 
     public Boolean removeAttendance(Attendance attendance) {
-        if (this.attendances.contains(attendance)) {
-            this.attendances.remove(attendance);
+        if (this.attendance.contains(attendance)) {
+            this.attendance.remove(attendance);
             return true;
         }
         return false;
@@ -108,10 +119,10 @@ public class Person {
                 Objects.equals(getEmployedSince(), person.getEmployedSince()) &&
                 Objects.equals(getSupervisor(), person.getSupervisor()) &&
                 getBranch() == person.getBranch()
-                && getRole() == person.getRole()
-                && getAttendances().equals(person.getAttendances())
-                && getManager().equals(person.getManager())
-                && getOrganizer().equals(person.getOrganizer());
+                && getRole() == person.getRole();
+//                && getAttendances().equals(person.getAttendances())
+//                && getManager().equals(person.getManager())
+//                && getOrganizer().equals(person.getOrganizer());
     }
 
     @Override
@@ -123,10 +134,10 @@ public class Person {
                 getEmployedSince(),
                 getSupervisor(),
                 getBranch(),
-                getRole(),
-                getAttendances(),
-                getManager(),
-                getOrganizer());
+                getRole());
+//                getAttendances(),
+//                getManager(),
+//                getOrganizer());
     }
 
     @Override
@@ -140,9 +151,9 @@ public class Person {
                 ", supervisor=" + supervisor +
                 ", branch=" + branch +
                 ", role=" + role +
-                ", attendances=" + attendances +
-                ", manager=" + manager +
-                ", organizer=" + organizer +
+//                ", attendances=" + attendances +
+//                ", manager=" + manager +
+//                ", organizer=" + organizer +
                 '}';
     }
 
@@ -178,11 +189,11 @@ public class Person {
         this.expertise = expertise;
     }
 
-    public LocalDateTime getEmployedSince() {
+    public LocalDate getEmployedSince() {
         return employedSince;
     }
 
-    public void setEmployedSince(LocalDateTime employedSince) {
+    public void setEmployedSince(LocalDate employedSince) {
         this.employedSince = employedSince;
     }
 
@@ -210,27 +221,15 @@ public class Person {
         this.role = role;
     }
 
-    public List<Attendance> getAttendances() {
-        return attendances;
-    }
-
-    public void setAttendances(List<Attendance> attendances) {
-        this.attendances = attendances;
+    public List<Attendance> getAttendance() {
+        return attendance;
     }
 
     public List<SpecialInterestGroup> getManager() {
         return manager;
     }
 
-    public void setManager(List<SpecialInterestGroup> manager) {
-        this.manager = manager;
-    }
-
     public List<SpecialInterestGroup> getOrganizer() {
         return organizer;
-    }
-
-    public void setOrganizer(List<SpecialInterestGroup> organizer) {
-        this.organizer = organizer;
     }
 }
