@@ -1,7 +1,9 @@
 package com.snafu.todss.sig.sessies.domain.session;
 
+import com.snafu.todss.sig.sessies.domain.Person;
+import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+
 import javax.persistence.*;
-import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.UUID;
 
