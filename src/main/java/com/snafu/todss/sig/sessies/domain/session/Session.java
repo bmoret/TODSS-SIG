@@ -1,9 +1,11 @@
 package com.snafu.todss.sig.sessies.domain.session;
 
+import com.snafu.todss.sig.sessies.domain.Feedback;
 import com.snafu.todss.sig.sessies.domain.Person;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -67,6 +69,18 @@ public class Session {
         this.attendanceList.stream()
                 .removeIf(attendance -> !attendance.getPerson().equals(person));
         return false;
+    }
+
+    public List<Feedback> getFeedbackList() {
+        return feedbackList;
+    }
+
+    public List<Attendance> getAttendanceList() {
+        return attendanceList;
+    }
+
+    public SpecialInterestGroup getSig() {
+        return sig;
     }
 
     public SessionState getState() {
