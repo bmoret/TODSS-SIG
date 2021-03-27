@@ -35,10 +35,11 @@ public class Session {
     }
 
     public Session(
-            SessionDetails details, SessionState state
-            , SpecialInterestGroup sig
-            , List<Attendance> attendanceList
-            , List<Feedback> feedbackList
+            SessionDetails details,
+            SessionState state,
+            SpecialInterestGroup sig,
+            List<Attendance> attendanceList,
+            List<Feedback> feedbackList
     ) {
         this.details = details;
         this.state = state;
