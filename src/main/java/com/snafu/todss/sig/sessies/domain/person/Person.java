@@ -1,11 +1,11 @@
-package com.snafu.todss.sig.sessies.domain;
+package com.snafu.todss.sig.sessies.domain.person;
 
-import com.snafu.todss.sig.sessies.domain.enums.Branch;
-import com.snafu.todss.sig.sessies.domain.enums.Role;
+import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.enums.*;
+
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
