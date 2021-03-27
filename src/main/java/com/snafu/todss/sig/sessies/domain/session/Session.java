@@ -22,11 +22,11 @@ public class Session {
     @Enumerated(EnumType.STRING)
     private SessionState state;
 
-    @OneToMany(orphanRemoval = true)
-    private List<Attendance> attendanceList;
-
     @ManyToOne
     private SpecialInterestGroup sig;
+
+    @OneToMany(orphanRemoval = true)
+    private List<Attendance> attendanceList;
 
     @OneToMany(orphanRemoval = true)
     private List<Feedback> feedbackList;
@@ -51,6 +51,10 @@ public class Session {
         return details;
     }
 
+    public List<Attendance> getAttendances() {
+        return attendanceList;
+    }
+
     public boolean addAttendee(Person person) {
         boolean noneMatch = Optional.of(
                 this.attendanceList.stream()
@@ -66,17 +70,22 @@ public class Session {
     }
 
     public boolean removeAttendee(Person person) {
-        this.attendanceList.stream()
-                .removeIf(attendance -> !attendance.getPerson().equals(person));
-        return false;
+        return this.attendanceList.removeIf(attendance -> !attendance.getPerson().equals(person));
     }
 
-    public List<Feedback> getFeedbackList() {
+    public List<Feedback> getFeedback() {
         return feedbackList;
     }
 
-    public List<Attendance> getAttendanceList() {
-        return attendanceList;
+    public boolean addFeedback(Feedback feedback) {
+        if (this.feedbackList.contains(feedback)){
+            return false;
+        }
+        return this.feedbackList.add(feedback);
+    }
+
+    public boolean removeFeedback(Feedback feedback) {
+        return this.feedbackList.remove(feedback);
     }
 
     public SpecialInterestGroup getSig() {
