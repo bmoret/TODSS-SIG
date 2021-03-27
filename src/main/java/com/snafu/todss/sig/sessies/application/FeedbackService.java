@@ -2,33 +2,42 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.FeedbackRepository;
 import com.snafu.todss.sig.sessies.domain.Feedback;
+import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.session.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.FeedbackRequest;
 import javassist.NotFoundException;
 
 import java.util.UUID;
 
 public class FeedbackService {
-    private final FeedbackRepository feedbackRepository;
+    private final FeedbackRepository FEEDBACK_REPOSITORY;
+    private final SessionService SESSION_SERVICE;
+    private final PersonService PERSON_SERVICE;
 
-    public FeedbackService(FeedbackRepository feedbackRepository) {
-        this.feedbackRepository = feedbackRepository;
+    public FeedbackService(FeedbackRepository feedbackRepository,
+                           SessionService sessionService,
+                           PersonService personService
+    ) {
+        this.FEEDBACK_REPOSITORY = feedbackRepository;
+        this.SESSION_SERVICE = sessionService;
+        this.PERSON_SERVICE = personService;
     }
 
     public Feedback getFeedbackById(UUID uuid) throws NotFoundException {
-        return this.feedbackRepository.findById(uuid)
+        return this.FEEDBACK_REPOSITORY.findById(uuid)
                 .orElseThrow( () -> new NotFoundException("No feedback found with given id."));
     }
 
-    //getfeedbackbysession?
+    public Feedback createFeedback(FeedbackRequest feedbackRequest) throws NotFoundException {
+        Session session = this.SESSION_SERVICE.getSessionById(feedbackRequest.sessionId);
+        Person person = this.PERSON_SERVICE.getPerson(feedbackRequest.personId);
+        Feedback feedback = new Feedback(feedbackRequest.description, session, person);
 
-    public Feedback createFeedback(FeedbackRequest feedbackRequest) {
-        Feedback feedback = new Feedback(feedbackRequest.description); // needs to add person & session too
-
-        return feedbackRepository.save(feedback);
+        return FEEDBACK_REPOSITORY.save(feedback);
     }
 
     public void deleteFeedback(UUID uuid) {
-        this.feedbackRepository.deleteById(uuid);
+        this.FEEDBACK_REPOSITORY.deleteById(uuid);
     }
 
 }

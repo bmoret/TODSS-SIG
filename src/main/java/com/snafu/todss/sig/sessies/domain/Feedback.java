@@ -1,5 +1,8 @@
 package com.snafu.todss.sig.sessies.domain;
 
+import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.session.Session;
+
 import javax.persistence.*;
 import java.util.UUID;
 
@@ -10,17 +13,20 @@ public class Feedback {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-//    private Session session;
-//    private Person person;
+    @ManyToOne
+    private Session session;
+
+    @OneToOne
+    private Person person;
 
     @Column
     private String description;
 
     public Feedback() {}
-    public Feedback(String description) {
+    public Feedback(String description, Session session, Person person) {
         this.description = description;
-        //this.session = session;
-        //this.person = person;
+        this.session = session;
+        this.person = person;
     }
 
     public UUID getId() {
@@ -29,5 +35,13 @@ public class Feedback {
 
     public String getDescription() {
         return description;
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public Person getPerson() {
+        return person;
     }
 }

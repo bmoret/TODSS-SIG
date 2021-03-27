@@ -13,40 +13,38 @@ import javax.validation.Valid;
 import java.util.UUID;
 
 public class FeedbackController {
-    private FeedbackService feedbackService;
+    private final FeedbackService SERVICE;
 
-    public FeedbackController(FeedbackService feedbackService) {
-        this.feedbackService = feedbackService;
+    public FeedbackController(FeedbackService service) {
+        this.SERVICE = service;
     }
 
     private FeedbackResponse convertFeedbackToResponse(Feedback feedback) {
-        FeedbackResponse feedbackResponse = new FeedbackResponse();
-        feedbackResponse.id = feedback.getId();
-        feedbackResponse.description = feedback.getDescription();
-        // add the rest too
-
-        return feedbackResponse;
+        return new FeedbackResponse(
+                feedback.getId(),
+                feedback.getDescription(),
+                feedback.getPerson(),
+                feedback.getSession()
+        );
     }
 
-    @GetMapping("/id")
+    @GetMapping("/{uuid}")
     public ResponseEntity<FeedbackResponse> getFeedbackById(@PathVariable UUID uuid) throws NotFoundException {
-        Feedback feedback = this.feedbackService.getFeedbackById(uuid);
+        Feedback feedback = this.SERVICE.getFeedbackById(uuid);
 
         return new ResponseEntity<>(convertFeedbackToResponse(feedback), HttpStatus.OK);
     }
 
-    //getfeedbackbysession?
-
     @PostMapping
-    public ResponseEntity<FeedbackResponse> createFeedback(@Valid @RequestBody FeedbackRequest feedbackRequest) {
-        Feedback feedback = this.feedbackService.createFeedback(feedbackRequest);
+    public ResponseEntity<FeedbackResponse> createFeedback(@Valid @RequestBody FeedbackRequest feedbackRequest) throws NotFoundException {
+        Feedback feedback = this.SERVICE.createFeedback(feedbackRequest);
 
         return new ResponseEntity<>(convertFeedbackToResponse(feedback), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/id")
+    @DeleteMapping("/{uuid}")
     public ResponseEntity<FeedbackResponse> deleteFeedbackById(@PathVariable UUID uuid) {
-        this.feedbackService.deleteFeedback(uuid);
+        this.SERVICE.deleteFeedback(uuid);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
