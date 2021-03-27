@@ -17,39 +17,42 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/sessions")
 public class SessionController {
-    private SessionService sessionService;
+    private final SessionService SERVICE;
 
     public SessionController(SessionService sessionService) {
-        this.sessionService = sessionService;
+        this.SERVICE = sessionService;
     }
 
     private SessionResponse convertSessionToResponse(Session session) {
-        SessionResponse response = new SessionResponse();
-        response.details = session.getDetails();
-        response.state = session.getState();
-        response.id = session.getId();
-        return response;
+        return new SessionResponse(
+                session.getId(),
+                session.getState(),
+                session.getDetails()
+        );
     }
 
     @GetMapping
     public ResponseEntity<List<SessionResponse>> getAllSessions() {
-        List<Session> sessions = this.sessionService.getAllSessions();
+        List<Session> sessions = this.SERVICE.getAllSessions();
         List<SessionResponse> responses = new ArrayList<>();
         for (Session session : sessions) {
             responses.add(convertSessionToResponse(session));
         }
+
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
     @GetMapping("/{sessionId}")
     public ResponseEntity<SessionResponse> getSession(@PathVariable UUID sessionId) throws NotFoundException {
-        Session session = this.sessionService.getSessionById(sessionId);
+        Session session = this.SERVICE.getSessionById(sessionId);
+
         return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest){
-        Session session = this.sessionService.createSession(sessionRequest);
+        Session session = this.SERVICE.createSession(sessionRequest);
+
         return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
     }
 
@@ -58,13 +61,15 @@ public class SessionController {
             @PathVariable UUID sessionId,
             @Valid @RequestBody SessionRequest sessionRequest
     ) throws NotFoundException {
-        Session session = this.sessionService.updateSession(sessionId, sessionRequest);
+        Session session = this.SERVICE.updateSession(sessionId, sessionRequest);
+
         return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
     }
 
     @DeleteMapping("/{sessionId}")
     public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId){
-        this.sessionService.deleteSession(sessionId);
+        this.SERVICE.deleteSession(sessionId);
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
