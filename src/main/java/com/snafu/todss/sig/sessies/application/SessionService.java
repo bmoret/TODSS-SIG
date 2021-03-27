@@ -1,8 +1,9 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
+import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.session.Session;
-import com.snafu.todss.sig.sessies.domain.session.SessionFactory;
+import com.snafu.todss.sig.sessies.domain.session.SessionBuilder;
 import com.snafu.todss.sig.sessies.presentation.dto.request.SessionRequest;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -14,25 +15,26 @@ import java.util.UUID;
 @Service
 @Transactional
 public class SessionService {
-    private final SessionRepository sessionRepository;
+    private final SessionRepository SESSION_REPOSITORY;
+    private final SpecialInterestGroupService SIG_SERVICE;
 
-    public SessionService(SessionRepository sessionRepository) {
-        this.sessionRepository = sessionRepository;
+    public SessionService(SessionRepository sessionRepository, SpecialInterestGroupService sigService) {
+        this.SESSION_REPOSITORY = sessionRepository;
+        this.SIG_SERVICE = sigService;
     }
 
     public List<Session> getAllSessions() {
-        return this.sessionRepository.findAll();
+        return this.SESSION_REPOSITORY.findAll();
     }
 
     public Session getSessionById(UUID sessionId) throws NotFoundException {
-        return this.sessionRepository.findById(sessionId)
+        return this.SESSION_REPOSITORY.findById(sessionId)
                 .orElseThrow(() -> new NotFoundException("No session found with given id"));
     }
 
-    public Session createSession(SessionRequest sessionRequest) {
-        //Sig sig = sigService.findByName(sessionRequest.sig);
-        Sig sig = null;
-        return new SessionFactory()
+    public Session createSession(SessionRequest sessionRequest) throws NotFoundException {
+        SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
+        return new SessionBuilder()
                 .setEndDate(sessionRequest.endDate)
                 .setStartDate(sessionRequest.startDate)
                 .setSubject(sessionRequest.subject)
@@ -51,10 +53,10 @@ public class SessionService {
         session.getDetails().setDescription(sessionRequest.description);
         session.getDetails().setLocation(sessionRequest.location);
         session.getDetails().setOnline(sessionRequest.isOnline);
-        return this.sessionRepository.save(session);
+        return this.SESSION_REPOSITORY.save(session);
     }
 
     public void deleteSession(UUID sessionId) {
-        this.sessionRepository.deleteById(sessionId);
+        this.SESSION_REPOSITORY.deleteById(sessionId);
     }
 }
