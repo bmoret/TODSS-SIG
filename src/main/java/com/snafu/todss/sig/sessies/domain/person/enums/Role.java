@@ -1,4 +1,4 @@
-package com.snafu.todss.sig.sessies.domain.enums;
+package com.snafu.todss.sig.sessies.domain.person.enums;
 
 public enum Role {
     MANAGER,
