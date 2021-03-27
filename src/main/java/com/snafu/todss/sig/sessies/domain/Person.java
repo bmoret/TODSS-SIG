@@ -16,7 +16,10 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "person_id")
     private Long id;
-    private String email, firstname, lastname, expertise;
+    private String email;
+    private String firstname;
+    private String lastname;
+    private String expertise;
     private LocalDate employedSince;
     @ManyToOne(cascade={CascadeType.ALL})
     @JoinColumn(name="manager_id")
@@ -60,50 +63,35 @@ public class Person {
 
     public Boolean addAttendance(Attendance attendance) {
         if (!this.attendance.contains(attendance)) {
-            this.attendance.add(attendance);
-            return true;
+            return this.attendance.add(attendance);
         }
         return false;
     }
 
     public Boolean removeAttendance(Attendance attendance) {
-        if (this.attendance.contains(attendance)) {
-            this.attendance.remove(attendance);
-            return true;
-        }
-        return false;
+       return this.attendance.remove(attendance);
     }
 
     public Boolean addManager(SpecialInterestGroup manager) {
         if (!this.manager.contains(manager)) {
-            this.manager.add(manager);
-            return true;
+            return this.manager.add(manager);
         }
         return false;
     }
 
     public Boolean removeManager(SpecialInterestGroup manager) {
-        if (this.manager.contains(manager)) {
-            this.manager.remove(manager);
-            return true;
-        }
-        return false;
+        return this.manager.remove(manager);
     }
 
     public Boolean addOrganizer(SpecialInterestGroup organizer) {
         if (!this.organizer.contains(organizer)) {
-            this.organizer.add(organizer);
-            return true;
+            return this.organizer.add(organizer);
         }
         return false;
     }
 
     public Boolean removeOrganizer(SpecialInterestGroup organizer) {
-        if (this.organizer.contains(organizer)) {
-            this.organizer.remove(organizer);
-            return true;
-        }
-        return false;
+        return this.organizer.remove(organizer);
     }
 
     @Override
