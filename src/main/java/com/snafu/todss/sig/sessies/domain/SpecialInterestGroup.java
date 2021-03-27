@@ -29,6 +29,18 @@ public class SpecialInterestGroup {
         //this.sessions = sessions;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
     //public Session addSession(Session session) {this.sessions.add(session);}
 
     //public Session removeSession(UUID id) {this.sessions.stream().remove(where id = id);} <-- klopt nog niet
