@@ -1,31 +1,53 @@
 package com.snafu.todss.sig.sessies.presentation.dto.response;
 
-import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.person.PersonDetails;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 
 import java.time.LocalDate;
-
-public class PersonResponse {
-    private final Long id;
-    private final String email, firstname, lastname, expertise;
-    private final LocalDate employedSince;
+class SupervisorCompactResponse {
     private final Long supervisorId;
     private final String supervisorName;
+
+    public SupervisorCompactResponse(Long supervisorId, String supervisorName) {
+        this.supervisorId = supervisorId;
+        this.supervisorName = supervisorName;
+    }
+
+    public Long getSupervisorId() {
+        return supervisorId;
+    }
+
+    public String getSupervisorName() {
+        return supervisorName;
+    }
+}
+public class PersonResponse {
+    private final Long id;
+    private final String email;
+    private final String firstname;
+    private final String lastname;
+    private final String expertise;
+    private final LocalDate employedSince;
+    private final SupervisorCompactResponse supervisor;
     private final Branch branch;
     private final Role role;
 
-    public PersonResponse(Person person) {
-        this.id = person.getId();
-        this.email = person.getEmail();
-        this.firstname = person.getFirstname();
-        this.lastname = person.getLastname();
-        this.expertise = person.getExpertise();
-        this.employedSince = person.getEmployedSince();
-        this.supervisorId = person.getSupervisor().getId();
-        this.supervisorName = person.getSupervisor().getLastname()+", "+person.getSupervisor().getFirstname();
-        this.branch = person.getBranch();
-        this.role = person.getRole();
+    public PersonResponse(Long id, PersonDetails details) {
+        this.id = id;
+        this.email = details.getEmail();
+        this.firstname = details.getFirstname();
+        this.lastname = details.getLastname();
+        this.expertise = details.getExpertise();
+        this.employedSince = details.getEmployedSince();
+        PersonDetails supervisorDetail = details.getSupervisor().getDetails();
+        this.supervisor = new SupervisorCompactResponse(
+                details.getSupervisor().getId(),
+                String.format("%s, %s",supervisorDetail.getLastname(), supervisorDetail.getFirstname() )
+
+        );
+        this.branch = details.getBranch();
+        this.role = details.getRole();
     }
 
     public Long getId() {
@@ -52,12 +74,8 @@ public class PersonResponse {
         return employedSince;
     }
 
-    public Long getSupervisorId() {
-        return supervisorId;
-    }
-
-    public String getSupervisorName() {
-        return supervisorName;
+    public SupervisorCompactResponse getSupervisor() {
+        return supervisor;
     }
 
     public Branch getBranch() {
