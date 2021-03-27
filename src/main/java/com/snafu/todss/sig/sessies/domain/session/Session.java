@@ -1,6 +1,8 @@
 package com.snafu.todss.sig.sessies.domain.session;
 
 import javax.persistence.*;
+import javax.swing.text.html.Option;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -25,10 +27,12 @@ public class Session {
     @OneToMany(orphanRemoval = true)
     private List<Feedback> feedbackList;
 
-    public Session() { }
+    public Session() {
+    }
+
     public Session(
             SessionDetails details, SessionState state
-            ,SpecialInterestGroup sig
+            , SpecialInterestGroup sig
             , List<Attendance> attendanceList
             , List<Feedback> feedbackList
     ) {
@@ -44,22 +48,31 @@ public class Session {
     }
 
     public boolean addAttendee(Person person) {
-          //check if person already in session
-        Attendance attendance = new Attendance();
-        this.attendanceList.add(attendance);
-        return false;
+        boolean noneMatch = Optional.of(
+                this.attendanceList.stream()
+                        .map(Attendance::getPerson)
+                        .noneMatch(attendancePerson -> attendancePerson.equals(person))
+        ).orElseThrow(() -> new IllegalArgumentException("Session already has person"));
+        //of zonder optional en throws
+        if (noneMatch) {
+            Attendance attendance = new Attendance();
+            return this.attendanceList.add(attendance);
+        }
+       return false;
     }
 
     public boolean removeAttendee(Person person) {
-         return false;
+        this.attendanceList.stream()
+                .removeIf(attendance -> !attendance.getPerson().equals(person));
+        return false;
     }
 
     public SessionState getState() {
         return state;
     }
 
-    public void setState(SessionState state) {
-        this.state = state;
+    public void nextState() {
+        this.state = state.next();
     }
 
     public UUID getId() {
