@@ -1,15 +1,10 @@
 package com.snafu.todss.sig.sessies.presentation.dto.response;
 
-import com.snafu.todss.sig.sessies.domain.Person;
-import com.snafu.todss.sig.sessies.domain.enums.Branch;
-import com.snafu.todss.sig.sessies.domain.enums.Role;
+import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
+import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 
-import javax.persistence.CascadeType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import java.time.LocalDate;
-import java.util.List;
 
 public class PersonDTOResponse {
     private Long id;

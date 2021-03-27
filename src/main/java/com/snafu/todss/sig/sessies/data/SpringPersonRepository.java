@@ -1,7 +1,7 @@
 package com.snafu.todss.sig.sessies.data;
 
 
-import com.snafu.todss.sig.sessies.domain.Person;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
