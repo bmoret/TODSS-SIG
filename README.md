@@ -23,5 +23,5 @@ Wanneer een versie of release van de applicatie onwikkeld is en volledig werkt d
 > [Bas Moret](https://github.com/bmoret)  
 > [Annemae van de Hoef](https://github.com/Annemae)  
 > [Melanie Kelley](https://github.com/2m201)  
-> [Thomas Alberts](https://github.com/ThomasAlberts)  
+> [Thomas Alberts](https://github.com/Hvitson)  
 > [Jona Leeflang](https://github.com/ChromaChroma) 
