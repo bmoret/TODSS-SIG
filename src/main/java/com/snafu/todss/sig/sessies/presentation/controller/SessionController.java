@@ -48,7 +48,7 @@ public class SessionController {
     }
 
     @PostMapping
-    public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest) throws NotFoundException {
+    public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest){
         Session session = this.sessionService.createSession(sessionRequest);
         return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
     }
@@ -63,8 +63,8 @@ public class SessionController {
     }
 
     @DeleteMapping("/{sessionId}")
-    public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId) throws NotFoundException {
+    public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId){
         this.sessionService.deleteSession(sessionId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
