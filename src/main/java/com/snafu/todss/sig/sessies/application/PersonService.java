@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
+import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
@@ -15,19 +16,19 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class PersonService {
     private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private final SpringPersonRepository REPOSITORY;
+    private final SpringPersonRepository PERSON_REPOSITORY;
 
     public PersonService(SpringPersonRepository repository) {
-        REPOSITORY = repository;
+        PERSON_REPOSITORY = repository;
     }
 
     public Person getPerson(Long id) throws NotFoundException {
-        return REPOSITORY.findById(id)
+        return PERSON_REPOSITORY.findById(id)
                 .orElseThrow(() -> new NotFoundException("The given id is not related to a person"));
     }
 
     public Person getPersonByEmail(String email) throws NotFoundException {
-        return REPOSITORY.findByEmail(email)
+        return PERSON_REPOSITORY.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("The given email is not related to a person"));
     }
 
@@ -47,7 +48,7 @@ public class PersonService {
                 .setRole(role)
                 .build();
 
-        return REPOSITORY.save(person);
+        return PERSON_REPOSITORY.save(person);
     }
 
     public Person editPerson(Long id, PersonRequest request) throws NotFoundException {
@@ -62,7 +63,7 @@ public class PersonService {
         person.setSupervisor(supervisor);
         person.setBranch(getBranchOfString(request.branch));
         person.setRole(getRoleOfString(request.role));
-        return REPOSITORY.save(person);
+        return PERSON_REPOSITORY.save(person);
     }
 
     private Branch getBranchOfString(String branch) {
@@ -89,13 +90,12 @@ public class PersonService {
         }
     }
 
-
     public void removePerson(Long id) throws NotFoundException {
-        REPOSITORY.delete(getPerson(id));
+        PERSON_REPOSITORY.delete(getPerson(id));
     }
 
-
-    // TODO Ik ben niet zeker of deze functionaliteit nodig is
+    //todo Ik ben niet zeker of deze functionaliteit nodig is -bas
+    // Waarschijnlijk valt dit onder deels domain en deels meer deze andere classes -Jona
     public void addAttendance(Long id, Attendance attendance) throws NotFoundException {
         Person person = getPerson(id);
 
@@ -120,13 +120,13 @@ public class PersonService {
         person.removeManager(manager);
     }
 
-    public void addManager(Long id, SpecialInterestGroup organizor) throws NotFoundException {
+    public void addOrganiser(Long id, SpecialInterestGroup organizor) throws NotFoundException {
         Person person = getPerson(id);
 
         person.addOrganizer(organizor);
     }
 
-    public void removeManager(Long id, SpecialInterestGroup organizor) throws NotFoundException {
+    public void removeOrganiser(Long id, SpecialInterestGroup organizor) throws NotFoundException {
         Person person = getPerson(id);
 
         person.removeOrganizer(organizor);

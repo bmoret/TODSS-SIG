@@ -29,8 +29,8 @@ public class Person {
     @Column(name = "employed_since")
     private LocalDate employedSince;
 
-    @ManyToOne(cascade = {CascadeType.ALL})
-    @JoinColumn(name = "manager_id")
+    @OneToOne(cascade = {CascadeType.ALL})
+    @Column(name = "supervisor_id")
     private Person supervisor;
 
     private Branch branch;
