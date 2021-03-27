@@ -2,7 +2,7 @@ package com.snafu.todss.sig.sessies.presentation.dto.request;
 
 import javax.validation.constraints.NotNull;
 
-public class PersonDTORequest {
+public class PersonRequest {
     @NotNull
     public String email;
 

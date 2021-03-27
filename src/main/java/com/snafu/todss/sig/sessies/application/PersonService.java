@@ -5,12 +5,10 @@ import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
-import com.snafu.todss.sig.sessies.presentation.dto.request.PersonDTORequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -33,7 +31,7 @@ public class PersonService {
                 .orElseThrow(() -> new NotFoundException("The given email is not related to a person"));
     }
 
-    public Person createPerson(PersonDTORequest dto) throws NotFoundException {
+    public Person createPerson(PersonRequest dto) throws NotFoundException {
         Branch branch = getBranchOfString(dto.branch);
         Role role = getRoleOfString(dto.role);
         LocalDate employedSince = LocalDate.parse(dto.employedSince, DATE_TIME_FORMATTER);
@@ -52,7 +50,7 @@ public class PersonService {
         return REPOSITORY.save(person);
     }
 
-    public Person editPerson(Long id, PersonDTORequest request) throws NotFoundException {
+    public Person editPerson(Long id, PersonRequest request) throws NotFoundException {
         Person person = getPerson(id);
         person.setEmail(request.email);
         person.setFirstname(request.firstname);
