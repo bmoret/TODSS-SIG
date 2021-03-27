@@ -14,23 +14,35 @@ import java.util.Objects;
 public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "person_id")
     private Long id;
+
     private String email;
+
+    @Column(name = "first_name")
     private String firstname;
+
+    @Column(name = "last_name")
     private String lastname;
+
     private String expertise;
+
+    @Column(name = "employed_since")
     private LocalDate employedSince;
+
     @ManyToOne(cascade={CascadeType.ALL})
     @JoinColumn(name="manager_id")
     private Person supervisor;
+
     private Branch branch;
+
     private Role role;
 
     @OneToMany(mappedBy = "person")
     private List<Attendance> attendance;
+
     @OneToMany(mappedBy = "manager")
     private List<SpecialInterestGroup> manager;
+
     @OneToMany(mappedBy = "organizer")
     private List<SpecialInterestGroup> organizer;
 
