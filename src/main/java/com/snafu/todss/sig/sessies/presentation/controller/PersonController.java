@@ -36,15 +36,10 @@ public class PersonController {
     }
 
     @PostMapping
-    public ResponseEntity<PersonDTOResponse> createPerson(@RequestBody PersonDTORequest DTO) throws NotFoundException {
-        Person person = SERVICE.createPerson(DTO.email,
-                DTO.firstname,
-                DTO.lastname,
-                DTO.expertise,
-                DTO.employedSince,
-                DTO.supervisorId,
-                DTO.branch,
-                DTO.role);
+    public ResponseEntity<PersonDTOResponse> createPerson(
+            @Valid @RequestBody PersonDTORequest dto
+    ) throws NotFoundException {
+        Person person = SERVICE.createPerson(dto);
 
         return new ResponseEntity<>(new PersonDTOResponse(person), HttpStatus.OK);
     }

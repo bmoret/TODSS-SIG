@@ -29,8 +29,8 @@ public class Person {
     @Column(name = "employed_since")
     private LocalDate employedSince;
 
-    @ManyToOne(cascade={CascadeType.ALL})
-    @JoinColumn(name="manager_id")
+    @ManyToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name = "manager_id")
     private Person supervisor;
 
     private Branch branch;
@@ -81,7 +81,7 @@ public class Person {
     }
 
     public Boolean removeAttendance(Attendance attendance) {
-       return this.attendance.remove(attendance);
+        return this.attendance.remove(attendance);
     }
 
     public Boolean addManager(SpecialInterestGroup manager) {
@@ -119,9 +119,6 @@ public class Person {
                 Objects.equals(getSupervisor(), person.getSupervisor()) &&
                 getBranch() == person.getBranch()
                 && getRole() == person.getRole();
-//                && getAttendances().equals(person.getAttendances())
-//                && getManager().equals(person.getManager())
-//                && getOrganizer().equals(person.getOrganizer());
     }
 
     @Override
@@ -134,26 +131,6 @@ public class Person {
                 getSupervisor(),
                 getBranch(),
                 getRole());
-//                getAttendances(),
-//                getManager(),
-//                getOrganizer());
-    }
-
-    @Override
-    public String toString() {
-        return "Person{" +
-                "email='" + email + '\'' +
-                ", firstname='" + firstname + '\'' +
-                ", lastname='" + lastname + '\'' +
-                ", expertise='" + expertise + '\'' +
-                ", employedSince=" + employedSince +
-                ", supervisor=" + supervisor +
-                ", branch=" + branch +
-                ", role=" + role +
-//                ", attendances=" + attendances +
-//                ", manager=" + manager +
-//                ", organizer=" + organizer +
-                '}';
     }
 
     public Long getId() {

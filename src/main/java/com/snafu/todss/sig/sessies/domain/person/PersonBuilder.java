@@ -16,9 +16,6 @@ public class PersonBuilder {
     private Person supervisor;
     private Branch branch;
     private Role role;
-    private List<Attendance> attendance;
-    private List<SpecialInterestGroup> manager;
-    private List<SpecialInterestGroup> organizer;
 
     public PersonBuilder() {
     }
@@ -63,21 +60,6 @@ public class PersonBuilder {
         return this;
     }
 
-    public PersonBuilder setAttendance(List<Attendance> attendance) {
-        this.attendance = attendance;
-        return this;
-    }
-
-    public PersonBuilder setManager(List<SpecialInterestGroup> manager) {
-        this.manager = manager;
-        return this;
-    }
-
-    public PersonBuilder setOrganizer(List<SpecialInterestGroup> organizer) {
-        this.organizer = organizer;
-        return this;
-    }
-
     public Person build() {
         return new Person(
                 this.email,
@@ -87,10 +69,7 @@ public class PersonBuilder {
                 this.employedSince,
                 this.supervisor,
                 this.branch,
-                this.role,
-                this.attendance,
-                this.manager,
-                this.organizer
+                this.role
         );
     }
 }
