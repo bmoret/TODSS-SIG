@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/person")
@@ -49,17 +49,12 @@ public class PersonController {
         return new ResponseEntity<>(new PersonDTOResponse(person), HttpStatus.OK);
     }
 
-    @PatchMapping(path = "/{id}")
-    public ResponseEntity<PersonDTOResponse> editPerson(@PathVariable Long id, @RequestBody PersonDTORequest DTO) throws NotFoundException {
-        Person person = SERVICE.editPerson(id,
-                DTO.email,
-                DTO.firstname,
-                DTO.lastname,
-                DTO.expertise,
-                DTO.employedSince,
-                DTO.supervisorId,
-                DTO.branch,
-                DTO.role);
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<PersonDTOResponse> updatePerson(
+            @PathVariable Long id,
+            @Valid @RequestBody PersonDTORequest dto
+    ) throws NotFoundException {
+        Person person = SERVICE.editPerson(id, dto);
 
         return new ResponseEntity<>(new PersonDTOResponse(person), HttpStatus.OK);
     }

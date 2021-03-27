@@ -4,6 +4,7 @@ import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.Person;
 import com.snafu.todss.sig.sessies.domain.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.enums.Role;
+import com.snafu.todss.sig.sessies.presentation.dto.request.PersonDTORequest;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -60,58 +61,33 @@ public class PersonService {
         }
         Person person = new Person(email, firstname, lastname, expertise, employedSince, supervisor, branch, role);
 
-        REPOSITORY.save(person);
-
-        return person;
+        return REPOSITORY.save(person);
     }
 
-    public Person editPerson(Long id,
-                     String email,
-                     String firstname,
-                     String lastname,
-                     String expertise,
-                     String employedSinceString,
-                     Long supervisorId,
-                     String branchString,
-                     String roleString) throws NotFoundException {
+    public Person editPerson(Long id, PersonDTORequest request) throws NotFoundException {
         Person person = getPerson(id);
-
-        if (email != null) {
-            person.setEmail(email);
-        }
-        if (firstname != null) {
-            person.setFirstname(firstname);
-        }
-        if (lastname != null) {
-            person.setLastname(lastname);
-        }
-        if (expertise != null) {
-            person.setExpertise(expertise);
-        }
-        if (employedSinceString != null) {
-            LocalDate employedSince = LocalDate.parse(employedSinceString, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            person.setEmployedSince(employedSince);
-        }
-        if (supervisorId != null) {
-            try {
-                Person supervisor = getPerson(supervisorId);
-                person.setSupervisor(supervisor);
-            } catch (NotFoundException e) {
-                throw new NotFoundException("The given supervisor id is not related to a person");
-            }
-        }
-        if (branchString != null) {
-            Branch branch = Branch.valueOf(branchString);
+        person.setEmail(request.email);
+        person.setFirstname(request.firstname);
+        person.setLastname(request.lastname);
+        person.setExpertise(request.expertise);
+        LocalDate employedSince = LocalDate.parse(request.employedSince, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        person.setEmployedSince(employedSince);
+        Person supervisor = getPerson(request.supervisorId);
+        person.setSupervisor(supervisor);
+        try {
+            Branch branch = Branch.valueOf(request.branch);
             person.setBranch(branch);
+        }catch (Exception e) {
+            throw new IllegalArgumentException(String.format("No branch with name '%s' exists", request.branch));
         }
-        if (roleString != null) {
-            Role role = Role.valueOf(roleString);
+        try {
+            Role role = Role.valueOf(request.role);
             person.setRole(role);
+        }catch (Exception e) {
+            throw new IllegalArgumentException(String.format("No role with name '%s' exists", request.role));
         }
-
-        REPOSITORY.save(person);
-
-        return person;    }
+        return REPOSITORY.save(person);
+    }
 
     public void removePerson(Long id) throws NotFoundException {
         REPOSITORY.delete(getPerson(id));
