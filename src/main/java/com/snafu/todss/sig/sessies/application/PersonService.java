@@ -1,15 +1,14 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
-import com.snafu.todss.sig.sessies.domain.Person;
-import com.snafu.todss.sig.sessies.domain.enums.Branch;
-import com.snafu.todss.sig.sessies.domain.enums.Role;
+import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
+import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonDTORequest;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service

@@ -1,7 +1,7 @@
 package com.snafu.todss.sig.sessies.domain.session;
 
 import com.snafu.todss.sig.sessies.domain.Feedback;
-import com.snafu.todss.sig.sessies.domain.Person;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 
 import javax.persistence.*;

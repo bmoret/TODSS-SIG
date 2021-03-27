@@ -1,7 +1,7 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
 import com.snafu.todss.sig.sessies.application.PersonService;
-import com.snafu.todss.sig.sessies.domain.Person;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonDTORequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonDTOResponse;
 import javassist.NotFoundException;
