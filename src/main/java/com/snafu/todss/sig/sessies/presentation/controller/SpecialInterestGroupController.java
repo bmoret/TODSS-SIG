@@ -17,40 +17,45 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/sig")
 public class SpecialInterestGroupController {
-    private SpecialInterestGroupService specialInterestGroupService;
+    private final SpecialInterestGroupService SERVICE;
 
     public SpecialInterestGroupController(SpecialInterestGroupService specialInterestGroupService) {
-        this.specialInterestGroupService = specialInterestGroupService;
+        this.SERVICE = specialInterestGroupService;
     }
 
     private SpecialInterestGroupResponse convertSpecialInterestGroupToResponse(SpecialInterestGroup specialInterestGroup) {
-        SpecialInterestGroupResponse response = new SpecialInterestGroupResponse();
-        response.id = specialInterestGroup.getId();
-        response.subject = specialInterestGroup.getSubject();
-        return response;
+        return new SpecialInterestGroupResponse(
+                specialInterestGroup.getId(),
+                specialInterestGroup.getSubject(),
+                specialInterestGroup.getManager(),
+                specialInterestGroup.getOrganizers()
+        );
     }
 
     @GetMapping
     public ResponseEntity<List<SpecialInterestGroupResponse>> getAllSpecialInterestGroups() {
-        List<SpecialInterestGroup> specialInterestGroups = this.specialInterestGroupService.getAllSpecialInterestGroups();
+        List<SpecialInterestGroup> specialInterestGroups = this.SERVICE.getAllSpecialInterestGroups();
         List<SpecialInterestGroupResponse> responses = new ArrayList<>();
         for (SpecialInterestGroup specialInterestGroup : specialInterestGroups) {
             responses.add(convertSpecialInterestGroupToResponse(specialInterestGroup));
         }
+
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<SpecialInterestGroupResponse> getSpecialInterestGroup(@PathVariable UUID id) throws NotFoundException {
-        SpecialInterestGroup specialInterestGroup = this.specialInterestGroupService.getSpecialInterestGroupById(id);
+        SpecialInterestGroup specialInterestGroup = this.SERVICE.getSpecialInterestGroupById(id);
+
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<SpecialInterestGroupResponse> createSpecialInterestGroup
-            (@Valid @RequestBody SpecialInterestGroupRequest specialInterestGroupRequest
-            ) throws NotFoundException {
-        SpecialInterestGroup specialInterestGroup = this.specialInterestGroupService.createSpecialInterestGroup(specialInterestGroupRequest);
+    public ResponseEntity<SpecialInterestGroupResponse> createSpecialInterestGroup(
+            @Valid @RequestBody SpecialInterestGroupRequest specialInterestGroupRequest
+    ) {
+        SpecialInterestGroup specialInterestGroup = this.SERVICE.createSpecialInterestGroup(specialInterestGroupRequest);
+
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
     }
 
@@ -59,16 +64,18 @@ public class SpecialInterestGroupController {
             @PathVariable UUID id,
             @Valid @RequestBody SpecialInterestGroupRequest specialInterestGroupRequest
     ) throws NotFoundException {
-        SpecialInterestGroup specialInterestGroup = this.specialInterestGroupService.updateSpecialInterestGroup(
+        SpecialInterestGroup specialInterestGroup = this.SERVICE.updateSpecialInterestGroup(
                 id,
                 specialInterestGroupRequest
         );
+
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSpecialInterestGroup(@PathVariable UUID id) {
-        this.specialInterestGroupService.deleteSpecialInterestGroup(id);
+        this.SERVICE.deleteSpecialInterestGroup(id);
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

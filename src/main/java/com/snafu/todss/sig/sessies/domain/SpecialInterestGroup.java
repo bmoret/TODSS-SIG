@@ -1,6 +1,10 @@
 package com.snafu.todss.sig.sessies.domain;
 
+import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.session.Session;
+
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -10,23 +14,24 @@ public class SpecialInterestGroup {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column
     private String subject;
 
-    //private Person manager;
+    @ManyToOne
+    private Person manager;
 
-    //private List<Person> organizers;
+    @ManyToMany
+    private List<Person> organizers;
 
-    //private List<Session> sessions;
+    @OneToMany(mappedBy = "sig")
+    private List<Session> sessions;
 
     public SpecialInterestGroup() {}
-    public SpecialInterestGroup(
-            String subject
-    ) {
+
+    public SpecialInterestGroup(String subject, Person manager, List<Person> organizers, List<Session> sessions) {
         this.subject = subject;
-        //this.manager = manager;
-        //this.organizers = organizers;
-        //this.sessions = sessions;
+        this.manager = manager;
+        this.organizers = organizers;
+        this.sessions = sessions;
     }
 
     public UUID getId() {
@@ -41,7 +46,41 @@ public class SpecialInterestGroup {
         this.subject = subject;
     }
 
-    //public Session addSession(Session session) {this.sessions.add(session);}
+    public Person getManager() {
+        return manager;
+    }
 
-    //public Session removeSession(UUID id) {this.sessions.stream().remove(where id = id);} <-- klopt nog niet
+    public void setManager(Person manager) {
+        this.manager = manager;
+    }
+
+    public List<Person> getOrganizers() {
+        return organizers;
+    }
+
+    public boolean addOrganizer(Person organizor) {
+        if (this.organizers.contains(organizor)){
+            return false;
+        }
+        return this.organizers.add(organizor);
+    }
+
+    public boolean removeOrganizer(Person organizor) {
+        return this.organizers.remove(organizor);
+    }
+
+    public List<Session> getSessions() {
+        return sessions;
+    }
+
+    public boolean addSession(Session session) {
+        if (this.sessions.contains(session)){
+            return false;
+        }
+        return this.sessions.add(session);
+    }
+
+    public boolean removeSession(Session session) {
+        return this.sessions.remove(session);
+    }
 }
