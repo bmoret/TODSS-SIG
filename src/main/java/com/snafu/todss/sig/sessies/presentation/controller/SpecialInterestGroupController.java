@@ -53,7 +53,7 @@ public class SpecialInterestGroupController {
     @PostMapping
     public ResponseEntity<SpecialInterestGroupResponse> createSpecialInterestGroup(
             @Valid @RequestBody SpecialInterestGroupRequest specialInterestGroupRequest
-    ) {
+    ) throws NotFoundException {
         SpecialInterestGroup specialInterestGroup = this.SERVICE.createSpecialInterestGroup(specialInterestGroupRequest);
 
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
