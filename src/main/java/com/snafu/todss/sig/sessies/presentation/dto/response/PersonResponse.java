@@ -5,23 +5,7 @@ import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 
 import java.time.LocalDate;
-class SupervisorCompactResponse {
-    private final Long supervisorId;
-    private final String supervisorName;
 
-    public SupervisorCompactResponse(Long supervisorId, String supervisorName) {
-        this.supervisorId = supervisorId;
-        this.supervisorName = supervisorName;
-    }
-
-    public Long getSupervisorId() {
-        return supervisorId;
-    }
-
-    public String getSupervisorName() {
-        return supervisorName;
-    }
-}
 public class PersonResponse {
     private final Long id;
     private final String email;
@@ -29,7 +13,7 @@ public class PersonResponse {
     private final String lastname;
     private final String expertise;
     private final LocalDate employedSince;
-    private final SupervisorCompactResponse supervisor;
+    private final PersonCompactResponse supervisor;
     private final Branch branch;
     private final Role role;
 
@@ -41,10 +25,9 @@ public class PersonResponse {
         this.expertise = details.getExpertise();
         this.employedSince = details.getEmployedSince();
         PersonDetails supervisorDetail = details.getSupervisor().getDetails();
-        this.supervisor = new SupervisorCompactResponse(
+        this.supervisor = new PersonCompactResponse(
                 details.getSupervisor().getId(),
                 String.format("%s, %s",supervisorDetail.getLastname(), supervisorDetail.getFirstname() )
-
         );
         this.branch = details.getBranch();
         this.role = details.getRole();
@@ -74,7 +57,7 @@ public class PersonResponse {
         return employedSince;
     }
 
-    public SupervisorCompactResponse getSupervisor() {
+    public PersonCompactResponse getSupervisor() {
         return supervisor;
     }
 
