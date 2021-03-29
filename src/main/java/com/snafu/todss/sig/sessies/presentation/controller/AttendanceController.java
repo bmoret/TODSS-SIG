@@ -51,7 +51,7 @@ public class AttendanceController {
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
-
+//
 //    @GetMapping("/{personId}")
 //    public ResponseEntity<List<AttendanceResponse>> getAttendanceByPerson(
 //      @PathVariable UUID personId
