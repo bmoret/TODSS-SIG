@@ -50,7 +50,7 @@ public class SessionController {
     }
 
     @PostMapping
-    public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest){
+    public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest) throws NotFoundException {
         Session session = this.SERVICE.createSession(sessionRequest);
 
         return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
