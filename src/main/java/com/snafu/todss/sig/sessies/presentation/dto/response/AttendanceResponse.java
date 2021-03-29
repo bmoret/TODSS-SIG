@@ -1,23 +1,36 @@
 package com.snafu.todss.sig.sessies.presentation.dto.response;
 
+import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.person.PersonDetails;
+import com.snafu.todss.sig.sessies.domain.session.Session;
+
 import java.util.UUID;
 
 public class AttendanceResponse {
     private final UUID attendanceId;
-    private final boolean confirmed;
-    private final boolean absence;
-    private final boolean speaker;
-//    private final Person person;
-//    private final Session session;
+    private final boolean isConfirmed;
+    private final boolean isAbsent;
+    private final boolean isSpeaker;
+    private final PersonCompactResponse person;
+    private final UUID sessionId;
 
-    public AttendanceResponse(UUID attendanceId, boolean confirmed, boolean absence, boolean speaker//, Person person, Session session
+    public AttendanceResponse(UUID attendanceId,
+                              boolean isConfirmed,
+                              boolean isAbsent,
+                              boolean isSpeaker,
+                              Person person,
+                              Session session
     ) {
         this.attendanceId = attendanceId;
-        this.confirmed = confirmed;
-        this.absence = absence;
-        this.speaker = speaker;
-//        this.person = person.getName();
-//        this.session = session.getId();
+        this.isConfirmed = isConfirmed;
+        this.isAbsent = isAbsent;
+        this.isSpeaker = isSpeaker;
+        PersonDetails details = person.getDetails();
+        this.person = new PersonCompactResponse(
+                details.getSupervisor().getId(),
+                String.format("%s, %s",details.getLastname(), details.getFirstname() )
+        );
+        this.sessionId = session.getId();
     }
 
     public UUID getAttendanceId() {
@@ -25,22 +38,22 @@ public class AttendanceResponse {
     }
 
     public boolean isConfirmed() {
-        return confirmed;
+        return isConfirmed;
     }
 
-    public boolean isAbsence() {
-        return absence;
+    public boolean isAbsent() {
+        return isAbsent;
     }
 
     public boolean isSpeaker() {
-        return speaker;
+        return isSpeaker;
     }
 
-//    public Person getPerson() {
-//        return person;
-//    }
-//
-//    public Session getSession() {
-//        return session;
-//    }
+    public PersonCompactResponse getPerson() {
+        return person;
+    }
+
+    public UUID getSession() {
+        return sessionId;
+    }
 }

@@ -2,11 +2,13 @@ package com.snafu.todss.sig.sessies.presentation.dto.request;
 
 import javax.validation.constraints.NotNull;
 
-public class AttendanceUpdateRequest {
+public class AttendanceRequest {
     @NotNull
-    public boolean confirmed;
+    public boolean isConfirmed;
+
     @NotNull
-    public boolean absence;
+    public boolean isAbsence;
+
     @NotNull
-    public boolean speaker;
+    public boolean isSpeaker;
 }
