@@ -2,11 +2,10 @@ package com.snafu.todss.sig.sessies.domain.session;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.Entity;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 
-@Entity
+
 @Embeddable
 public class SessionDetails {
     @Column(name = "start_date")
