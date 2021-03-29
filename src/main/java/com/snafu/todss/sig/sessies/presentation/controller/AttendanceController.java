@@ -15,7 +15,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/attendances") //todo  /sessions/{sessionId} misschien of deels, om het meer structuur en logica te geven in de paths? -jona
+@RequestMapping("/attendances")
+//todo  /sessions/{sessionId} Kan mogelijk beter zijn i.v.m. structuur en logica van REST pathing -jona
 public class AttendanceController {
     private final AttendanceService SERVICE;
 
