@@ -32,7 +32,7 @@ public class PersonService {
     }
 
     public Person getPersonByEmail(String email) throws NotFoundException {
-        return PERSON_REPOSITORY.findByEmail(email)
+        return PERSON_REPOSITORY.findByDetails_Email(email)
                 .orElseThrow(() -> new NotFoundException("The given email is not related to a person"));
     }
 

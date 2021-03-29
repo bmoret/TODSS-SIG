@@ -10,5 +10,5 @@ import java.util.UUID;
 
 @Repository
 public interface SpringPersonRepository extends JpaRepository<Person, UUID> {
-    Optional<Person> findByEmail(String email);
+    Optional<Person> findByDetails_Email(String email);
 }
