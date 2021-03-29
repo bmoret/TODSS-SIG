@@ -4,7 +4,6 @@ import com.snafu.todss.sig.sessies.domain.Attendance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -38,8 +37,8 @@ public class AttendanceTest {
     @ParameterizedTest
     @MethodSource("attendanceFillExamples")
     @DisplayName("create all possible attendances")
-    void createAttendance(boolean c, boolean a, boolean s) {
-        Attendance constAttendance = new Attendance(c, a, s);
+    void createAttendance(boolean isConfirmed, boolean isAbsent, boolean isSpeaker) {
+        Attendance constAttendance = new Attendance(isConfirmed, isAbsent, isSpeaker, null, null);
     }
 
     @Test
@@ -53,9 +52,9 @@ public class AttendanceTest {
     @Test
     @DisplayName("isAbsence test")
     void isAbsence() {
-        assertFalse(attendance.isAbsence());
-        attendance.setAbsence(true);
-        assertTrue(attendance.isAbsence());
+        assertFalse(attendance.isAbsent());
+        attendance.setAbsent(true);
+        assertTrue(attendance.isAbsent());
     }
 
     @Test
