@@ -24,10 +24,10 @@ public class Person {
     private List<Attendance> attendance;
 
     @OneToMany(mappedBy = "manager")
-    private List<SpecialInterestGroup> manager;
+    private List<SpecialInterestGroup> managedSpecialInterestGroups;
 
-    @OneToMany(mappedBy = "organizer")
-    private List<SpecialInterestGroup> organizer;
+    @ManyToMany(mappedBy = "organizers")
+    private List<SpecialInterestGroup> organisedSpecialInterestGroups;
 
     public Person() {
 
@@ -36,14 +36,14 @@ public class Person {
     public Person(PersonDetails personDetails,
                   Person supervisor,
                   List<Attendance> attendances,
-                  List<SpecialInterestGroup> managers,
-                  List<SpecialInterestGroup> organizer
+                  List<SpecialInterestGroup> managedSpecialInterestGroups,
+                  List<SpecialInterestGroup> organisedSpecialInterestGroups
     ) {
         this.details = personDetails;
         this.supervisor = supervisor;
         this.attendance = attendances;
-        this.manager = managers;
-        this.organizer = organizer;
+        this.managedSpecialInterestGroups = managedSpecialInterestGroups;
+        this.organisedSpecialInterestGroups = organisedSpecialInterestGroups;
     }
 
     public Boolean addAttendance(Attendance attendance) {
@@ -58,25 +58,25 @@ public class Person {
     }
 
     public Boolean addManager(SpecialInterestGroup manager) {
-        if (!this.manager.contains(manager)) {
-            return this.manager.add(manager);
+        if (!this.managedSpecialInterestGroups.contains(manager)) {
+            return this.managedSpecialInterestGroups.add(manager);
         }
         return false;
     }
 
     public Boolean removeManager(SpecialInterestGroup manager) {
-        return this.manager.remove(manager);
+        return this.managedSpecialInterestGroups.remove(manager);
     }
 
     public Boolean addOrganizer(SpecialInterestGroup organizer) {
-        if (!this.organizer.contains(organizer)) {
-            return this.organizer.add(organizer);
+        if (!this.organisedSpecialInterestGroups.contains(organizer)) {
+            return this.organisedSpecialInterestGroups.add(organizer);
         }
         return false;
     }
 
     public Boolean removeOrganizer(SpecialInterestGroup organizer) {
-        return this.organizer.remove(organizer);
+        return this.organisedSpecialInterestGroups.remove(organizer);
     }
 
     public UUID getId() {
@@ -91,12 +91,12 @@ public class Person {
         return attendance;
     }
 
-    public List<SpecialInterestGroup> getManager() {
-        return manager;
+    public List<SpecialInterestGroup> getManagedSpecialInterestGroups() {
+        return managedSpecialInterestGroups;
     }
 
-    public List<SpecialInterestGroup> getOrganizer() {
-        return organizer;
+    public List<SpecialInterestGroup> getOrganisedSpecialInterestGroups() {
+        return organisedSpecialInterestGroups;
     }
 
     public Person getSupervisor() {
