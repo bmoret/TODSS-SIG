@@ -6,9 +6,13 @@ import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.FeedbackRequest;
 import javassist.NotFoundException;
+import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.UUID;
 
+@Service
+@Transactional
 public class FeedbackService {
     private final FeedbackRepository FEEDBACK_REPOSITORY;
     private final SessionService SESSION_SERVICE;

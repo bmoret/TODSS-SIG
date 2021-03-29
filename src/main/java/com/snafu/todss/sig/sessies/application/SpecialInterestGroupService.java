@@ -7,11 +7,13 @@ import com.snafu.todss.sig.sessies.presentation.dto.request.SpecialInterestGroup
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class SpecialInterestGroupService {
     private final SpecialInterestGroupRepository SIG_REPOSITORY;
     private final PersonService PERSON_SERVICE;

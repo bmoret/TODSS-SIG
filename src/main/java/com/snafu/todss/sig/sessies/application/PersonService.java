@@ -10,10 +10,12 @@ import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Service
+@Transactional
 public class PersonService {
     private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final SpringPersonRepository PERSON_REPOSITORY;
