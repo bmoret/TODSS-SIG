@@ -6,15 +6,19 @@ import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity(name = "person")
 public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private UUID id;
 
     @Embedded
     private PersonDetails details;
+
+    @OneToOne(cascade = {CascadeType.ALL})
+    private Person supervisor;
 
     @OneToMany(mappedBy = "person")
     private List<Attendance> attendance;
@@ -30,11 +34,13 @@ public class Person {
     }
 
     public Person(PersonDetails personDetails,
+                  Person supervisor,
                   List<Attendance> attendances,
                   List<SpecialInterestGroup> managers,
                   List<SpecialInterestGroup> organizer
     ) {
         this.details = personDetails;
+        this.supervisor = supervisor;
         this.attendance = attendances;
         this.manager = managers;
         this.organizer = organizer;
@@ -73,21 +79,7 @@ public class Person {
         return this.organizer.remove(organizer);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Person person = (Person) o;
-        return Objects.equals(id, person.id) &&
-                Objects.equals(details, person.details);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, details);
-    }
-
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -105,5 +97,27 @@ public class Person {
 
     public List<SpecialInterestGroup> getOrganizer() {
         return organizer;
+    }
+
+    public Person getSupervisor() {
+        return supervisor;
+    }
+
+    public void setSupervisor(Person supervisor) {
+        this.supervisor = supervisor;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return Objects.equals(id, person.id) &&
+                Objects.equals(details, person.details);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, details);
     }
 }

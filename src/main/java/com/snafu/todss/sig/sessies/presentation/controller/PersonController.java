@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/person")
@@ -25,12 +26,13 @@ public class PersonController {
     private PersonResponse convertPersonToResponse(Person person) {
         return new PersonResponse(
                 person.getId(),
+                person.getSupervisor(),
                 person.getDetails()
         );
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<PersonResponse> getPerson(@PathVariable("id") Long id) throws NotFoundException {
+    public ResponseEntity<PersonResponse> getPerson(@PathVariable("id") UUID id) throws NotFoundException {
         Person person = SERVICE.getPerson(id);
 
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
@@ -54,7 +56,7 @@ public class PersonController {
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<PersonResponse> updatePerson(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody PersonRequest dto
     ) throws NotFoundException {
         Person person = SERVICE.editPerson(id, dto);
@@ -63,7 +65,7 @@ public class PersonController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<PersonResponse> removePerson(@PathVariable Long id) throws NotFoundException {
+    public ResponseEntity<PersonResponse> removePerson(@PathVariable UUID id) throws NotFoundException {
         SERVICE.removePerson(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

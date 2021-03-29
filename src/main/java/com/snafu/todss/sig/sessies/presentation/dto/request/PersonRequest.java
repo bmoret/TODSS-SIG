@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.presentation.dto.request;
 
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 public class PersonRequest {
     @NotNull
@@ -25,5 +26,5 @@ public class PersonRequest {
     public String employedSince;
 
     @NotNull
-    public Long supervisorId;
+    public UUID supervisorId;
 }

@@ -6,7 +6,6 @@ import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import javax.persistence.*;
 import java.time.LocalDate;
 
-@Entity
 @Embeddable
 public class PersonDetails {
     private String email;
@@ -22,10 +21,6 @@ public class PersonDetails {
     @Column(name = "employed_since")
     private LocalDate employedSince;
 
-    @OneToOne(cascade = {CascadeType.ALL})
-    @Column(name = "supervisor_id")
-    private Person supervisor;
-
     private Branch branch;
 
     private Role role;
@@ -37,7 +32,6 @@ public class PersonDetails {
                          String lastname,
                          String expertise,
                          LocalDate employedSince,
-                         Person supervisor,
                          Branch branch,
                          Role role
     ) {
@@ -46,7 +40,6 @@ public class PersonDetails {
         this.lastname = lastname;
         this.expertise = expertise;
         this.employedSince = employedSince;
-        this.supervisor = supervisor;
         this.branch = branch;
         this.role = role;
     }
@@ -89,14 +82,6 @@ public class PersonDetails {
 
     public void setEmployedSince(LocalDate employedSince) {
         this.employedSince = employedSince;
-    }
-
-    public Person getSupervisor() {
-        return supervisor;
-    }
-
-    public void setSupervisor(Person supervisor) {
-        this.supervisor = supervisor;
     }
 
     public Branch getBranch() {

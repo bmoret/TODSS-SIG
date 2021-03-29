@@ -1,13 +1,15 @@
 package com.snafu.todss.sig.sessies.presentation.dto.response;
 
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonDetails;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class PersonResponse {
-    private final Long id;
+    private final UUID id;
     private final String email;
     private final String firstname;
     private final String lastname;
@@ -17,23 +19,28 @@ public class PersonResponse {
     private final Branch branch;
     private final Role role;
 
-    public PersonResponse(Long id, PersonDetails details) {
+    public PersonResponse(UUID id, Person supervisor, PersonDetails details) {
         this.id = id;
         this.email = details.getEmail();
         this.firstname = details.getFirstname();
         this.lastname = details.getLastname();
         this.expertise = details.getExpertise();
         this.employedSince = details.getEmployedSince();
-        PersonDetails supervisorDetail = details.getSupervisor().getDetails();
-        this.supervisor = new PersonCompactResponse(
-                details.getSupervisor().getId(),
-                String.format("%s, %s",supervisorDetail.getLastname(), supervisorDetail.getFirstname() )
-        );
         this.branch = details.getBranch();
         this.role = details.getRole();
+
+        if (supervisor != null) {
+            PersonDetails supervisorDetails = supervisor.getDetails();
+            this.supervisor = new PersonCompactResponse(
+                    supervisor.getId(),
+                    String.format("%s, %s",supervisorDetails.getLastname(), supervisorDetails.getFirstname() )
+            );
+        } else {
+            this.supervisor = null;
+        }
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

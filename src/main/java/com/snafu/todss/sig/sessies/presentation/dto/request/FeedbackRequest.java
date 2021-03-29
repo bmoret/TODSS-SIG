@@ -8,7 +8,7 @@ public class FeedbackRequest {
     public String description;
 
     @NotNull
-    public Long personId;
+    public UUID personId;
 
     @NotNull
     public UUID sessionId;

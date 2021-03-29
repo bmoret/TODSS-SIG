@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
+import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -24,7 +26,7 @@ public class PersonService {
         PERSON_REPOSITORY = repository;
     }
 
-    public Person getPerson(Long id) throws NotFoundException {
+    public Person getPerson(UUID id) throws NotFoundException {
         return PERSON_REPOSITORY.findById(id)
                 .orElseThrow(() -> new NotFoundException("The given id is not related to a person"));
     }
@@ -53,18 +55,18 @@ public class PersonService {
         return PERSON_REPOSITORY.save(person);
     }
 
-    public Person editPerson(Long id, PersonRequest request) throws NotFoundException {
+    public Person editPerson(UUID id, PersonRequest request) throws NotFoundException {
         Person person = getPerson(id);
-        person.setEmail(request.email);
-        person.setFirstname(request.firstname);
-        person.setLastname(request.lastname);
-        person.setExpertise(request.expertise);
+        person.getDetails().setEmail(request.email);
+        person.getDetails().setFirstname(request.firstname);
+        person.getDetails().setLastname(request.lastname);
+        person.getDetails().setExpertise(request.expertise);
+        person.getDetails().setBranch(getBranchOfString(request.branch));
+        person.getDetails().setRole(getRoleOfString(request.role));
         LocalDate employedSince = LocalDate.parse(request.employedSince, DATE_TIME_FORMATTER);
-        person.setEmployedSince(employedSince);
+        person.getDetails().setEmployedSince(employedSince);
         Person supervisor = getPerson(request.supervisorId);
         person.setSupervisor(supervisor);
-        person.setBranch(getBranchOfString(request.branch));
-        person.setRole(getRoleOfString(request.role));
         return PERSON_REPOSITORY.save(person);
     }
 
@@ -84,7 +86,7 @@ public class PersonService {
         }
     }
 
-    private Person getSupervisorById(Long id) throws NotFoundException {
+    private Person getSupervisorById(UUID id) throws NotFoundException {
         try {
             return getPerson(id);
         } catch (NotFoundException e) {
@@ -92,45 +94,39 @@ public class PersonService {
         }
     }
 
-    public void removePerson(Long id) throws NotFoundException {
+    public void removePerson(UUID id) throws NotFoundException {
         PERSON_REPOSITORY.delete(getPerson(id));
     }
 
     //todo Ik ben niet zeker of deze functionaliteit nodig is -bas
-    // Waarschijnlijk valt dit onder deels domain en deels meer deze andere classes -Jona
-    public void addAttendance(Long id, Attendance attendance) throws NotFoundException {
+    // Waarschijnlijk valt dit onder deels domain en deels meer deze andere functies (andere classes) -Jona
+    public boolean addAttendance(UUID id, Attendance attendance) throws NotFoundException {
         Person person = getPerson(id);
-
-        person.addAttendance(attendance);
+        return person.addAttendance(attendance);
     }
 
-    public void removeAttendance(Long id, Attendance attendance) throws NotFoundException {
+    public boolean removeAttendance(UUID id, Attendance attendance) throws NotFoundException {
         Person person = getPerson(id);
-
-        person.removeAttendance(attendance);
+        return person.removeAttendance(attendance);
     }
 
-    public void addManager(Long id, SpecialInterestGroup manager) throws NotFoundException {
+    public boolean addManager(UUID id, SpecialInterestGroup manager) throws NotFoundException {
         Person person = getPerson(id);
-
-        person.addManager(manager);
+        return person.addManager(manager);
     }
 
-    public void removeManager(Long id, SpecialInterestGroup manager) throws NotFoundException {
+    public boolean removeManager(UUID id, SpecialInterestGroup manager) throws NotFoundException {
         Person person = getPerson(id);
-
-        person.removeManager(manager);
+        return person.removeManager(manager);
     }
 
-    public void addOrganiser(Long id, SpecialInterestGroup organizor) throws NotFoundException {
+    public boolean addOrganiser(UUID id, SpecialInterestGroup organizor) throws NotFoundException {
         Person person = getPerson(id);
-
-        person.addOrganizer(organizor);
+        return person.addOrganizer(organizor);
     }
 
-    public void removeOrganiser(Long id, SpecialInterestGroup organizor) throws NotFoundException {
+    public boolean removeOrganiser(UUID id, SpecialInterestGroup organizor) throws NotFoundException {
         Person person = getPerson(id);
-
-        person.removeOrganizer(organizor);
+        return person.removeOrganizer(organizor);
     }
 }

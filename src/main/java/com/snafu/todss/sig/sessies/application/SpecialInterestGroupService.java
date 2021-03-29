@@ -39,9 +39,9 @@ public class SpecialInterestGroupService {
         return SIG_REPOSITORY.save(specialInterestGroup);
     }
 
-    private List<Person> getOrganizersWithIds (List<Long> organizerIds) throws NotFoundException {
+    private List<Person> getOrganizersWithIds (List<UUID> organizerIds) throws NotFoundException {
         List<Person> organizers = new ArrayList<>();
-        for (Long id : organizerIds) {
+        for (UUID id : organizerIds) {
             organizers.add(PERSON_SERVICE.getPerson(id));
         }
         return organizers;

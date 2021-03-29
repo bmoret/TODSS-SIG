@@ -7,9 +7,11 @@ import java.util.ArrayList;
 
 public class PersonBuilder {
     private PersonDetails details;
+    private Person supervisor;
 
     public PersonBuilder() {
         this.details = new PersonDetails();
+        this.supervisor = null;
     }
 
     public PersonBuilder setEmail(String email) {
@@ -37,11 +39,6 @@ public class PersonBuilder {
         return this;
     }
 
-    public PersonBuilder setSupervisor(Person supervisor) {
-        this.details.setSupervisor(supervisor);
-        return this;
-    }
-
     public PersonBuilder setBranch(Branch branch) {
         this.details.setBranch(branch);
         return this;
@@ -52,9 +49,15 @@ public class PersonBuilder {
         return this;
     }
 
+    public PersonBuilder setSupervisor(Person supervisor) {
+        this.setSupervisor(supervisor);
+        return this;
+    }
+
     public Person build() {
         return new Person(
                 this.details,
+                supervisor,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()

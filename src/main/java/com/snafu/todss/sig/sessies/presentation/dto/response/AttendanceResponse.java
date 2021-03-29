@@ -27,7 +27,7 @@ public class AttendanceResponse {
         this.isSpeaker = isSpeaker;
         PersonDetails details = person.getDetails();
         this.person = new PersonCompactResponse(
-                details.getSupervisor().getId(),
+                person.getId(),
                 String.format("%s, %s",details.getLastname(), details.getFirstname() )
         );
         this.sessionId = session.getId();
