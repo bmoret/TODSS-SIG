@@ -1,9 +1,11 @@
-package com.snafu.todss.sig.sessies.domain.session;
+package com.snafu.todss.sig.sessies.domain.session.types;
 
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.Feedback;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
+import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
 import javax.persistence.*;
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "session")
-public class Session {
+public abstract class Session {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;

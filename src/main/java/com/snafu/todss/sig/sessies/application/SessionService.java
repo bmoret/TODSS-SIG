@@ -2,9 +2,10 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
-import com.snafu.todss.sig.sessies.domain.session.Session;
-import com.snafu.todss.sig.sessies.domain.session.SessionBuilder;
-import com.snafu.todss.sig.sessies.presentation.dto.request.SessionRequest;
+import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
+import com.snafu.todss.sig.sessies.domain.session.types.Session;
+import com.snafu.todss.sig.sessies.domain.session.builder.PhysicalSessionBuilder;
+import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -34,15 +35,7 @@ public class SessionService {
 
     public Session createSession(SessionRequest sessionRequest) throws NotFoundException {
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
-        return new SessionBuilder()
-                .setEndDate(sessionRequest.endDate)
-                .setStartDate(sessionRequest.startDate)
-                .setSubject(sessionRequest.subject)
-                .setDescription(sessionRequest.description)
-                .setLocation(sessionRequest.location)
-                .setOnline(sessionRequest.isOnline)
-                .setSig(sig)
-                .build();
+        return SessionDirector.buildSession(sessionRequest, sig);
     }
 
     public Session updateSession(UUID sessionId, SessionRequest sessionRequest) throws NotFoundException {
@@ -51,8 +44,8 @@ public class SessionService {
         session.getDetails().setEndDate(sessionRequest.endDate);
         session.getDetails().setSubject(sessionRequest.subject);
         session.getDetails().setDescription(sessionRequest.description);
-        session.getDetails().setLocation(sessionRequest.location);
-        session.getDetails().setOnline(sessionRequest.isOnline);
+//        session.getDetails().setLocation(sessionRequest.location);
+//        session.getDetails().setOnline(sessionRequest.isOnline);
         return this.SESSION_REPOSITORY.save(session);
     }
 

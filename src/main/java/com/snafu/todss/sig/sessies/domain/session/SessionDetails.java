@@ -20,20 +20,12 @@ public class SessionDetails {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "location")
-    private String location;
-
-    @Column(name = "online")
-    private boolean isOnline;
-
     public SessionDetails() { }
-    public SessionDetails(LocalDateTime startDate, LocalDateTime endDate, String subject, String description, String location, boolean isOnline) {
+    public SessionDetails(LocalDateTime startDate, LocalDateTime endDate, String subject, String description) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.subject = subject;
         this.description = description;
-        this.location = location;
-        this.isOnline = isOnline;
     }
 
     public LocalDateTime getStartDate() {
@@ -70,21 +62,5 @@ public class SessionDetails {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public boolean isOnline() {
-        return isOnline;
-    }
-
-    public void setOnline(boolean online) {
-        isOnline = online;
     }
 }
