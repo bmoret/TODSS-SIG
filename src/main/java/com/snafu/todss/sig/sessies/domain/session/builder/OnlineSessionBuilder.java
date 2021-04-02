@@ -27,31 +27,37 @@ public class OnlineSessionBuilder implements SessionBuilder {
         this.joinUrl = "";
     }
 
+    @Override
     public OnlineSessionBuilder setSig(SpecialInterestGroup sig) {
         this.sig = sig;
         return this;
     }
 
+    @Override
     public OnlineSessionBuilder setStartDate(LocalDateTime startDate) {
         this.details.setStartDate(startDate);
         return this;
     }
 
+    @Override
     public OnlineSessionBuilder setEndDate(LocalDateTime endDate) {
         this.details.setEndDate(endDate);
         return this;
     }
 
+    @Override
     public OnlineSessionBuilder setSubject(String subject) {
         this.details.setSubject(subject);
         return this;
     }
 
+    @Override
     public OnlineSessionBuilder setDescription(String description) {
         this.details.setDescription(description);
         return this;
     }
 
+    @Override
     public OnlineSessionBuilder setState(SessionState state) {
         this.state = state;
         return this;
@@ -67,6 +73,7 @@ public class OnlineSessionBuilder implements SessionBuilder {
         return this;
     }
 
+    @Override
     public OnlineSession build() {
         if (this.platform.equalsIgnoreCase(TEAMS)) {
             return new TeamsOnlineSession(
@@ -88,6 +95,5 @@ public class OnlineSessionBuilder implements SessionBuilder {
                     joinUrl
             );
         }
-
     }
 }
