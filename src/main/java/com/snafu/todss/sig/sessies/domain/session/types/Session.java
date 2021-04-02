@@ -9,7 +9,6 @@ import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -34,10 +33,10 @@ public abstract class Session {
     @OneToMany(orphanRemoval = true)
     private List<Feedback> feedbackList;
 
-    public Session() {
+    protected Session() {
     }
 
-    public Session(
+    protected Session(
             SessionDetails details,
             SessionState state,
             SpecialInterestGroup sig,
@@ -60,17 +59,14 @@ public abstract class Session {
     }
 
     public boolean addAttendee(Person person) {
-        boolean noneMatch = Optional.of(
-                this.attendanceList.stream()
-                        .map(Attendance::getPerson)
-                        .noneMatch(attendancePerson -> attendancePerson.equals(person))
-        ).orElseThrow(() -> new IllegalArgumentException("Session already has person"));
-        //of zonder optional en throws
-        if (noneMatch) {
-            Attendance attendance = new Attendance();
-            return this.attendanceList.add(attendance);
+        boolean isPersonAttendingSession = this.attendanceList.stream()
+                .map(Attendance::getPerson)
+                .anyMatch(attendancePerson -> attendancePerson.equals(person));
+        if (isPersonAttendingSession) {
+            throw new IllegalArgumentException("Person already attending session");
         }
-       return false;
+        Attendance attendance = new Attendance();
+        return this.attendanceList.add(attendance);
     }
 
     public boolean removeAttendee(Person person) {
@@ -82,7 +78,7 @@ public abstract class Session {
     }
 
     public boolean addFeedback(Feedback feedback) {
-        if (this.feedbackList.contains(feedback)){
+        if (this.feedbackList.contains(feedback)) {
             return false;
         }
         return this.feedbackList.add(feedback);
@@ -106,5 +102,17 @@ public abstract class Session {
 
     public UUID getId() {
         return id;
+    }
+
+    public void setDetails(SessionDetails details) {
+        this.details = details;
+    }
+
+    public void setState(SessionState state) {
+        this.state = state;
+    }
+
+    public void setSig(SpecialInterestGroup sig) {
+        this.sig = sig;
     }
 }
