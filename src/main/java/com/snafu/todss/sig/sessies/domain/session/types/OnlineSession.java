@@ -6,7 +6,6 @@ import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class OnlineSession extends Session {
