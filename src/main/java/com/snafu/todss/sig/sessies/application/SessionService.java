@@ -4,7 +4,6 @@ import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
-import com.snafu.todss.sig.sessies.domain.session.builder.PhysicalSessionBuilder;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -35,17 +34,13 @@ public class SessionService {
 
     public Session createSession(SessionRequest sessionRequest) throws NotFoundException {
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
-        return SessionDirector.buildSession(sessionRequest, sig);
+        return SessionDirector.build(sessionRequest, sig);
     }
 
     public Session updateSession(UUID sessionId, SessionRequest sessionRequest) throws NotFoundException {
         Session session = getSessionById(sessionId);
-        session.getDetails().setStartDate(sessionRequest.startDate);
-        session.getDetails().setEndDate(sessionRequest.endDate);
-        session.getDetails().setSubject(sessionRequest.subject);
-        session.getDetails().setDescription(sessionRequest.description);
-//        session.getDetails().setLocation(sessionRequest.location);
-//        session.getDetails().setOnline(sessionRequest.isOnline);
+        SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
+        session = SessionDirector.update(session, sessionRequest, sig);
         return this.SESSION_REPOSITORY.save(session);
     }
 
