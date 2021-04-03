@@ -11,6 +11,8 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.UUID;
 
+import static com.snafu.todss.sig.sessies.util.InputValidations.inputNotNull;
+
 @Entity
 @Table(name = "session")
 public abstract class Session {
@@ -55,32 +57,32 @@ public abstract class Session {
     }
 
     public List<Attendance> getAttendances() {
-        return attendanceList;
+        return List.copyOf(attendanceList);
     }
 
     public boolean addAttendee(Person person) {
+        inputNotNull(person);
         boolean isPersonAttendingSession = this.attendanceList.stream()
                 .map(Attendance::getPerson)
                 .anyMatch(attendancePerson -> attendancePerson.equals(person));
+
         if (isPersonAttendingSession) {
             throw new IllegalArgumentException("Person already attending session");
         }
-        Attendance attendance = new Attendance();
+        Attendance attendance = new Attendance(false, false, false, person, this);
         return this.attendanceList.add(attendance);
     }
 
     public boolean removeAttendee(Person person) {
-        return this.attendanceList.removeIf(attendance -> !attendance.getPerson().equals(person));
+        return this.attendanceList.removeIf(attendance ->  attendance.getPerson().equals(person));
     }
 
     public List<Feedback> getFeedback() {
-        return feedbackList;
+        return List.copyOf(feedbackList);
     }
 
     public boolean addFeedback(Feedback feedback) {
-        if (this.feedbackList.contains(feedback)) {
-            return false;
-        }
+        inputNotNull(feedback);
         return this.feedbackList.add(feedback);
     }
 
