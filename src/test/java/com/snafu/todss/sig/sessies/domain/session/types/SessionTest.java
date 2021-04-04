@@ -147,7 +147,7 @@ class SessionTest {
 
     @ParameterizedTest
     @MethodSource("provideRemoveAttendeeArgs")
-    @DisplayName("test")
+    @DisplayName("Removing person's attendance should return boolean")
     void removePersonFromAttendances_ShouldReturnBoolean(Person addedAttendee, Person toBeRemovedAttendee, boolean shouldReturn) {
         session.addAttendee(addedAttendee);
 
@@ -174,11 +174,7 @@ class SessionTest {
 
         session.removeAttendee(toBeRemovedAttendee);
 
-        assertEquals(
-                shouldReturn,
-                session.getAttendances().stream()
-                        .noneMatch(attendance -> attendance.getPerson().equals(addedAttendee))
-        );
+        assertEquals(shouldReturn, session.getAttendances().isEmpty());
     }
 
     @Test
@@ -216,6 +212,53 @@ class SessionTest {
                 () -> feedbackList.add(testFeedback)
         );
     }
+
+    @ParameterizedTest
+    @MethodSource("provideRemoveFeedbackArgs")
+    @DisplayName("Remove a feedback from feedback list removes the feedback")
+    void removeFeedback_ShouldReturnBoolean(Feedback addedFeedback, Feedback toBeRemovedFeedback, boolean shouldReturn) {
+        session.addFeedback(addedFeedback);
+
+        assertEquals(shouldReturn, session.removeFeedback(toBeRemovedFeedback));
+    }
+    static Stream<Arguments> provideRemoveFeedbackArgs() {
+        testAttendee = new Person(
+                new PersonDetails("mail", "first", "last", "expertise", LocalDate.now(), Branch.VIANEN, Role.EMPLOYEE),
+                null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()
+        );
+        session = mock(Session.class,
+                Mockito.withSettings()
+                        .useConstructor(
+                                new SessionDetails(),
+                                SessionState.DRAFT,
+                                new SpecialInterestGroup(),
+                                new ArrayList<>(),
+                                new ArrayList<>()
+                        )
+                        .defaultAnswer(CALLS_REAL_METHODS)
+        );
+
+        testFeedback = new Feedback("Some feedback", session, testAttendee);
+        return Stream.of(
+                Arguments.of(testFeedback, testFeedback, true),
+                Arguments.of(testFeedback, null, false),
+                Arguments.of(testFeedback, new Feedback(), false),
+                Arguments.of(new Feedback(), testFeedback, false)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideRemoveFeedbackArgs")
+    @DisplayName("Remove a feedback removes the feedback")
+    void removeFeedback_RemovesFeedback(Feedback addedFeedback, Feedback toBeRemovedFeedback, boolean shouldReturn) {
+        session.addFeedback(addedFeedback);
+
+        session.removeFeedback(toBeRemovedFeedback);
+
+        assertEquals(shouldReturn, session.getFeedback().isEmpty());
+    }
+
+
 
     @ParameterizedTest
     @MethodSource("provideSessionStates")
