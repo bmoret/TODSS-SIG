@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -71,19 +72,29 @@ class SessionTest {
     @EnumSource(SessionState.class)
     @DisplayName("Testing constructor of session")
     void sessionConstructor_CreatesInstance(SessionState state) {
-        assertDoesNotThrow(
-                () -> mock(Session.class,
-                        Mockito.withSettings()
-                                .useConstructor(
-                                        new SessionDetails(),
-                                        state,
-                                        new SpecialInterestGroup(),
-                                        new ArrayList<>(),
-                                        new ArrayList<>()
-                                )
-                                .defaultAnswer(CALLS_REAL_METHODS)
-                )
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+
+        session = mock(Session.class,
+                Mockito.withSettings()
+                        .useConstructor(
+                                new SessionDetails(now, nowPlusOneHour, subject, description),
+                                state,
+                                new SpecialInterestGroup(),
+                                new ArrayList<>(),
+                                new ArrayList<>()
+                        )
+                        .defaultAnswer(CALLS_REAL_METHODS)
         );
+
+        SessionDetails details = session.getDetails();
+        assertEquals(now, details.getStartDate());
+        assertEquals(nowPlusOneHour, details.getEndDate());
+        assertEquals(subject, details.getSubject());
+        assertEquals(description, details.getDescription());
+        assertEquals(state, session.getState());
     }
 
     @Test
