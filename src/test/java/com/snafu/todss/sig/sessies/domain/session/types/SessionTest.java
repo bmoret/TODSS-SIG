@@ -77,7 +77,6 @@ class SessionTest {
                                         new SpecialInterestGroup(),
                                         new ArrayList<>(),
                                         new ArrayList<>()
-
                                 )
                                 .defaultAnswer(CALLS_REAL_METHODS)
                 )
@@ -204,4 +203,34 @@ class SessionTest {
         );
     }
 
+    @ParameterizedTest
+    @MethodSource("provideSessionStates")
+    @DisplayName("Go to next session state and expect session state")
+    void goToNextSession(SessionState state, SessionState expectedNextState) {
+        session = mock(Session.class,
+                Mockito.withSettings()
+                        .useConstructor(
+                                new SessionDetails(),
+                                state,
+                                new SpecialInterestGroup(),
+                                new ArrayList<>(),
+                                new ArrayList<>()
+                        )
+                        .defaultAnswer(CALLS_REAL_METHODS)
+        );
+
+        session.nextState();
+
+        assertEquals(expectedNextState, session.getState());
+    }
+
+    static Stream<Arguments> provideSessionStates() {
+        return Stream.of(
+                Arguments.of(SessionState.DRAFT, SessionState.TO_BE_PLANNED),
+                Arguments.of(SessionState.TO_BE_PLANNED, SessionState.PLANNED),
+                Arguments.of(SessionState.PLANNED, SessionState.ONGOING),
+                Arguments.of(SessionState.ONGOING, SessionState.ENDED),
+                Arguments.of(SessionState.ENDED, SessionState.ENDED)
+        );
+    }
 }
