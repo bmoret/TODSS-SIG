@@ -9,13 +9,21 @@ import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import java.util.List;
 
 public class OnlineSession extends Session {
-     private String platform;
+    private String platform;
     private String joinUrl;
 
     public OnlineSession() {
     }
 
-    public OnlineSession(SessionDetails details, SessionState state, SpecialInterestGroup sig, List<Attendance> attendanceList, List<Feedback> feedbackList, String platform, String joinUrl) {
+    public OnlineSession(
+            SessionDetails details,
+            SessionState state,
+            SpecialInterestGroup sig,
+            List<Attendance> attendanceList,
+            List<Feedback> feedbackList,
+            String platform,
+            String joinUrl
+    ) {
         super(details, state, sig, attendanceList, feedbackList);
         this.platform = platform;
         this.joinUrl = joinUrl;
