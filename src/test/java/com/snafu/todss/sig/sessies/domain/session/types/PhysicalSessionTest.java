@@ -23,24 +23,7 @@ class PhysicalSessionTest {
 
     @ParameterizedTest
     @EnumSource(SessionState.class)
-    @DisplayName("Constructor of physical session does not throw")
-    void physicalSessionConstructor_DoesNotThrow(SessionState state) {
-        assertDoesNotThrow(
-                () -> new PhysicalSession(
-                        new SessionDetails(),
-                        state,
-                        new SpecialInterestGroup(),
-                        new ArrayList<>(),
-                        new ArrayList<>(),
-                        "address"
-                )
-
-        );
-    }
-
-    @ParameterizedTest
-    @EnumSource(SessionState.class)
-    @DisplayName("Testing constructor of session")
+    @DisplayName("Testing constructor of physical session, the created instance returns all inital constructed parameters through getters")
     void physicalSessionConstructor_CreatesInstance(SessionState state) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
