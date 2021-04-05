@@ -43,7 +43,6 @@ public class SessionDetails {
     }
 
     private void checkForSessionStartBeforeEnd(LocalDateTime startDate, LocalDateTime endDate) {
-        System.out.println(startDate + " : " + endDate);
         if (startDate != null &&
                 endDate != null &&
                 startDate.isAfter(endDate)
