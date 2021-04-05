@@ -21,7 +21,7 @@ public class OnlineSessionBuilder implements SessionBuilder {
 
     public OnlineSessionBuilder() {
         this.details = new SessionDetails();
-        this.state = SessionState.PLANNED;
+        this.state = SessionState.DRAFT;
         this.sig = null;
         this.platform = "";
         this.joinUrl = "";

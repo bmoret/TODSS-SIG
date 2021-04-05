@@ -17,7 +17,7 @@ public class PhysicalSessionBuilder implements SessionBuilder {
 
     public PhysicalSessionBuilder() {
         this.details = new SessionDetails();
-        this.state = SessionState.PLANNED;
+        this.state = SessionState.DRAFT;
         this.sig = null;
         this.address = "";
     }
