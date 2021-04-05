@@ -12,6 +12,9 @@ import java.util.List;
 public class TeamsOnlineSession extends OnlineSession {
     private static final String PLATFORM = "Teams";
 
+    public TeamsOnlineSession() {
+    }
+
     public  TeamsOnlineSession(SessionDetails details,
                                SessionState state,
                                SpecialInterestGroup sig,
