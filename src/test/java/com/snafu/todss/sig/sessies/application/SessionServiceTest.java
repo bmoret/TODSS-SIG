@@ -116,8 +116,23 @@ class SessionServiceTest {
     }
 
     @Test
+    @DisplayName("Create session, creates session")
+    void createSession_CreatesInstance() throws NotFoundException {
+        when(repository.findById(any())).thenReturn(Optional.of(session));
+        when(repository.save(any(Session.class))).thenReturn(new PhysicalSession());
+        when(sigService.getSpecialInterestGroupById(physicalSessionRequest.sigId)).thenReturn(new SpecialInterestGroup());
+
+        Session resSession = service.createSession(physicalSessionRequest);
+
+        assertNotNull(resSession);
+        verify(sigService, times(1)).getSpecialInterestGroupById(any(UUID.class));
+        verify(repository, times(1)).findById(any());
+        verify(repository, times(1)).save(any(Session.class));
+    }
+
+    @Test
     @DisplayName("Update session, updates session")
-    void createSession_CallsMethods() throws NotFoundException {
+    void updateSession_CallsMethods() throws NotFoundException {
         when(repository.findById(any())).thenReturn(Optional.of(session));
         when(repository.save(any(Session.class))).thenReturn(new PhysicalSession());
         when(sigService.getSpecialInterestGroupById(physicalSessionRequest.sigId)).thenReturn(new SpecialInterestGroup());
