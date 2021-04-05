@@ -60,16 +60,14 @@ public abstract class Session {
         return List.copyOf(attendanceList);
     }
 
-    public boolean addAttendee(Person person) {
-        inputNotNull(person);
+    public boolean addAttendee(Attendance attendance) {
+        inputNotNull(attendance);
         boolean isPersonAttendingSession = this.attendanceList.stream()
                 .map(Attendance::getPerson)
-                .anyMatch(attendancePerson -> attendancePerson.equals(person));
-
+                .anyMatch(attendancePerson -> attendancePerson.equals(attendance.getPerson()));
         if (isPersonAttendingSession) {
             throw new IllegalArgumentException("Person already attending session");
         }
-        Attendance attendance = new Attendance(false, false, false, person, this);
         return this.attendanceList.add(attendance);
     }
 
