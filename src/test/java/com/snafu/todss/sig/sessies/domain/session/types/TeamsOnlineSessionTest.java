@@ -105,10 +105,11 @@ class TeamsOnlineSessionTest {
     }
 
     @Test
-    @DisplayName("Throws when null is added as feedback")
-    void addNullAsFeedback_ThrowsException() {
-        session.setPlatform("SomeOtherPlatform");
-
-        assertEquals("Teams", session.getPlatform());
+    @DisplayName("When changing platform throw UnsupportedOperationException")
+    void whenChangingPlatform_ThrowsException() {
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> session.setPlatform("SomeOtherPlatform")
+        );
     }
 }
