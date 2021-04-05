@@ -34,7 +34,8 @@ public class SessionService {
 
     public Session createSession(SessionRequest sessionRequest) throws NotFoundException {
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
-        return SessionDirector.build(sessionRequest, sig);
+        Session session = SessionDirector.build(sessionRequest, sig);
+        return this.SESSION_REPOSITORY.save(session);
     }
 
     public Session updateSession(UUID sessionId, SessionRequest sessionRequest) throws NotFoundException {
