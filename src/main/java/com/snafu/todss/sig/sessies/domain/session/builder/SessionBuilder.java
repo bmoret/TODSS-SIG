@@ -14,5 +14,5 @@ public interface SessionBuilder{
     SessionBuilder setSubject(String subject);
     SessionBuilder setDescription(String description);
     SessionBuilder setState(SessionState state);
-   Session build();
+    Session build();
 }
