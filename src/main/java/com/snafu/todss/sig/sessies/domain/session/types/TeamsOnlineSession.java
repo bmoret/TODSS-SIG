@@ -32,5 +32,6 @@ public class TeamsOnlineSession extends OnlineSession {
 
     @Override
     public void setPlatform(String platform) {
+        throw new UnsupportedOperationException("Not allowed to change platform of a Teams online session");
     }
 }

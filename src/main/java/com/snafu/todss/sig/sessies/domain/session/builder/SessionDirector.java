@@ -74,8 +74,10 @@ public class SessionDirector {
         details.setSubject(request.subject);
         details.setDescription(request.description);
         session.setSig(sig);
-        session.setPlatform(request.platform);
         session.setJoinUrl(request.joinUrl);
+        if (!session.getPlatform().equalsIgnoreCase("Teams")) {
+            session.setPlatform(request.platform);
+        }
         return session;
     }
 }
