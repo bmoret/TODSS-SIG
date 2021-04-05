@@ -8,12 +8,14 @@ import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.OnlineSessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.PhysicalSessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
+import static com.snafu.todss.sig.sessies.util.InputValidations.inputNotNull;
 
 public class SessionDirector {
     private SessionDirector() {
     }
 
     public static Session build(SessionRequest request, SpecialInterestGroup sig) {
+        inputNotNull(request);
         if (PhysicalSessionRequest.class.isAssignableFrom(request.getClass())) {
             return buildPhysicalSession((PhysicalSessionRequest) request, sig);
         } else if (OnlineSessionRequest.class.isAssignableFrom(request.getClass())) {
