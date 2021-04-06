@@ -5,6 +5,7 @@ import com.snafu.todss.sig.sessies.application.AttendanceService;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.presentation.dto.request.AttendanceRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.AttendanceResponse;
+import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +27,8 @@ public class AttendanceController {
 
     private AttendanceResponse convertAttendanceToResponse(Attendance attendance) {
         return new AttendanceResponse(
-                attendance.getAttendanceId(),
-                attendance.isConfirmed(),
-                attendance.isAbsent(),
+                attendance.getId(),
+                attendance.getState(),
                 attendance.isSpeaker(),
                 attendance.getPerson(),
                 attendance.getSession()
@@ -48,28 +48,28 @@ public class AttendanceController {
         return new ResponseEntity<>(convertAttendanceListToResponse(allAttendance), HttpStatus.OK);
     }
 
-    @GetMapping("/{attendanceId}")
+    @GetMapping("/{id}")
     public ResponseEntity<AttendanceResponse> getAttendance(
-            @PathVariable UUID attendanceId
-    ) throws InvalidAttendanceException {
-        Attendance attendance= this.SERVICE.getAttendanceById(attendanceId);
+            @PathVariable UUID id
+    ) throws NotFoundException {
+        Attendance attendance= this.SERVICE.getAttendanceById(id);
 
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 
-    @PutMapping("/{attendanceId}")
+    @PutMapping("/{id}")
     public ResponseEntity<AttendanceResponse> updateAttendance(
-            @PathVariable UUID attendanceId,
+            @PathVariable UUID id,
             @Valid @RequestBody AttendanceRequest request
-    ) throws InvalidAttendanceException {
-        Attendance attendance = this.SERVICE.updateAttendance(attendanceId, request);
+    ) throws NotFoundException {
+        Attendance attendance = this.SERVICE.updateAttendance(id, request);
 
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{attendanceId}")
-    public ResponseEntity<Void> deleteAttendance(@PathVariable UUID attendanceId){
-        this.SERVICE.deleteAttendance(attendanceId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAttendance(@PathVariable UUID id){
+        this.SERVICE.deleteAttendance(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
