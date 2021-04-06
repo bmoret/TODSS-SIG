@@ -114,7 +114,7 @@ class SessionDetailsTest {
     static Stream<Arguments> provideBeforeStartDateEndDateValues() {
         return Stream.of(
                 Arguments.of(LocalDateTime.now()),
-                Arguments.of(LocalDateTime.now().minusSeconds(2)),
+                Arguments.of(LocalDateTime.now().minusMinutes(1)),
                 Arguments.of(LocalDateTime.now().minusDays(1)),
                 Arguments.of(LocalDateTime.now().minusYears(1)),
                 Arguments.of(LocalDateTime.MIN)
