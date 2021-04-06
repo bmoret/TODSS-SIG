@@ -81,7 +81,6 @@ class SessionServiceTest {
         assertEquals(expectedResult, sessions);
         verify(repository, times(1)).findAll();
     }
-
     private static Stream<Arguments> provideAllSessionsList() {
         return Stream.of(
                 Arguments.of(List.of()),
@@ -118,7 +117,6 @@ class SessionServiceTest {
     @Test
     @DisplayName("Create session, creates session")
     void createSession_CreatesInstance() throws NotFoundException {
-        when(repository.findById(any())).thenReturn(Optional.of(session));
         when(repository.save(any(Session.class))).thenReturn(new PhysicalSession());
         when(sigService.getSpecialInterestGroupById(physicalSessionRequest.sigId)).thenReturn(new SpecialInterestGroup());
 
@@ -126,7 +124,6 @@ class SessionServiceTest {
 
         assertNotNull(resSession);
         verify(sigService, times(1)).getSpecialInterestGroupById(any(UUID.class));
-        verify(repository, times(1)).findById(any());
         verify(repository, times(1)).save(any(Session.class));
     }
 
