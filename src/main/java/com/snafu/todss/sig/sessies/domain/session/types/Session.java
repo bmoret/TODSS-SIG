@@ -9,12 +9,13 @@ import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.snafu.todss.sig.sessies.util.InputValidations.inputNotNull;
 
 @Entity
-@Table(name = "session")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Session {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -114,5 +115,21 @@ public abstract class Session {
 
     public void setSig(SpecialInterestGroup sig) {
         this.sig = sig;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Session session = (Session) o;
+        return Objects.equals(id, session.id) &&
+                Objects.equals(details, session.details) &&
+                state == session.state &&
+                Objects.equals(sig, session.sig);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, details, state, sig);
     }
 }

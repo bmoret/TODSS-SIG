@@ -7,8 +7,12 @@ import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
+import javax.persistence.*;
 import java.util.List;
 
+@Entity
+@Table(name = "teams_online_session")
+@PrimaryKeyJoinColumn(name = "online_session_id")
 public class TeamsOnlineSession extends OnlineSession {
     private static final String PLATFORM = "Teams";
 

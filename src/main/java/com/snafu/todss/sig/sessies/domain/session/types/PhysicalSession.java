@@ -6,11 +6,12 @@ import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
+@PrimaryKeyJoinColumn(name = "session_id")
 public class PhysicalSession extends Session {
     @Column(name = "location")
     private String address;
@@ -36,5 +37,19 @@ public class PhysicalSession extends Session {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        PhysicalSession that = (PhysicalSession) o;
+        return Objects.equals(address, that.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), address);
     }
 }
