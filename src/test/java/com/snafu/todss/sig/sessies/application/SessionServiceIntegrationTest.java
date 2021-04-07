@@ -9,23 +9,27 @@ import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.domain.session.types.TeamsOnlineSession;
+import javassist.NotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Transactional
 @SpringBootTest
 class SessionServiceIntegrationTest {
     @Autowired
@@ -40,7 +44,7 @@ class SessionServiceIntegrationTest {
     @Autowired
     private SpecialInterestGroupRepository sigRepository;
 
-    private Session session;
+    private Session testSession;
 
     @BeforeEach
     void setup() {
@@ -50,8 +54,7 @@ class SessionServiceIntegrationTest {
         String description = "Description";
         String address = "Address";
         SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
-        System.out.println("Sig saved is: " + sig.getId());
-        this.session = this.repository.save(
+        this.testSession = this.repository.save(
                 new PhysicalSession(
                         new SessionDetails(now, nowPlusOneHour, subject, description),
                         SessionState.DRAFT,
@@ -61,7 +64,6 @@ class SessionServiceIntegrationTest {
                         address
                 )
         );
-        System.out.println("Session saved is: " + session.getId());
     }
 
     @AfterEach
@@ -73,7 +75,7 @@ class SessionServiceIntegrationTest {
     @MethodSource("provideAllSessionsList")
     @DisplayName("Get all sessions")
     void getAllSessions_ReturnsCorrectSessions(List<Session> expectedResult) {
-        this.repository.delete(session);
+        this.repository.delete(testSession);
         expectedResult = this.repository.saveAll(expectedResult);
 
         List<Session> sessions = sessionService.getAllSessions();
@@ -90,4 +92,19 @@ class SessionServiceIntegrationTest {
         );
     }
 
+    @Test
+    @DisplayName("Get session by id returns session")
+    void getSessionById_ReturnsSession() throws NotFoundException {
+        Session session = sessionService.getSessionById(testSession.getId());
+        assertEquals(testSession, session);
+    }
+
+    @Test
+    @DisplayName("Get session by id when no session exists with id throw")
+    void getNotExistingSessionById_Throws() {
+        assertThrows(
+                NotFoundException.class,
+                () -> sessionService.getSessionById(UUID.randomUUID())
+        );
+    }
 }
