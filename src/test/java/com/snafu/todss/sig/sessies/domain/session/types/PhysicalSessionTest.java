@@ -83,4 +83,35 @@ class PhysicalSessionTest {
                 Arguments.of(SessionState.ENDED, SessionState.ENDED)
         );
     }
+
+    @ParameterizedTest
+    @MethodSource("provideSessionEquals")
+    @DisplayName("Test Equals")
+    void equalsTest(PhysicalSession session, PhysicalSession equalsSession, boolean isEquals) {
+        assertEquals(isEquals, session.equals(equalsSession));
+        if (equalsSession != null) {
+            assertEquals(isEquals, session.hashCode() == equalsSession.hashCode());
+        }
+    }
+    static Stream<Arguments> provideSessionEquals() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        session = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address
+        );
+        return Stream.of(
+                Arguments.of(session, session, true),
+                Arguments.of(session, null, false),
+                Arguments.of(session, new PhysicalSession(), false),
+                Arguments.of(new PhysicalSession(), session, false)
+        );
+    }
 }

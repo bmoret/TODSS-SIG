@@ -112,4 +112,35 @@ class TeamsOnlineSessionTest {
                 () -> session.setPlatform("SomeOtherPlatform")
         );
     }
+
+    @ParameterizedTest
+    @MethodSource("provideSessionEquals")
+    @DisplayName("Test Equals")
+    void equalsTest(TeamsOnlineSession session, TeamsOnlineSession equalsSession, boolean isEquals) {
+        assertEquals(isEquals, session.equals(equalsSession));
+        if (equalsSession != null) {
+            assertEquals(isEquals, session.hashCode() == equalsSession.hashCode());
+        }
+    }
+    static Stream<Arguments> provideSessionEquals() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String joinUrl = "https://website.com/join";
+        session = new TeamsOnlineSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                joinUrl
+        );
+        return Stream.of(
+                Arguments.of(session, session, true),
+                Arguments.of(session, null, false),
+                Arguments.of(session, new TeamsOnlineSession(), false),
+                Arguments.of(new TeamsOnlineSession(), session, false)
+        );
+    }
 }

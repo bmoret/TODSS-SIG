@@ -301,7 +301,6 @@ class SessionTest {
 
         assertEquals(expectedNextState, session.getState());
     }
-
     static Stream<Arguments> provideSessionStates() {
         return Stream.of(
                 Arguments.of(SessionState.DRAFT, SessionState.TO_BE_PLANNED),
@@ -309,6 +308,35 @@ class SessionTest {
                 Arguments.of(SessionState.PLANNED, SessionState.ONGOING),
                 Arguments.of(SessionState.ONGOING, SessionState.ENDED),
                 Arguments.of(SessionState.ENDED, SessionState.ENDED)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideSessionEquals")
+    @DisplayName("Test Equals")
+    void equalsTest(Session session, Session equalsSession, boolean isEquals) {
+        assertEquals(isEquals, session.equals(equalsSession));
+        if (equalsSession != null) {
+            assertEquals(isEquals, session.hashCode() == equalsSession.hashCode());
+        }
+    }
+    static Stream<Arguments> provideSessionEquals() {
+        session = mock(Session.class,
+                Mockito.withSettings()
+                        .useConstructor(
+                                new SessionDetails(),
+                                SessionState.DRAFT,
+                                new SpecialInterestGroup(),
+                                new ArrayList<>(),
+                                new ArrayList<>()
+                        )
+                        .defaultAnswer(CALLS_REAL_METHODS)
+        );
+        return Stream.of(
+                Arguments.of(session, session, true),
+                Arguments.of(session, null, false),
+                Arguments.of(session, new TeamsOnlineSession(), false),
+                Arguments.of(new TeamsOnlineSession(), session, false)
         );
     }
 }
