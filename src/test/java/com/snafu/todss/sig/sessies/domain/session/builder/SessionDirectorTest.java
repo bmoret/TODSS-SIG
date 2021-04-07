@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,7 +25,7 @@ class SessionDirectorTest {
     @Test
     @DisplayName("When input request not of specified class throw exception")
     void whenRequestNotOfSubClass_ThrowIllegalArgumentException() {
-        SessionRequest request = new SessionRequest();
+        SessionRequest request = new PhysicalSessionRequest();
         assertThrows(
                 IllegalArgumentException.class,
                 () -> SessionDirector.build(request, null)
@@ -52,19 +53,32 @@ class SessionDirectorTest {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
 
-        PhysicalSessionRequest physicalSessionRequest = new PhysicalSessionRequest();
-        physicalSessionRequest.startDate = now;
-        physicalSessionRequest.endDate = nowPlusOneHour;
-
-        OnlineSessionRequest onlineSessionRequest = new OnlineSessionRequest();
-        onlineSessionRequest.platform = "Random Platform";
-        onlineSessionRequest.startDate = now;
-        onlineSessionRequest.endDate = nowPlusOneHour;
-
-        OnlineSessionRequest teamsOnlineSessionRequest = new OnlineSessionRequest();
-        teamsOnlineSessionRequest.platform = "Teams";
-        teamsOnlineSessionRequest.startDate = now;
-        teamsOnlineSessionRequest.endDate = nowPlusOneHour;
+        PhysicalSessionRequest physicalSessionRequest = new PhysicalSessionRequest(
+                now,
+                nowPlusOneHour,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+               "Address"
+        );
+        OnlineSessionRequest onlineSessionRequest = new OnlineSessionRequest(
+                now,
+                nowPlusOneHour,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Random Platform",
+                "link"
+        );
+        OnlineSessionRequest teamsOnlineSessionRequest = new OnlineSessionRequest(
+                now,
+                nowPlusOneHour,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Teams",
+                "link"
+        );
         return Stream.of(
                 Arguments.of(physicalSessionRequest, PhysicalSession.class),
                 Arguments.of(onlineSessionRequest, OnlineSession.class),
