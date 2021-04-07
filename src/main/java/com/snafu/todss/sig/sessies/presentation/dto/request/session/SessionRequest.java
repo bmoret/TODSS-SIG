@@ -13,7 +13,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = OnlineSessionRequest.class, name = "ONLINE_SESSION_REQUEST"),
         @JsonSubTypes.Type(value = PhysicalSessionRequest.class, name = "PHYSICAL_SESSION_REQUEST")
 })
-public class SessionRequest {
+public abstract class SessionRequest {
     @NotNull
     public LocalDateTime startDate;
 
@@ -28,4 +28,21 @@ public class SessionRequest {
 
     @NotNull
     public UUID sigId;
+
+    public SessionRequest() {
+    }
+
+    public SessionRequest(
+            @NotNull LocalDateTime startDate,
+            @NotNull LocalDateTime endDate,
+            @NotBlank String subject,
+            @NotBlank String description,
+            @NotNull UUID sigId
+    ) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.subject = subject;
+        this.description = description;
+        this.sigId = sigId;
+    }
 }
