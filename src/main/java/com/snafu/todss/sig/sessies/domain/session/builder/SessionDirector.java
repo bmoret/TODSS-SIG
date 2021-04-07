@@ -30,7 +30,7 @@ public class SessionDirector {
                 .setStartDate(request.startDate)
                 .setSubject(request.subject)
                 .setDescription(request.description)
-                .setAddress(request.location)
+                .setAddress(request.address)
                 .setSig(sig)
                 .build();
     }
