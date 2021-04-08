@@ -143,10 +143,37 @@ class SessionServiceTest {
     }
 
     @Test
-    @DisplayName("Delete session creates session")
-    void deleteSession_DeletesSession(){
-        service.deleteSession(UUID.randomUUID());
+    @DisplayName("Delete session deletes session")
+    void deleteSession_DeletesSession() throws NotFoundException {
+        when(repository.existsById(session.getId())).thenReturn(true);
 
-        verify(repository, times(1)).deleteById(any(UUID.class));
+        service.deleteSession(session.getId());
+
+        verify(repository, times(1)).existsById(session.getId());
+        verify(repository, times(1)).deleteById(session.getId());
+    }
+
+    @Test
+    @DisplayName("Delete session does not throw")
+    void deleteSession_DoesNotThrow() {
+        when(repository.existsById(session.getId())).thenReturn(true);
+
+        assertDoesNotThrow(() -> service.deleteSession(session.getId()));
+
+        verify(repository, times(1)).existsById(session.getId());
+        verify(repository, times(1)).deleteById(session.getId());
+    }
+
+    @Test
+    @DisplayName("Delete session with not existing id throws not found")
+    void deleteNotExistingSession_ThrowsNotFOund() {
+        when(repository.existsById(session.getId())).thenReturn(false);
+
+       assertThrows(
+               NotFoundException.class,
+               () -> service.deleteSession(UUID.randomUUID())
+       );
+
+        verify(repository, times(1)).existsById(any(UUID.class));
     }
 }

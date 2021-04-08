@@ -45,7 +45,10 @@ public class SessionService {
         return this.SESSION_REPOSITORY.save(session);
     }
 
-    public void deleteSession(UUID sessionId) {
+    public void deleteSession(UUID sessionId) throws NotFoundException {
+        if (!this.SESSION_REPOSITORY.existsById(sessionId)){
+            throw new NotFoundException("No session found with given id");
+        }
         this.SESSION_REPOSITORY.deleteById(sessionId);
     }
 }

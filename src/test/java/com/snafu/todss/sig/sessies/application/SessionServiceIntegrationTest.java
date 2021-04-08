@@ -238,7 +238,7 @@ class SessionServiceIntegrationTest {
 
     @Test
     @DisplayName("Deleting session deletes session")
-    void deleteSession_DeletesSession() {
+    void deleteSession_DeletesSession() throws NotFoundException {
         sessionService.deleteSession(testSession.getId());
         assertEquals(Collections.emptyList(), repository.findAll());
     }
