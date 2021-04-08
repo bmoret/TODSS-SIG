@@ -2,8 +2,8 @@ package com.snafu.todss.sig.sessies.domain.session.types;
 
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.Feedback;
-import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
@@ -103,14 +103,6 @@ public abstract class Session {
 
     public UUID getId() {
         return id;
-    }
-
-    public void setDetails(SessionDetails details) {
-        this.details = details;
-    }
-
-    public void setState(SessionState state) {
-        this.state = state;
     }
 
     public void setSig(SpecialInterestGroup sig) {
