@@ -157,13 +157,14 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.endDate").exists())
                 .andExpect(jsonPath("$.details.subject").value(subject))
                 .andExpect(jsonPath("$.details.description").value(description))
-                .andExpect(jsonPath("$.address").value(address));
+                .andExpect(jsonPath("$.address").value(address))
+                .andExpect(jsonPath("$.type").value("PHYSICAL"));
     }
 
     @ParameterizedTest
     @MethodSource("provideOnlineRequests")
     @DisplayName("Create online session returns the session")
-    void createOnlineSession_ReturnsSession(String platform, String joinUrl, String expectedPlatform) throws Exception {
+    void createOnlineSession_ReturnsSession(String platform, String joinUrl, String expectedPlatform, String expectedType) throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
         String subject = "Subject";
@@ -193,13 +194,14 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.subject").value(subject))
                 .andExpect(jsonPath("$.details.description").value(description))
                 .andExpect(jsonPath("$.platform").value(expectedPlatform))
-                .andExpect(jsonPath("$.joinUrl").value(joinUrl));
+                .andExpect(jsonPath("$.joinUrl").value(joinUrl))
+                .andExpect(jsonPath("$.type").value(expectedType));
     }
 
     static Stream<Arguments> provideOnlineRequests() {
         return Stream.of(
-                Arguments.of("Platform", "joinUrl", "Platform"),
-                Arguments.of("Teams", "joinUrl", "Teams")
+                Arguments.of("Platform", "joinUrl", "Platform", "ONLINE"),
+                Arguments.of("Teams", "joinUrl", "Teams", "TEAMS")
         );
     }
 
