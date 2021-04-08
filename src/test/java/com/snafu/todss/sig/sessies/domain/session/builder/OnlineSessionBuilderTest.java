@@ -16,7 +16,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OnlineSessionBuilderTest {
     private OnlineSessionBuilder builder;
@@ -66,7 +67,6 @@ class OnlineSessionBuilderTest {
         builder.setSig(new SpecialInterestGroup());
         builder.setPlatform(platform);
         builder.setJoinUrl(joinUrl);
-        builder.setState(state);
 
         OnlineSession session = builder.build();
 

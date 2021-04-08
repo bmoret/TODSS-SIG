@@ -52,12 +52,6 @@ public class PhysicalSessionBuilder implements SessionBuilder {
         return this;
     }
 
-    @Override
-    public PhysicalSessionBuilder setState(SessionState state) {
-        this.state = state;
-        return this;
-    }
-
     public PhysicalSessionBuilder setAddress(String address) {
         this.address = address;
         return this;

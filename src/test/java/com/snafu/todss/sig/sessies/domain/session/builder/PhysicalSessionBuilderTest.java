@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PhysicalSessionBuilderTest {
     private PhysicalSessionBuilder builder;
@@ -54,7 +55,6 @@ class PhysicalSessionBuilderTest {
         builder.setDescription(description);
         builder.setSig(new SpecialInterestGroup());
         builder.setAddress(address);
-        builder.setState(state);
 
         PhysicalSession session = builder.build();
 

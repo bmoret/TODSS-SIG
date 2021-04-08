@@ -57,12 +57,6 @@ public class OnlineSessionBuilder implements SessionBuilder {
         return this;
     }
 
-    @Override
-    public OnlineSessionBuilder setState(SessionState state) {
-        this.state = state;
-        return this;
-    }
-
     public OnlineSessionBuilder setPlatform(String platform) {
         this.platform = platform;
         return this;
