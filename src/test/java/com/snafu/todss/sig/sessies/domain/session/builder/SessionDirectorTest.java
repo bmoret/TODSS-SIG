@@ -1,6 +1,5 @@
 package com.snafu.todss.sig.sessies.domain.session.builder;
 
-import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
@@ -8,7 +7,6 @@ import com.snafu.todss.sig.sessies.domain.session.types.TeamsOnlineSession;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.OnlineSessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.PhysicalSessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,6 +18,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class SessionDirectorTest {
     @Test
@@ -86,6 +85,22 @@ class SessionDirectorTest {
         );
     }
 
+    @Test
+    @DisplayName("Build session from mocked SessionRequest throws IllegalArgumentException")
+    void buildSessionsFromMockedSessionRequest_ThrowsIAE() {
+        SessionRequest request = mock(SessionRequest.class);
+        request.subject = "subject";
+        request.description = "description";
+        request.startDate = LocalDateTime.now();
+        request.endDate = LocalDateTime.now().plusHours(1);
+        request.sigId = UUID.randomUUID();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> SessionDirector.build(request, null)
+        );
+    }
+
     @ParameterizedTest
     @MethodSource("provideSessionArgs")
     @DisplayName("Update sessions from input and updated instances has correct new value")
@@ -109,5 +124,21 @@ class SessionDirectorTest {
         session = SessionDirector.update(session, request, null);
 
         assertTrue(expectedClass.isInstance(session));
+    }
+
+    @Test
+    @DisplayName("Update session from mocked SessionRequest throws IllegalArgumentException")
+    void updateSessionsFromMockedSessionRequest_ThrowsIAE() {
+        SessionRequest request = mock(SessionRequest.class);
+        request.subject = "subject";
+        request.description = "description";
+        request.startDate = LocalDateTime.now();
+        request.endDate = LocalDateTime.now().plusHours(1);
+        request.sigId = UUID.randomUUID();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> SessionDirector.update( new PhysicalSession(), request, null)
+        );
     }
 }
