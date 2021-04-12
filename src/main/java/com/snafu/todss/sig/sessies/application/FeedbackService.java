@@ -9,6 +9,7 @@ import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -32,12 +33,19 @@ public class FeedbackService {
                 .orElseThrow( () -> new NotFoundException("No feedback found with given id."));
     }
 
+    public List<Feedback> getFeedbackBySession(UUID uuid) throws NotFoundException {
+        Session session = SESSION_SERVICE.getSessionById(uuid);
+
+        return this.FEEDBACK_REPOSITORY.findBySession(session);
+    }
+
     public Feedback createFeedback(FeedbackRequest feedbackRequest) throws NotFoundException {
         Session session = this.SESSION_SERVICE.getSessionById(feedbackRequest.sessionId);
         Person person = this.PERSON_SERVICE.getPerson(feedbackRequest.personId);
         Feedback feedback = new Feedback(feedbackRequest.description, session, person);
 
-        return FEEDBACK_REPOSITORY.save(feedback);
+        FEEDBACK_REPOSITORY.save(feedback);
+        return feedback;
     }
 
     public void deleteFeedback(UUID uuid) {

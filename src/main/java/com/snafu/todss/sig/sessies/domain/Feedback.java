@@ -24,6 +24,10 @@ public class Feedback {
 
     public Feedback() {}
     public Feedback(String description, Session session, Person person) {
+        if (description.equals("")) {
+            throw new IllegalArgumentException("Description of feedback cannot be empty.");
+        }
+
         this.description = description;
         this.session = session;
         this.person = person;

@@ -10,8 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+@RestController
+@RequestMapping("/feedback")
 public class FeedbackController {
     private final FeedbackService SERVICE;
 
@@ -35,8 +39,21 @@ public class FeedbackController {
         return new ResponseEntity<>(convertFeedbackToResponse(feedback), HttpStatus.OK);
     }
 
+    @GetMapping("/session/{uuid}")
+    public ResponseEntity<List<FeedbackResponse>> getFeedbackBySessionId(@PathVariable UUID uuid) throws NotFoundException {
+        List<FeedbackResponse> responses = new ArrayList<>();
+        List<Feedback> feedbacks = this.SERVICE.getFeedbackBySession(uuid);
+
+        for (Feedback feedback : feedbacks) {
+            responses.add(convertFeedbackToResponse(feedback));
+        }
+
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
+
     @PostMapping
-    public ResponseEntity<FeedbackResponse> createFeedback(@Valid @RequestBody FeedbackRequest feedbackRequest) throws NotFoundException {
+    public ResponseEntity<FeedbackResponse> createFeedback(@Valid @RequestBody FeedbackRequest feedbackRequest)
+            throws NotFoundException {
         Feedback feedback = this.SERVICE.createFeedback(feedbackRequest);
 
         return new ResponseEntity<>(convertFeedbackToResponse(feedback), HttpStatus.CREATED);
