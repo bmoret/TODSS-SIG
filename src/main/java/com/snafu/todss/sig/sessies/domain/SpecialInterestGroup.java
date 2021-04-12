@@ -1,7 +1,7 @@
 package com.snafu.todss.sig.sessies.domain;
 
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.session.Session;
+import com.snafu.todss.sig.sessies.domain.session.types.Session;
 
 import javax.persistence.*;
 import java.util.List;
