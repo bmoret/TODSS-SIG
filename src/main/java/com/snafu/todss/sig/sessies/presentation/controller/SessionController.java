@@ -67,7 +67,7 @@ public class SessionController {
     }
 
     @DeleteMapping("/{sessionId}")
-    public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId){
+    public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId) throws NotFoundException {
         this.SERVICE.deleteSession(sessionId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
