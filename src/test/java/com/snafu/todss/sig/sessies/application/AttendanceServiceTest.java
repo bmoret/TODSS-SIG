@@ -11,9 +11,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static com.snafu.todss.sig.sessies.domain.StateAttendance.*;
 
+@Transactional
+@SpringBootTest
 class AttendanceServiceTest {
     private static final SpringAttendanceRepository ATTENDANCE_REPOSITORY = mock(SpringAttendanceRepository.class);
     private static final PersonService PERSON_SERVICE = mock(PersonService.class);
@@ -88,25 +92,9 @@ class AttendanceServiceTest {
         verify(ATTENDANCE_REPOSITORY, times(1)).findById(uuid);
     }
 
-
-
-    @Test
-    @DisplayName("get all attendances")
-    void getAttendances() {
-        when(ATTENDANCE_REPOSITORY.findAll()).thenReturn(List.of(attendance, new Attendance()));
-
-        List<Attendance> attendanceList = SERVICE.getAllAttendance();
-
-        assertEquals(2, attendanceList.size());
-        assertEquals(CANCELED, attendanceList.get(0).getState());
-        assertTrue(attendanceList.get(0).isSpeaker());
-        assertFalse(attendanceList.get(1).isSpeaker());
-        verify(ATTENDANCE_REPOSITORY, times(1)).findAll();
-    }
-
     @Test
     @DisplayName("create attendance")
-    void createAttendance() throws NotFoundException {
+    void createAttendance() throws Exception {
         UUID personId = UUID.randomUUID();
         UUID sessionId = UUID.randomUUID();
 
@@ -180,18 +168,12 @@ class AttendanceServiceTest {
     @DisplayName("update attendance")
     void updateAttendance() throws NotFoundException {
         UUID attendanceId = UUID.randomUUID();
+        AttendanceRequest request = new AttendanceRequest(PRESENT, false);
         Attendance toUpdateAttendance = new Attendance(NO_SHOW, true, person, session);
 
-        when(ATTENDANCE_REPOSITORY.findById(attendanceId)).thenReturn(Optional.of(toUpdateAttendance));
+        Attendance updatedAttendance = SERVICE.updateAttendance(attendanceId, request);
 
-        toUpdateAttendance.setSpeaker(false);
-        toUpdateAttendance.setState(null);
-
-        when(ATTENDANCE_REPOSITORY.save(toUpdateAttendance)).thenReturn(toUpdateAttendance);
-
-        Attendance updatedAttendance = SERVICE.updateAttendance(attendanceId, new AttendanceRequest());
-
-        assertNull(updatedAttendance.getState());
+        assertEquals(PRESENT, updatedAttendance.getState());
         assertFalse(updatedAttendance.isSpeaker());
         verify(ATTENDANCE_REPOSITORY, times(1)).save(toUpdateAttendance);
         verify(ATTENDANCE_REPOSITORY, times(1)).findById(attendanceId);
@@ -201,13 +183,13 @@ class AttendanceServiceTest {
     @DisplayName("throw exception when cant find attendance by id in updateAttendance")
     void ThrowExceptionWhenNoPersonInUpdate() {
         UUID attendanceId = UUID.randomUUID();
-
+        AttendanceRequest request = new AttendanceRequest(PRESENT, false);
 
         when(ATTENDANCE_REPOSITORY.findById(attendanceId)).thenReturn(Optional.empty());
 
         assertThrows(
                 NotFoundException.class,
-                () -> SERVICE.updateAttendance(attendanceId, new AttendanceRequest())
+                () -> SERVICE.updateAttendance(attendanceId, request)
         );
 
         verify(ATTENDANCE_REPOSITORY, times(1)).findById(attendanceId);

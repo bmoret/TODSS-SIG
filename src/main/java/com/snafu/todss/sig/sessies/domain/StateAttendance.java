@@ -1,6 +1,8 @@
 package com.snafu.todss.sig.sessies.domain;
 
-public enum StateAttendance {
+import java.io.Serializable;
+
+public enum StateAttendance implements Serializable {
     NO_SHOW,
     CANCELED,
     PRESENT

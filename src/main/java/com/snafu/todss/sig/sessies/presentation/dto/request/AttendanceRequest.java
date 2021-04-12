@@ -9,5 +9,10 @@ public class AttendanceRequest {
     public StateAttendance state;
 
     @NotNull
-    public boolean isSpeaker;
+    public boolean speaker;
+
+    public AttendanceRequest(@NotNull StateAttendance state, @NotNull boolean speaker) {
+        this.state = state;
+        this.speaker = speaker;
+    }
 }

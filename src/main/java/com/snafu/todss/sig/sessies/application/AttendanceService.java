@@ -8,10 +8,13 @@ import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.AttendanceRequest;
 import javassist.NotFoundException;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.snafu.todss.sig.sessies.domain.StateAttendance.PRESENT;
@@ -34,15 +37,18 @@ public class AttendanceService {
                 .orElseThrow(() -> new NotFoundException(String.format("Aanwezigheid met id '%s' bestaat niet.", id)));
     }
 
-    public List<Attendance> getAllAttendance() {
-        return ATTENDANCE_REPOSITORY.findAll();
-    }
-
-    public Attendance createAttendance(StateAttendance state, boolean isSpeaker, UUID personId, UUID sessionId) throws NotFoundException {
+    public Attendance createAttendance(StateAttendance state,
+                                       boolean isSpeaker,
+                                       UUID personId,
+                                       UUID sessionId) throws Exception {
         Person person = this.PERSON_SERVICE.getPerson(personId);
-        System.out.println("person: "+person);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
+        System.out.println("person: "+person);
         System.out.println("seesion: "+session);
+        if( ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndPersonAndSession(person, session).isPresent() ) {
+            //todo: wat hier gooien?
+            throw new Exception("bestaat al");
+        }
         Attendance attendance = Attendance.of(state, isSpeaker, person, session);
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);
@@ -51,7 +57,9 @@ public class AttendanceService {
     public Attendance updateAttendance(UUID id, AttendanceRequest attendanceRequest) throws NotFoundException {
         Attendance attendance = getAttendanceById(id);
         attendance.setState(attendanceRequest.state);
-        attendance.setSpeaker(attendanceRequest.isSpeaker);
+        System.out.println(attendance.isSpeaker());
+        attendance.setSpeaker(attendanceRequest.speaker);
+        System.out.println(attendance.isSpeaker());
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);
     }

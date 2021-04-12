@@ -35,19 +35,6 @@ public class AttendanceController {
         );
     }
 
-    private List<AttendanceResponse> convertAttendanceListToResponse(List<Attendance> attendances) {
-        return attendances.stream()
-                .map(this::convertAttendanceToResponse)
-                .collect(Collectors.toList());
-    }
-
-    @GetMapping
-    public ResponseEntity<List<AttendanceResponse>> getAllAttendances() {
-        List<Attendance> allAttendance = this.SERVICE.getAllAttendance();
-
-        return new ResponseEntity<>(convertAttendanceListToResponse(allAttendance), HttpStatus.OK);
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<AttendanceResponse> getAttendance(
             @PathVariable UUID id
