@@ -30,7 +30,6 @@ public class Person {
     private List<SpecialInterestGroup> organisedSpecialInterestGroups;
 
     public Person() {
-
     }
 
     public Person(PersonDetails personDetails,

@@ -35,7 +35,6 @@ class PhysicalSessionBuilderTest {
     void defaultBuild_ReturnsPhysicalSessionWithValues() {
         PhysicalSession session = builder.build();
 
-        SessionDetails details = session.getDetails();
         assertEquals(SessionState.DRAFT, session.getState());
         assertEquals("", session.getAddress());
     }
@@ -48,7 +47,7 @@ class PhysicalSessionBuilderTest {
         String subject = "Subject";
         String description = "Description";
         String address = "Address";
-        SessionState state = SessionState.PLANNED;
+        SessionState state = SessionState.DRAFT;
         builder.setStartDate(now);
         builder.setEndDate(nowPlusOneHour);
         builder.setSubject(subject);
