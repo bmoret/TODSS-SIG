@@ -59,7 +59,7 @@ class OnlineSessionBuilderTest {
     @MethodSource("provideSessionArgs")
     @DisplayName("All set builder with platform input, returns Online with all set attributes and platform")
     void AllSetBuilder_ReturnsOnlineSessionWithValues(String platform, String expectedPlatform) {
-        SessionState state = SessionState.PLANNED;
+        SessionState state = SessionState.DRAFT;
         builder.setStartDate(now);
         builder.setEndDate(nowPlusOneHour);
         builder.setSubject(subject);
