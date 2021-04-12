@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -166,17 +167,19 @@ class AttendanceServiceTest {
 
     @Test
     @DisplayName("update attendance")
-    void updateAttendance() throws NotFoundException {
-        UUID attendanceId = UUID.randomUUID();
+    void updateAttendance() throws Exception {
         AttendanceRequest request = new AttendanceRequest(PRESENT, false);
-        Attendance toUpdateAttendance = new Attendance(NO_SHOW, true, person, session);
+        Attendance updatedAttendance = new Attendance(PRESENT, false, person, session);
 
-        Attendance updatedAttendance = SERVICE.updateAttendance(attendanceId, request);
+        when(ATTENDANCE_REPOSITORY.findById(any())).thenReturn(Optional.of(attendance));
+        when(ATTENDANCE_REPOSITORY.save(any(Attendance.class))).thenReturn(updatedAttendance);
 
-        assertEquals(PRESENT, updatedAttendance.getState());
-        assertFalse(updatedAttendance.isSpeaker());
-        verify(ATTENDANCE_REPOSITORY, times(1)).save(toUpdateAttendance);
-        verify(ATTENDANCE_REPOSITORY, times(1)).findById(attendanceId);
+        Attendance actualUpdatedAttendance = SERVICE.updateAttendance(UUID.randomUUID(), request);
+
+        assertEquals(PRESENT, actualUpdatedAttendance.getState());
+        assertFalse(actualUpdatedAttendance.isSpeaker());
+        verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));
+        verify(ATTENDANCE_REPOSITORY, times(1)).findById(any());
     }
 
     @Test

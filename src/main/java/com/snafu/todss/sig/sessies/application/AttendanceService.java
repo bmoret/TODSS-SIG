@@ -43,8 +43,6 @@ public class AttendanceService {
                                        UUID sessionId) throws Exception {
         Person person = this.PERSON_SERVICE.getPerson(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
-        System.out.println("person: "+person);
-        System.out.println("seesion: "+session);
         if( ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndPersonAndSession(person, session).isPresent() ) {
             //todo: wat hier gooien?
             throw new Exception("bestaat al");
@@ -57,9 +55,7 @@ public class AttendanceService {
     public Attendance updateAttendance(UUID id, AttendanceRequest attendanceRequest) throws NotFoundException {
         Attendance attendance = getAttendanceById(id);
         attendance.setState(attendanceRequest.state);
-        System.out.println(attendance.isSpeaker());
         attendance.setSpeaker(attendanceRequest.speaker);
-        System.out.println(attendance.isSpeaker());
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);
     }
