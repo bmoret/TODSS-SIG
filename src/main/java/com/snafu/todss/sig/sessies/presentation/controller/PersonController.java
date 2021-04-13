@@ -38,8 +38,8 @@ public class PersonController {
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
-    @GetMapping
-    public ResponseEntity<PersonResponse> getPersonByEmail(@RequestBody String email) throws NotFoundException {
+    @GetMapping(path = "/email/{email}")
+    public ResponseEntity<PersonResponse> getPersonByEmail(@PathVariable("email") String email) throws NotFoundException {
         Person person = SERVICE.getPersonByEmail(email);
 
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
