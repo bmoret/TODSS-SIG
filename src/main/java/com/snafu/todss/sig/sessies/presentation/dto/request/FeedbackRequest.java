@@ -12,5 +12,4 @@ public class FeedbackRequest {
 
     @NotNull
     public UUID sessionId;
-
 }

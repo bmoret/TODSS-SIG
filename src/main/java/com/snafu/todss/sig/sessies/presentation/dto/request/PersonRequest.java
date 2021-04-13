@@ -25,6 +25,5 @@ public class PersonRequest {
     @NotNull
     public String employedSince;
 
-    @NotNull
     public UUID supervisorId;
 }
