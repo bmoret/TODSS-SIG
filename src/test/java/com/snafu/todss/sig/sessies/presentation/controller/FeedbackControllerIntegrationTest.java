@@ -114,21 +114,22 @@ class FeedbackControllerIntegrationTest {
     @Test
     @DisplayName("Get feedback by session id returns the feedback")
     void getFeedbackBySession_ReturnsFeedback() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get("/feedback/session/" + session.getId());
+        RequestBuilder request = MockMvcRequestBuilders.get("/feedback/sessions/" + session.getId());
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.description").value(testFeedback.getDescription()))
-                .andExpect(jsonPath("$.person").exists())
-                .andExpect(jsonPath("$.session").exists());
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].id").exists())
+                .andExpect(jsonPath("$[0].description").value(testFeedback.getDescription()))
+                .andExpect(jsonPath("$[0].person").exists())
+                .andExpect(jsonPath("$[0].session").exists());
     }
 
     @Test
     @DisplayName("Get feedback by unknown session id returns the feedback")
     void getFeedbackByUnknownSession_ThrowsException() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get("/feedback/session/" + UUID.randomUUID());
+        RequestBuilder request = MockMvcRequestBuilders.get("/feedback/sessions/" + UUID.randomUUID());
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound())

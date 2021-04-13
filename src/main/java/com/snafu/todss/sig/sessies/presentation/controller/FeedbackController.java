@@ -39,7 +39,7 @@ public class FeedbackController {
         return new ResponseEntity<>(convertFeedbackToResponse(feedback), HttpStatus.OK);
     }
 
-    @GetMapping("/session/{uuid}")
+    @GetMapping("/sessions/{uuid}")
     public ResponseEntity<List<FeedbackResponse>> getFeedbackBySessionId(@PathVariable UUID uuid) throws NotFoundException {
         List<FeedbackResponse> responses = new ArrayList<>();
         List<Feedback> feedbacks = this.SERVICE.getFeedbackBySession(uuid);
