@@ -5,7 +5,7 @@ import com.snafu.todss.sig.sessies.data.SpringAttendanceRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.StateAttendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.session.Session;
+import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.AttendanceRequest;
 import javassist.NotFoundException;
 import org.springframework.context.annotation.Bean;

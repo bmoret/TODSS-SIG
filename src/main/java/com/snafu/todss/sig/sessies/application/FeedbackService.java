@@ -3,7 +3,7 @@ package com.snafu.todss.sig.sessies.application;
 import com.snafu.todss.sig.sessies.data.FeedbackRepository;
 import com.snafu.todss.sig.sessies.domain.Feedback;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.session.Session;
+import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.FeedbackRequest;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;

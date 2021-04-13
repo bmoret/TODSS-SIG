@@ -1,7 +1,7 @@
 package com.snafu.todss.sig.sessies.presentation.dto.response;
 
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.session.Session;
+import com.snafu.todss.sig.sessies.domain.session.types.Session;
 
 import java.util.UUID;
 
