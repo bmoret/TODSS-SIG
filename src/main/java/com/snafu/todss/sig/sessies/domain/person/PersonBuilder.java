@@ -50,7 +50,7 @@ public class PersonBuilder {
     }
 
     public PersonBuilder setSupervisor(Person supervisor) {
-        this.setSupervisor(supervisor);
+        this.supervisor = supervisor;
         return this;
     }
 

@@ -3,11 +3,14 @@ package com.snafu.todss.sig.sessies.domain.session;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.time.DateTimeException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 
 @Embeddable
 public class SessionDetails {
+    private static final int MAXIMUM_SESSION_LENGTH_IN_MS = 604800000;
+
     @Column(name = "start_date")
     private LocalDateTime startDate;
 
@@ -33,9 +36,28 @@ public class SessionDetails {
     }
 
     public void setStartDate(LocalDateTime startDate) {
-        if (this.startDate == null) throw new IllegalArgumentException("Start date cannot be null");
-        if (this.endDate != null && startDate.isAfter(this.endDate)) throw new DateTimeException("Start date cannot be after end date");
+        if (startDate == null) throw new IllegalArgumentException("Start date cannot be null");
+        checkForSessionStartBeforeEnd(startDate, this.endDate);
+        checkForSessionDuration(startDate, this.endDate);
         this.startDate = startDate;
+    }
+
+    private void checkForSessionStartBeforeEnd(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate != null &&
+                endDate != null &&
+                startDate.isAfter(endDate)
+        ) {
+            throw new DateTimeException("Start date must come before the end date");
+        }
+    }
+
+    private void checkForSessionDuration(LocalDateTime startDate, LocalDateTime endDate) {
+       if ( endDate != null &&
+                startDate != null &&
+                Math.abs(Duration.between(endDate, startDate).toMillis()) > MAXIMUM_SESSION_LENGTH_IN_MS
+        ) {
+            throw new DateTimeException(String.format("Session duration cannot be longer than %s milliseconds", MAXIMUM_SESSION_LENGTH_IN_MS));
+        }
     }
 
     public LocalDateTime getEndDate() {
@@ -43,8 +65,9 @@ public class SessionDetails {
     }
 
     public void setEndDate(LocalDateTime endDate) {
-        if (this.endDate == null) throw new IllegalArgumentException("End date cannot be null");
-        if (this.startDate != null && endDate.isAfter(this.startDate)) throw new DateTimeException("End date cannot be before end date");
+        if (endDate == null) throw new IllegalArgumentException("End date cannot be null");
+        checkForSessionStartBeforeEnd(this.startDate, endDate);
+        checkForSessionDuration(this.startDate, endDate);
         this.endDate = endDate;
     }
 

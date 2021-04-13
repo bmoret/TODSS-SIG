@@ -2,18 +2,20 @@ package com.snafu.todss.sig.sessies.domain.session.types;
 
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.Feedback;
-import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
 
+import static com.snafu.todss.sig.sessies.util.InputValidations.inputNotNull;
+
 @Entity
-@Table(name = "session")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Session {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,10 +36,10 @@ public abstract class Session {
     @OneToMany(orphanRemoval = true)
     private List<Feedback> feedbackList;
 
-    public Session() {
+    protected Session() {
     }
 
-    public Session(
+    protected Session(
             SessionDetails details,
             SessionState state,
             SpecialInterestGroup sig,
@@ -56,35 +58,30 @@ public abstract class Session {
     }
 
     public List<Attendance> getAttendances() {
-        return attendanceList;
+        return List.copyOf(attendanceList);
     }
 
-    public boolean addAttendee(Person person) {
-        boolean noneMatch = Optional.of(
-                this.attendanceList.stream()
-                        .map(Attendance::getPerson)
-                        .noneMatch(attendancePerson -> attendancePerson.equals(person))
-        ).orElseThrow(() -> new IllegalArgumentException("Session already has person"));
-        //of zonder optional en throws
-        if (noneMatch) {
-            Attendance attendance = new Attendance();
-            return this.attendanceList.add(attendance);
+    public boolean addAttendee(Attendance attendance) {
+        inputNotNull(attendance);
+        boolean isPersonAttendingSession = this.attendanceList.stream()
+                .map(Attendance::getPerson)
+                .anyMatch(attendancePerson -> attendancePerson.equals(attendance.getPerson()));
+        if (isPersonAttendingSession) {
+            throw new IllegalArgumentException("Person already attending session");
         }
-       return false;
+        return this.attendanceList.add(attendance);
     }
 
     public boolean removeAttendee(Person person) {
-        return this.attendanceList.removeIf(attendance -> !attendance.getPerson().equals(person));
+        return this.attendanceList.removeIf(attendance ->  attendance.getPerson().equals(person));
     }
 
     public List<Feedback> getFeedback() {
-        return feedbackList;
+        return List.copyOf(feedbackList);
     }
 
     public boolean addFeedback(Feedback feedback) {
-        if (this.feedbackList.contains(feedback)){
-            return false;
-        }
+        inputNotNull(feedback);
         return this.feedbackList.add(feedback);
     }
 
@@ -106,5 +103,25 @@ public abstract class Session {
 
     public UUID getId() {
         return id;
+    }
+
+    public void setSig(SpecialInterestGroup sig) {
+        this.sig = sig;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Session session = (Session) o;
+        return Objects.equals(id, session.id) &&
+                Objects.equals(details, session.details) &&
+                state == session.state &&
+                Objects.equals(sig, session.sig);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, details, state, sig);
     }
 }

@@ -7,16 +7,16 @@ import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
-import java.util.ArrayList;
+import javax.persistence.*;
 import java.util.List;
 
+@Entity
+@Table(name = "teams_online_session")
+@PrimaryKeyJoinColumn(name = "online_session_id")
 public class TeamsOnlineSession extends OnlineSession {
     private static final String PLATFORM = "Teams";
 
-    private String joinURL;
-
-    public TeamsOnlineSession(String joinURL) {
-        this.joinURL = joinURL;
+    public TeamsOnlineSession() {
     }
 
     public  TeamsOnlineSession(SessionDetails details,
@@ -24,7 +24,8 @@ public class TeamsOnlineSession extends OnlineSession {
                                SpecialInterestGroup sig,
                                List<Attendance> attendanceList,
                                List<Feedback> feedbackList,
-                               String joinUrl) {
+                               String joinUrl
+    ) {
         super(details, state, sig, attendanceList, feedbackList, PLATFORM, joinUrl);
     }
 
@@ -34,7 +35,7 @@ public class TeamsOnlineSession extends OnlineSession {
     }
 
     @Override
-    public String getJoinURL() {
-        return this.joinURL;
+    public void setPlatform(String platform) {
+        throw new UnsupportedOperationException("Not allowed to change platform of a Teams online session");
     }
 }

@@ -64,10 +64,4 @@ public class AttendanceTest {
         attendance.setSpeaker(true);
         assertTrue(attendance.isSpeaker());
     }
-
-    @Test
-    @DisplayName("toString test")
-    void attendanceString() {
-        assertEquals(attendance.toString(), new Attendance().toString());
-    }
 }

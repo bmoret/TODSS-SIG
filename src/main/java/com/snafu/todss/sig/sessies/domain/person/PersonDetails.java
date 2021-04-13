@@ -1,10 +1,10 @@
 package com.snafu.todss.sig.sessies.domain.person;
 
-import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
-import com.snafu.todss.sig.sessies.domain.person.enums.Role;
+import com.snafu.todss.sig.sessies.domain.person.enums.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Embeddable
 public class PersonDetails {
@@ -98,5 +98,19 @@ public class PersonDetails {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PersonDetails)) return false;
+        PersonDetails that = (PersonDetails) o;
+        return Objects.equals(getEmail(), that.getEmail())
+                && Objects.equals(getFirstname(), that.getFirstname())
+                && Objects.equals(getLastname(), that.getLastname())
+                && Objects.equals(getExpertise(), that.getExpertise())
+                && Objects.equals(getEmployedSince(), that.getEmployedSince())
+                && getBranch() == that.getBranch()
+                && getRole() == that.getRole();
     }
 }

@@ -10,36 +10,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.snafu.todss.sig.sessies.presentation.dto.converter.SessionConverter.convertSessionListToResponse;
+import static com.snafu.todss.sig.sessies.presentation.dto.converter.SessionConverter.convertSessionToResponse;
+
 @RestController
 @RequestMapping("/sessions")
-public class SessionController {
+public class
+SessionController {
     private final SessionService SERVICE;
 
     public SessionController(SessionService sessionService) {
         this.SERVICE = sessionService;
     }
 
-    private SessionResponse convertSessionToResponse(Session session) {
-        return new SessionResponse(
-                session.getId(),
-                session.getState(),
-                session.getDetails()
-        );
-    }
-
     @GetMapping
     public ResponseEntity<List<SessionResponse>> getAllSessions() {
         List<Session> sessions = this.SERVICE.getAllSessions();
-        List<SessionResponse> responses = new ArrayList<>();
-        for (Session session : sessions) {
-            responses.add(convertSessionToResponse(session));
-        }
 
-        return new ResponseEntity<>(responses, HttpStatus.OK);
+        return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }
 
     @GetMapping("/{sessionId}")
@@ -67,7 +58,7 @@ public class SessionController {
     }
 
     @DeleteMapping("/{sessionId}")
-    public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId){
+    public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId) throws NotFoundException {
         this.SERVICE.deleteSession(sessionId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
