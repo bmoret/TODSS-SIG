@@ -2,23 +2,27 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SpringAttendanceRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
+import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.session.Session;
+import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
+import com.snafu.todss.sig.sessies.domain.session.SessionState;
+import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
+import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
+import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.AttendanceRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.session.PhysicalSessionRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import javassist.NotFoundException;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import javax.transaction.Transactional;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,8 +44,24 @@ class AttendanceServiceTest {
     @BeforeEach
     @DisplayName("Create mocks for services")
     void setup() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = new SpecialInterestGroup();
+        session = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                sig,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address
+        );
+
+        SessionRequest request = new PhysicalSessionRequest();
+
         person = new Person();
-        session = new Session();
         attendance = new Attendance(CANCELED, true, person, session);
     }
 

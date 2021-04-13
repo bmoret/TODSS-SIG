@@ -1,16 +1,22 @@
 package com.snafu.todss.sig.sessies.domain;
 
-import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.session.Session;
+import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
+import com.snafu.todss.sig.sessies.domain.session.SessionState;
+import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
+import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
+import com.snafu.todss.sig.sessies.domain.session.types.Session;
+import com.snafu.todss.sig.sessies.presentation.dto.request.session.PhysicalSessionRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.security.core.parameters.P;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 import static com.snafu.todss.sig.sessies.domain.StateAttendance.*;
@@ -86,7 +92,21 @@ class AttendanceTest {
     @Test
     @DisplayName("get/set session test")
     void getSetSessionInAttendance() {
-        Session session = new Session();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = new SpecialInterestGroup();
+        Session session = new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        address
+                );
+
         assertNull(attendance.getSession());
         attendance.setSession(session);
         assertNotNull(attendance.getSession());

@@ -9,18 +9,15 @@ import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
-import com.snafu.todss.sig.sessies.domain.session.Session;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
-import com.snafu.todss.sig.sessies.presentation.dto.request.AttendanceRequest;
+import com.snafu.todss.sig.sessies.domain.session.SessionState;
+import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
+import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -29,7 +26,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static com.snafu.todss.sig.sessies.domain.StateAttendance.NO_SHOW;
 import static com.snafu.todss.sig.sessies.domain.StateAttendance.PRESENT;
@@ -57,9 +53,6 @@ class AttendanceControllerIntegrationTest {
     private Session session;
     private Attendance attendance;
 
-    @BeforeAll
-    static void init() {
-    }
 
     @BeforeEach
     void setup() {
@@ -78,15 +71,22 @@ class AttendanceControllerIntegrationTest {
         pb.setRole(MANAGER);
         person = PERSON_REPOSITORY.save(pb.build());
 
-        SessionDetails sd = new SessionDetails(LocalDateTime.now(),
-                LocalDateTime.now().plusHours(1),
-                "Subject",
-                "Description",
-                "Vianen",
-                false);
-        SpecialInterestGroup sig =  this.SIG_REPOSITORY.save(new SpecialInterestGroup());
-        session =  SESSION_REPOSITORY.save(new Session(sd, PLANNED, sig, new ArrayList<>(), new ArrayList<>()));
-
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = SIG_REPOSITORY.save(new SpecialInterestGroup());
+        session = SESSION_REPOSITORY.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        address
+                )
+        );
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session));
     }
 
@@ -116,7 +116,7 @@ class AttendanceControllerIntegrationTest {
         mockMvc.perform(
                 get("/attendances/{id}", id))
                 .andExpect(content().contentType("application/json"))
-                .andExpect(status().isConflict())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.Error").value("Aanwezigheid met id '"+id+"' bestaat niet."));
     }
 
@@ -171,7 +171,7 @@ class AttendanceControllerIntegrationTest {
 
         mockMvc.perform(request)
                 .andExpect(content().contentType("application/json"))
-                .andExpect(status().isConflict())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.Error").value("Aanwezigheid met id '"+id+"' bestaat niet."));
     }
 

@@ -9,13 +9,15 @@ import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.StateAttendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
-import com.snafu.todss.sig.sessies.domain.person.PersonDetails;
-import com.snafu.todss.sig.sessies.domain.session.Session;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
+import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
+import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
+import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.AttendanceRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.session.PhysicalSessionRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import javassist.NotFoundException;
-import org.aspectj.weaver.ast.Not;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -78,15 +80,23 @@ public class AttendanceIntergrationServiceTest {
         pb.setRole(MANAGER);
         person = PERSON_REPOSITORY.save(pb.build());
 
-        SessionDetails sd = new SessionDetails(LocalDateTime.now(),
-                LocalDateTime.now().plusHours(1),
-                "Subject",
-                "Description",
-                "Vianen",
-                false);
-        SpecialInterestGroup sig =  this.SIG_REPOSITORY.save(new SpecialInterestGroup());
-        session =  SESSION_REPOSITORY.save(new Session(sd, PLANNED, sig, new ArrayList<>(), new ArrayList<>()));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = SIG_REPOSITORY.save(new SpecialInterestGroup());
 
+        session = this.SESSION_REPOSITORY.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        address
+                )
+        );
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session));
     }
 
@@ -106,7 +116,7 @@ public class AttendanceIntergrationServiceTest {
         assertEquals(PRESENT, testAttendance.getState());
         assertFalse(testAttendance.isSpeaker());
         assertEquals("t", testAttendance.getPerson().getDetails().getFirstname());
-        assertEquals("Vianen", testAttendance.getSession().getDetails().getLocation());
+        assertEquals("Subject", testAttendance.getSession().getDetails().getSubject());
     }
 
     @Test
@@ -148,14 +158,20 @@ public class AttendanceIntergrationServiceTest {
         pb.setRole(MANAGER);
         Person person = pb.build();
 
-        SessionDetails sd = new SessionDetails(LocalDateTime.now(),
-                LocalDateTime.now().plusHours(1),
-                "Subject",
-                "Description",
-                "Vianen",
-                false);
-        SpecialInterestGroup sig =  new SpecialInterestGroup();
-        Session session =  new Session(sd, PLANNED, sig, new ArrayList<>(), new ArrayList<>());
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+
+        Session session = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address
+        );
 
         return Stream.of(
                 Arguments.of(
