@@ -1,6 +1,6 @@
 # TODSS-SIG
-Repo for CIMSOLUTIONS application for SIG's  
-[![Java CI with Maven](https://github.com/ChromaChroma/TODSS-SIG/actions/workflows/build.yml/badge.svg?branch=development)](https://github.com/ChromaChroma/TODSS-SIG/actions/workflows/build.yml)
+Repo for CIMSOLUTIONS application for SIG's
+
 # Description 
 Het doel van het TODDS-SIG project is een application bouwen voor [CIMSOLUTIONS](https://www.cimsolutions.nl/) om kennis sessies in te kunnen plannen, ervoor aan te melden en inzicht te krijgen in leeractiviteiten van medewerkers. 
 
