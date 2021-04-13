@@ -60,7 +60,7 @@ public class FeedbackController {
     }
 
     @DeleteMapping("/{uuid}")
-    public ResponseEntity<FeedbackResponse> deleteFeedbackById(@PathVariable UUID uuid) {
+    public ResponseEntity<FeedbackResponse> deleteFeedbackById(@PathVariable UUID uuid) throws NotFoundException {
         this.SERVICE.deleteFeedback(uuid);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

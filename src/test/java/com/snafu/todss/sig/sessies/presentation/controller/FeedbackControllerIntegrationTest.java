@@ -1,15 +1,15 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
-import com.snafu.todss.sig.sessies.application.FeedbackService;
 import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.data.FeedbackRepository;
+import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.Feedback;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
-import com.snafu.todss.sig.sessies.presentation.dto.request.FeedbackRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import javassist.NotFoundException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +32,7 @@ class FeedbackControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private FeedbackService feedbackService;
+    private SessionRepository sessionRepository;
 
     @Autowired
     private FeedbackRepository feedbackRepository;
@@ -44,6 +44,9 @@ class FeedbackControllerIntegrationTest {
 
     private Session session;
 
+    private Feedback testFeedback;
+
+
     @BeforeEach
     void setup() throws NotFoundException {
         PersonRequest dtoSupervisor = new PersonRequest();
@@ -54,7 +57,7 @@ class FeedbackControllerIntegrationTest {
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
         dtoSupervisor.employedSince = "01/01/2021";
-        dtoSupervisor.supervisorId = null; //todo does not work
+        dtoSupervisor.supervisorId = null;
         Person supervisor = personService.createPerson(dtoSupervisor);
 
         PersonRequest dtoPerson = new PersonRequest();
@@ -68,26 +71,34 @@ class FeedbackControllerIntegrationTest {
         dtoPerson.supervisorId = supervisor.getId();
         person = personService.createPerson(dtoPerson);
 
+        String example = "This is an example!";
+
         session = new PhysicalSession();
+        sessionRepository.save(session);
+
+        testFeedback = new Feedback(example, session, person);
+        this.feedbackRepository.save(testFeedback);
     }
 
     @AfterEach
     void tearDown() throws NotFoundException {
         this.feedbackRepository.deleteAll();
         this.personService.removePerson(person.getId());
+        this.sessionRepository.deleteAll();
     }
 
     @Test
     @DisplayName("Get feedback by id returns the feedback")
     void getFeedbackById() throws Exception {
-        String example = "This is an example!";
-        Feedback feedback = new Feedback(example, session, person);
-
-        RequestBuilder request = MockMvcRequestBuilders.get("/feedback/" + feedback.getId());
+        RequestBuilder request = MockMvcRequestBuilders.get("/feedback/" + testFeedback.getId());
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"));
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(testFeedback.getId().toString()))
+                .andExpect(jsonPath("$.description").value(testFeedback.getDescription()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.session").exists());
     }
 
     @Test
@@ -103,37 +114,53 @@ class FeedbackControllerIntegrationTest {
     @Test
     @DisplayName("Get feedback by session id returns the feedback")
     void getFeedbackBySession_ReturnsFeedback() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get("/feedback/session" + session.getId());
+        RequestBuilder request = MockMvcRequestBuilders.get("/feedback/session/" + session.getId());
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.description").value(testFeedback.getDescription()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @DisplayName("Get feedback by unknown session id returns the feedback")
+    void getFeedbackByUnknownSession_ThrowsException() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders.get("/feedback/session/" + UUID.randomUUID());
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json"));
     }
 
     @Test
     @DisplayName("Create feedback returns newly made feedback")
     void createFeedback_ReturnsFeedback() throws Exception {
-        FeedbackRequest feedbackRequest = new FeedbackRequest();
-        feedbackRequest.description = "An example of feedback someone would give.";
-        feedbackRequest.personId = person.getId();
-        feedbackRequest.sessionId = session.getId();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("description", "An example of feedback someone would give.");
+        jsonObject.put("personId", person.getId().toString());
+        jsonObject.put("sessionId", session.getId().toString());
 
-        RequestBuilder request = MockMvcRequestBuilders.post("/feedback");
-        //todo send request to backend
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/feedback")
+                .contentType("application/json")
+                .content(jsonObject.toString());
 
         mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"));
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.description")
+                        .value("An example of feedback someone would give."))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.session").exists());
     }
 
     @Test
     @DisplayName("Deleting a feedback returns no content without a body")
     void deleteFeedback_ReturnsNoContentWithoutBody() throws Exception {
-        String example = "An example of feedback someone would give.";
-        Feedback feedback = new Feedback(example, session, person);
-        this.feedbackRepository.save(feedback);
-
-        RequestBuilder request= MockMvcRequestBuilders.delete("/feedback/" + feedback.getId());
+        RequestBuilder request= MockMvcRequestBuilders.delete("/feedback/" + testFeedback.getId());
 
         mockMvc.perform(request)
                 .andExpect(status().isNoContent())
@@ -148,7 +175,5 @@ class FeedbackControllerIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
     }
-
-
 
 }

@@ -26,54 +26,53 @@ class FeedbackServiceTest {
     private static final FeedbackRepository FEEDBACK_REPOSITORY = mock(FeedbackRepository.class);
     private static final SessionService SESSION_SERVICE = mock(SessionService.class);
     private static final PersonService PERSON_SERVICE = mock(PersonService.class);
-    private static FeedbackService FEEDBACK_SERVICE;
-    private static Feedback FEEDBACK;
+    private static FeedbackService feedbackService;
+    private static Feedback testFeedback;
+    private static Person person;
+    private static Session session;
 
 
     @BeforeEach
     void setUp() {
-        FEEDBACK_SERVICE = new FeedbackService(FEEDBACK_REPOSITORY, SESSION_SERVICE, PERSON_SERVICE);
+        feedbackService = new FeedbackService(FEEDBACK_REPOSITORY, SESSION_SERVICE, PERSON_SERVICE);
         String example = "This is an example!";
-        Session session = mock(Session.class);
-        Person person = mock(Person.class);
-        FEEDBACK = new Feedback(example, session, person);
+        session = mock(Session.class);
+        person = mock(Person.class);
+        testFeedback = new Feedback(example, session, person);
     }
 
     @Test
     @DisplayName("Get feedback by id returns existing feedback")
     void getFeedbackById_ReturnsCorrectFeedback() throws NotFoundException {
-        when(FEEDBACK_REPOSITORY.findById(any())).thenReturn(Optional.of(FEEDBACK));
+        when(FEEDBACK_REPOSITORY.findById(any())).thenReturn(Optional.of(testFeedback));
 
-        Feedback feedback = FEEDBACK_SERVICE.getFeedbackById(any());
+        Feedback feedback = feedbackService.getFeedbackById(any());
 
-        assertEquals(FEEDBACK, feedback);
+        assertEquals(testFeedback, feedback);
     }
 
     @Test
     @DisplayName("Get feedback by id throws exception when no session with the id was found")
-    void getFeedbackById_ThrowsWhenDoesNotExist() throws NotFoundException {
+    void getFeedbackById_ThrowsWhenDoesNotExist() {
         when(FEEDBACK_REPOSITORY.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(
                 NotFoundException.class,
-                () -> FEEDBACK_SERVICE.getFeedbackById(any(UUID.class)));
+                () -> feedbackService.getFeedbackById(any(UUID.class)));
     }
 
     @Test
     @DisplayName("Create feedback, creates feedback")
     void createFeedback_CreatesInstance() throws NotFoundException {
-        when(SESSION_SERVICE.getSessionById(any(UUID.class))).thenReturn(mock(Session.class));
-        when(PERSON_SERVICE.getPerson(any(UUID.class))).thenReturn(mock(Person.class));
+        when(SESSION_SERVICE.getSessionById(any(UUID.class))).thenReturn(session);
+        when(PERSON_SERVICE.getPerson(any(UUID.class))).thenReturn(person);
 
-        String example = "This is an example of a description!";
-        UUID personUUID = UUID.randomUUID();
-        UUID sessionUUID = UUID.randomUUID();
         FeedbackRequest feedbackRequest = new FeedbackRequest();
-        feedbackRequest.description = example;
-        feedbackRequest.personId = personUUID;
-        feedbackRequest.sessionId = sessionUUID;
+        feedbackRequest.description = "This is an example of a description!";
+        feedbackRequest.personId = UUID.randomUUID();
+        feedbackRequest.sessionId = UUID.randomUUID();
 
-        Feedback feedback = FEEDBACK_SERVICE.createFeedback(feedbackRequest);
+        Feedback feedback = feedbackService.createFeedback(feedbackRequest);
 
         assertNotNull(feedback);
     }
@@ -81,30 +80,31 @@ class FeedbackServiceTest {
     @Test
     @DisplayName("Delete feedback deletes feedback")
     void deleteFeedback_DeletesFeedback() throws NotFoundException {
-        when(FEEDBACK_REPOSITORY.existsById(FEEDBACK.getId())).thenReturn(true);
+        when(FEEDBACK_REPOSITORY.findById(testFeedback.getId())).thenReturn(Optional.of(testFeedback));
+        when(FEEDBACK_REPOSITORY.existsById(testFeedback.getId())).thenReturn(true);
 
-        FEEDBACK_SERVICE.deleteFeedback(FEEDBACK.getId());
+        feedbackService.deleteFeedback(testFeedback.getId());
 
-        verify(FEEDBACK_REPOSITORY, times(1)).deleteById(FEEDBACK.getId());
+        verify(FEEDBACK_REPOSITORY, times(1)).delete(testFeedback);
     }
 
     @ParameterizedTest
     @MethodSource("provideSessionAndFeedbackList")
-    @DisplayName("Get feedbacks by sessions, returns list of feedback")
+    @DisplayName("Get feedback by session id, returns list of feedback")
     void getFeedbackBySession_ReturnsListFeedback(Session session, List<Feedback> expectedResult) throws NotFoundException {
         when(SESSION_SERVICE.getSessionById(any(UUID.class))).thenReturn(session);
         when(FEEDBACK_REPOSITORY.findBySession(any())).thenReturn(expectedResult);
 
-        List<Feedback> feedbacks = FEEDBACK_SERVICE.getFeedbackBySession(any(UUID.class));
+        List<Feedback> feedback = feedbackService.getFeedbackBySession(any(UUID.class));
 
-        assertEquals(expectedResult, feedbacks);
+        assertEquals(expectedResult, feedback);
     }
 
      static Stream<Arguments> provideSessionAndFeedbackList() {
         return Stream.of(
                 Arguments.of(mock(Session.class), List.of()),
-                Arguments.of(mock(Session.class), List.of(FEEDBACK)),
-                Arguments.of(mock(Session.class), List.of(FEEDBACK, FEEDBACK))
+                Arguments.of(mock(Session.class), List.of(testFeedback)),
+                Arguments.of(mock(Session.class), List.of(testFeedback, testFeedback))
         );
     }
 

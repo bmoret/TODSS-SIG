@@ -48,8 +48,8 @@ public class FeedbackService {
         return feedback;
     }
 
-    public void deleteFeedback(UUID uuid) {
-        this.FEEDBACK_REPOSITORY.deleteById(uuid);
+    public void deleteFeedback(UUID uuid) throws NotFoundException {
+        this.FEEDBACK_REPOSITORY.delete(getFeedbackById(uuid));
     }
 
 }

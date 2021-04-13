@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.FeedbackRepository;
+import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.Feedback;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
@@ -14,13 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 
-
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 
 @Transactional
 @SpringBootTest
@@ -30,6 +29,9 @@ class FeedbackServiceIntegrationTest {
 
     @Autowired
     private FeedbackRepository feedbackRepository;
+
+    @Autowired
+    private SessionRepository sessionRepository;
 
     @Autowired
     private PersonService personService;
@@ -50,7 +52,7 @@ class FeedbackServiceIntegrationTest {
             dtoSupervisor.branch = "VIANEN";
             dtoSupervisor.role = "EMPLOYEE";
             dtoSupervisor.employedSince = "01/01/2021";
-            dtoSupervisor.supervisorId = null; //todo does not work
+            dtoSupervisor.supervisorId = null;
         Person supervisor = personService.createPerson(dtoSupervisor);
 
         PersonRequest dtoPerson = new PersonRequest();
@@ -64,11 +66,11 @@ class FeedbackServiceIntegrationTest {
             dtoPerson.supervisorId = supervisor.getId();
         person = personService.createPerson(dtoPerson);
 
-        String example = "This is an example!";
         session = new PhysicalSession();
+        sessionRepository.save(session);
 
+        String example = "This is an example!";
         testFeedback = new Feedback(example, session, person);
-
        this.feedbackRepository.save(testFeedback);
     }
 
@@ -76,6 +78,7 @@ class FeedbackServiceIntegrationTest {
     void tearDown() throws NotFoundException {
         this.feedbackRepository.deleteAll();
         this.personService.removePerson(person.getId());
+        this.sessionRepository.deleteAll();
     }
 
     @Test
@@ -87,11 +90,11 @@ class FeedbackServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("Get feedback by unkown id throws exception")
+    @DisplayName("Get feedback by unknown id throws exception")
     void getFeedbackByUnknownId_ThrowsError() {
         assertThrows(
                 NotFoundException.class,
-                () -> feedbackService.getFeedbackById(any(UUID.class)));
+                () -> feedbackService.getFeedbackById(UUID.randomUUID()));
     }
 
     @Test
@@ -100,6 +103,14 @@ class FeedbackServiceIntegrationTest {
         List<Feedback> feedback = feedbackService.getFeedbackBySession(session.getId());
 
         assertEquals(List.of(testFeedback), feedback);
+    }
+
+    @Test
+    @DisplayName("Get feedback by unknown session id throws exception")
+    void getFeedbackByUnknownSessionId_ThrowsError() {
+        assertThrows(
+                NotFoundException.class,
+                () -> feedbackService.getFeedbackBySession(UUID.randomUUID()));
     }
 
     @Test
@@ -113,11 +124,13 @@ class FeedbackServiceIntegrationTest {
         Feedback feedback = feedbackService.createFeedback(feedbackRequest);
 
         assertEquals(feedback.getClass(), Feedback.class);
+        assertEquals(feedback.getSession(), session);
+        assertEquals(feedback.getPerson(), person);
     }
 
     @Test
     @DisplayName("Deleting feedback deletes feedback")
-    void deleteSpecialInterestGroup_DeletesSpecialInterestGroup() {
+    void deleteFeedback_DeletesFeedback() throws NotFoundException {
         feedbackService.deleteFeedback(testFeedback.getId());
         assertEquals(Collections.emptyList(), feedbackRepository.findAll());
     }
@@ -127,5 +140,15 @@ class FeedbackServiceIntegrationTest {
     void deleteFeedback_DoesNotThrow() {
         assertDoesNotThrow(() -> feedbackService.deleteFeedback(testFeedback.getId()));
     }
+
+    @Test
+    @DisplayName("Deleting feedback that does not exist throws eception")
+    void deleteUnknownFeedback_ThrowsException() {
+        assertThrows(
+                NotFoundException.class,
+                () -> feedbackService.deleteFeedback(UUID.randomUUID()));
+    }
+
+
 
 }

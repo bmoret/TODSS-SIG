@@ -87,11 +87,14 @@ public class PersonService {
     }
 
     private Person getSupervisorById(UUID id) throws NotFoundException {
-        try {
-            return getPerson(id);
-        } catch (NotFoundException e) {
-            throw new NotFoundException("The given supervisor id is not related to a person");
+        if (id != null) {
+            try {
+                return getPerson(id);
+            } catch (NotFoundException e) {
+                throw new NotFoundException("The given supervisor id is not related to a person");
+            }
         }
+        return null;
     }
 
     public void removePerson(UUID id) throws NotFoundException {
