@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
@@ -114,7 +113,7 @@ class SessionDetailsTest {
     static Stream<Arguments> provideBeforeStartDateEndDateValues() {
         return Stream.of(
                 Arguments.of(LocalDateTime.now()),
-                Arguments.of(LocalDateTime.now().minusMinutes(2)),
+                Arguments.of(LocalDateTime.now().minusHours(1)),
                 Arguments.of(LocalDateTime.now().minusDays(1)),
                 Arguments.of(LocalDateTime.now().minusYears(1)),
                 Arguments.of(LocalDateTime.MIN)
