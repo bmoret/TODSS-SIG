@@ -1,6 +1,5 @@
 package com.snafu.todss.sig.sessies.application;
 
-import com.snafu.todss.sig.exceptionhandling.exception.InvalidAttendanceException;
 import com.snafu.todss.sig.sessies.data.SpringAttendanceRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.StateAttendance;
@@ -8,16 +7,10 @@ import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.AttendanceRequest;
 import javassist.NotFoundException;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.nio.file.FileAlreadyExistsException;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-
-import static com.snafu.todss.sig.sessies.domain.StateAttendance.PRESENT;
 
 @Service
 @Transactional

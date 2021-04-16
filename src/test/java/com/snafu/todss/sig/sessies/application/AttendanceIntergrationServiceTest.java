@@ -55,8 +55,6 @@ public class AttendanceIntergrationServiceTest {
     @Autowired
     private SpringAttendanceRepository ATTENDANCE_REPOSITORY;
 
-    private Person person;
-    private Session session;
     private Attendance attendance;
 
     @BeforeAll
@@ -78,7 +76,7 @@ public class AttendanceIntergrationServiceTest {
         pb.setEmployedSince(LocalDate.of(2021,1,1));
         pb.setBranch(VIANEN);
         pb.setRole(MANAGER);
-        person = PERSON_REPOSITORY.save(pb.build());
+        Person person = PERSON_REPOSITORY.save(pb.build());
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
@@ -87,7 +85,7 @@ public class AttendanceIntergrationServiceTest {
         String address = "Address";
         SpecialInterestGroup sig = SIG_REPOSITORY.save(new SpecialInterestGroup());
 
-        session = this.SESSION_REPOSITORY.save(
+        Session session = this.SESSION_REPOSITORY.save(
                 new PhysicalSession(
                         new SessionDetails(now, nowPlusOneHour, subject, description),
                         SessionState.DRAFT,
@@ -134,7 +132,7 @@ public class AttendanceIntergrationServiceTest {
         ATTENDANCE_REPOSITORY.deleteAll();
 
         assertDoesNotThrow(
-                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, person.getId(), session.getId())
+                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getPerson().getId(), attendance.getSession().getId())
         );
     }
 
@@ -143,7 +141,7 @@ public class AttendanceIntergrationServiceTest {
     void createAttendanceThrowsWhenAlreadyExists() {
         assertThrows(
                 Exception.class,
-                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, person.getId(), session.getId())
+                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getPerson().getId(), attendance.getSession().getId())
         );
     }
 
@@ -246,4 +244,3 @@ public class AttendanceIntergrationServiceTest {
         assertEquals(Collections.emptyList(), ATTENDANCE_REPOSITORY.findAll());
     }
 }
-
