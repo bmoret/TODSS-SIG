@@ -43,34 +43,18 @@ class SpecialInterestGroupServiceIntegrationTest {
 
     private static Person person;
 
-    private Person personTwo;
-
-    @BeforeAll
-    static void beforeAllTests() {
-        PersonBuilder personBuilder = new PersonBuilder();
-        personBuilder.setSupervisor(null);
-        personBuilder.setBranch(Branch.VIANEN);
-        personBuilder.setEmail("email@email.com");
-        personBuilder.setExpertise("working");
-        personBuilder.setEmployedSince(LocalDate.of(2020, 11, 12));
-        personBuilder.setRole(Role.EMPLOYEE);
-        personBuilder.setFirstname("napoleon");
-        personBuilder.setLastname("dynamite");
-        person = personBuilder.build();
-    }
-
     @BeforeEach
-    void beforeEachTest() throws NotFoundException {
-        PersonRequest supervisorRequest = new PersonRequest();
-        supervisorRequest.email = "andereemail@email.com";
-        supervisorRequest.firstname = "fourth";
-        supervisorRequest.lastname = "last";
-        supervisorRequest.expertise = "none";
-        supervisorRequest.branch = "VIANEN";
-        supervisorRequest.role = "EMPLOYEE";
-        supervisorRequest.employedSince = "01/01/2021";
-        supervisorRequest.supervisorId = null;
-        Person supervisor = personService.createPerson(supervisorRequest);
+    void setup() throws NotFoundException {
+        PersonRequest dtoSupervisor = new PersonRequest();
+        dtoSupervisor.email = "email@email.com";
+        dtoSupervisor.firstname = "fourth";
+        dtoSupervisor.lastname = "last";
+        dtoSupervisor.expertise = "none";
+        dtoSupervisor.branch = "VIANEN";
+        dtoSupervisor.role = "EMPLOYEE";
+        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.supervisorId = null;
+        Person supervisor = personService.createPerson(dtoSupervisor);
 
         PersonRequest dtoPerson = new PersonRequest();
         dtoPerson.email = "andereemail@email.com";
@@ -81,8 +65,7 @@ class SpecialInterestGroupServiceIntegrationTest {
         dtoPerson.role = "EMPLOYEE";
         dtoPerson.employedSince = "01/01/2021";
         dtoPerson.supervisorId = supervisor.getId();
-
-        personTwo = personService.createPerson(dtoPerson);
+        person = personService.createPerson(dtoPerson);
 
         specialInterestGroup = this.repository.save(new SpecialInterestGroup(
                     "any",
@@ -93,8 +76,9 @@ class SpecialInterestGroupServiceIntegrationTest {
     }
 
     @AfterEach
-    void afterEachTest() {
+    void afterEachTest() throws NotFoundException {
         this.repository.deleteAll();
+        this.personService.removePerson(person.getId());
     }
 
     @ParameterizedTest
@@ -154,16 +138,15 @@ class SpecialInterestGroupServiceIntegrationTest {
     void createSpecialInterestGroup_CreatesInstance() throws NotFoundException {
         SpecialInterestGroupRequest request = new SpecialInterestGroupRequest();
         request.subject = specialInterestGroup.getSubject();
-        request.managerId = personTwo.getId();
+        request.managerId = person.getId();
         List<UUID> uuids = new ArrayList<>();
-        uuids.add(personTwo.getId());
+        uuids.add(person.getId());
         request.organizerIds = uuids;
 
         SpecialInterestGroup session = service.createSpecialInterestGroup(request);
 
         assertEquals(session.getClass(), SpecialInterestGroup.class);
     }
-
 
     @Test
     @DisplayName("Deleting special interest group deletes special interest group")
@@ -177,5 +160,4 @@ class SpecialInterestGroupServiceIntegrationTest {
     void deleteSpecialInterestGroup_DoesNotThrow() {
         assertDoesNotThrow(() -> service.deleteSpecialInterestGroup(specialInterestGroup.getId()));
     }
-//    }
 }
