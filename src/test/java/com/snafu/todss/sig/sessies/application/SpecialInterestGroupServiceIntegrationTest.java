@@ -1,24 +1,25 @@
 package com.snafu.todss.sig.sessies.application;
 
+import com.snafu.todss.sig.CiTestConfiguration;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
+import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
-import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
-import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.SpecialInterestGroupRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.response.PersonCompactResponse;
 import javassist.NotFoundException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import javax.transaction.Transactional;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
+@Import(CiTestConfiguration.class)
 @SpringBootTest
 class SpecialInterestGroupServiceIntegrationTest {
     @Autowired
@@ -80,13 +82,18 @@ class SpecialInterestGroupServiceIntegrationTest {
         this.repository.deleteAll();
         this.personService.removePerson(person.getId());
     }
+    @Autowired
+    private SpringPersonRepository personRepository;
 
     @ParameterizedTest
     @MethodSource("provideSpecialInterestGroupExamples")
     @DisplayName("Get all special interest groups")
     void getAllSpecialInterestGroups_ReturnsCorrectSpecialInterestGroups(List<SpecialInterestGroup> expectedResult) {
-        this.repository.delete(specialInterestGroup);
-        expectedResult = this.repository.saveAll(expectedResult);
+        repository.deleteAll();
+        for (SpecialInterestGroup sig : expectedResult) {
+            sig.setManager(person);
+            this.repository.save(sig);
+        }
 
         List<SpecialInterestGroup> specialInterestGroups = service.getAllSpecialInterestGroups();
 
