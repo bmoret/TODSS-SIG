@@ -20,11 +20,10 @@ public class SpecialInterestGroup {
     @ManyToOne
     private Person manager;
 
-    @ManyToMany
+    @ManyToMany()
     private List<Person> organizers;
 
     @OneToMany(mappedBy = "sig")
-
     private List<Session> sessions;
 
     public SpecialInterestGroup() {}
