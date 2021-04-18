@@ -53,6 +53,9 @@ public class SpecialInterestGroupService {
         return this.SIG_REPOSITORY.save(specialInterestGroup);
     }
 
-    public void deleteSpecialInterestGroup(UUID id) {
+    public void deleteSpecialInterestGroup(UUID id) throws NotFoundException {
+        if (!this.SIG_REPOSITORY.existsById(id)){
+            throw new NotFoundException("No special interest group found with given id");
+        }
         this.SIG_REPOSITORY.deleteById(id);
     }}
