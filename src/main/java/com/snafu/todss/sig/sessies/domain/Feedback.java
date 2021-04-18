@@ -1,7 +1,7 @@
 package com.snafu.todss.sig.sessies.domain;
 
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.session.Session;
+import com.snafu.todss.sig.sessies.domain.session.types.Session;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -24,6 +24,10 @@ public class Feedback {
 
     public Feedback() {}
     public Feedback(String description, Session session, Person person) {
+        if (description.equals("")) {
+            throw new IllegalArgumentException("Description of feedback cannot be empty.");
+        }
+
         this.description = description;
         this.session = session;
         this.person = person;

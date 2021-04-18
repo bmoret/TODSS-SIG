@@ -12,7 +12,17 @@ import java.util.Map;
 @ControllerAdvice
 public class ExceptionHandlerController {
     /**
-     * handles all exceptions*/
+     * handled alle exceptions*/
+    @ExceptionHandler(value = NotFoundException.class)
+    public ResponseEntity<Map<String, String>> nfe(Exception nfe) {
+        HashMap<String, String> map = new HashMap<>();
+        nfe.printStackTrace();
+        map.put("Error", nfe.getMessage());
+        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * handled alle exceptions*/
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<Map<String, String>> e(Exception e) {
         HashMap<String, String> map = new HashMap<>();

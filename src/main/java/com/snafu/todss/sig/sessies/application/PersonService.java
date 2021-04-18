@@ -87,48 +87,18 @@ public class PersonService {
     }
 
     private Person getSupervisorById(UUID id) throws NotFoundException {
-        try {
-            if(id != null) {
+        if (id != null) {
+            try {
                 return getPerson(id);
-            } return null;
-        } catch (NotFoundException e) {
-            throw new NotFoundException("The given supervisor id is not related to a person");
+            } catch (NotFoundException e) {
+                throw new NotFoundException("The given supervisor id is not related to a person");
+            }
         }
+      
+        return null;
     }
 
     public void removePerson(UUID id) throws NotFoundException {
         PERSON_REPOSITORY.delete(getPerson(id));
-    }
-
-    //todo Ik ben niet zeker of deze functionaliteit nodig is -bas
-    // Waarschijnlijk valt dit onder deels domain en deels meer deze andere functies (andere classes) -Jona
-    public boolean addAttendance(UUID id, Attendance attendance) throws NotFoundException {
-        Person person = getPerson(id);
-        return person.addAttendance(attendance);
-    }
-
-    public boolean removeAttendance(UUID id, Attendance attendance) throws NotFoundException {
-        Person person = getPerson(id);
-        return person.removeAttendance(attendance);
-    }
-
-    public boolean addManager(UUID id, SpecialInterestGroup manager) throws NotFoundException {
-        Person person = getPerson(id);
-        return person.addManager(manager);
-    }
-
-    public boolean removeManager(UUID id, SpecialInterestGroup manager) throws NotFoundException {
-        Person person = getPerson(id);
-        return person.removeManager(manager);
-    }
-
-    public boolean addOrganiser(UUID id, SpecialInterestGroup organizor) throws NotFoundException {
-        Person person = getPerson(id);
-        return person.addOrganizer(organizor);
-    }
-
-    public boolean removeOrganiser(UUID id, SpecialInterestGroup organizor) throws NotFoundException {
-        Person person = getPerson(id);
-        return person.removeOrganizer(organizor);
     }
 }
