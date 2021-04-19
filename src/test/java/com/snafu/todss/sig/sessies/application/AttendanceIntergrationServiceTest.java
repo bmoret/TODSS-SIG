@@ -37,6 +37,7 @@ import static com.snafu.todss.sig.sessies.domain.person.enums.Role.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+
 class AttendanceIntergrationServiceTest {
     @Autowired
     private AttendanceService ATTENDANCE_SERVICE;
