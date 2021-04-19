@@ -4,6 +4,7 @@ import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public class SpecialInterestGroup {
     @ManyToOne
     private Person manager;
 
-    @ManyToMany
+    @ManyToMany()
     private List<Person> organizers;
 
     @OneToMany(mappedBy = "sig")
@@ -30,7 +31,9 @@ public class SpecialInterestGroup {
     public SpecialInterestGroup(String subject, Person manager, List<Person> organizers, List<Session> sessions) {
         this.subject = subject;
         this.manager = manager;
-        this.organizers = organizers;
+        if(organizers.isEmpty()) {
+            this.organizers = new ArrayList<>();
+        } this.organizers = organizers;
         this.sessions = sessions;
     }
 
