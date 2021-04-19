@@ -2,7 +2,8 @@ package com.snafu.todss.sig.sessies.presentation.controller;
 
 import com.snafu.todss.sig.sessies.application.AttendanceService;
 import com.snafu.todss.sig.sessies.domain.Attendance;
-import com.snafu.todss.sig.sessies.presentation.dto.request.AttendanceRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.AttendanceResponse;
 import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
@@ -41,12 +42,22 @@ public class AttendanceController {
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<AttendanceResponse> updateAttendance(
+    @PutMapping("/{id}/speaker")
+    public ResponseEntity<AttendanceResponse> updateSpeakerAttendance(
             @PathVariable UUID id,
-            @Valid @RequestBody AttendanceRequest request
+            @Valid @RequestBody AttendanceSpeakerRequest request
     ) throws NotFoundException {
-        Attendance attendance = this.SERVICE.updateAttendance(id, request);
+        Attendance attendance = this.SERVICE.updateSpeakerAttendance(id, request);
+
+        return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/state")
+    public ResponseEntity<AttendanceResponse> updateStateAttendance(
+            @PathVariable UUID id,
+            @Valid @RequestBody AttendanceStateRequest request
+    ) throws NotFoundException {
+        Attendance attendance = this.SERVICE.updateStateAttendance(id, request);
 
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }

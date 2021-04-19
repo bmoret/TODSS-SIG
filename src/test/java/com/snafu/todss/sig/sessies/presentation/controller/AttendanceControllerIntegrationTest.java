@@ -17,6 +17,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -116,20 +118,17 @@ class AttendanceControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("update attendance")
-    void updateAttendance() throws Exception {
-        JSONObject json = new JSONObject();
-        json.put("state", "NO_SHOW");
-        json.put("speaker", "true");
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}", attendance.getId())
-                .contentType("application/json")
-                .content(json.toString());
+    @DisplayName("update speaker of attendance")
+    void updateSpeakerAttendance() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", attendance.getId())
+                .content("{\"speaker\":\"true\"}")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(content().contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.state").value(NO_SHOW.toString()))
+                .andExpect(jsonPath("$.state").exists())
                 .andExpect(jsonPath("$.person").exists())
                 .andExpect(jsonPath("$.speaker").value(true))
                 .andExpect(jsonPath("$.session").exists());
@@ -137,14 +136,42 @@ class AttendanceControllerIntegrationTest {
 
     @Test
     @DisplayName("update attendance throws when attendance not found")
-    void updateAttendanceThrowsNotFound() throws Exception{
+    void updateSpeakerAttendanceThrowsNotFound() throws Exception{
         UUID id = UUID.randomUUID();
-        JSONObject json = new JSONObject();
-        json.put("state", "NO_SHOW");
-        json.put("speaker", "true");
-                RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}", id)
-                .contentType("application/json")
-                .content(json.toString());
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", id)
+                .content("{\"speaker\":\"true\"}")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(content().contentType("application/json"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.Error").value("Aanwezigheid met id '"+id+"' bestaat niet."));
+    }
+
+    @Test
+    @DisplayName("update state of attendance")
+    void updateStateAttendance() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/state", attendance.getId())
+                .content("{\"state\":\"NO_SHOW\"}")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(content().contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value(NO_SHOW.toString()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.speaker").exists())
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @DisplayName("update state of attendance throws when attendance not found")
+    void updateStateAttendanceThrowsNotFound() throws Exception{
+        UUID id = UUID.randomUUID();
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/state", id)
+                .content("{\"state\":\"NO_SHOW\"}")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(content().contentType("application/json"))

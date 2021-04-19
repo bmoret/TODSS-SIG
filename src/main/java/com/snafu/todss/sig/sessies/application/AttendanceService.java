@@ -5,7 +5,8 @@ import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.StateAttendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
-import com.snafu.todss.sig.sessies.presentation.dto.request.AttendanceRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,6 @@ public class AttendanceService {
         Person person = this.PERSON_SERVICE.getPerson(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
         if( ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndPersonAndSession(person, session).isPresent() ) {
-            //todo: wat hier gooien?
             throw new Exception("bestaat al");
         }
         Attendance attendance = Attendance.of(state, isSpeaker, person, session);
@@ -45,10 +45,16 @@ public class AttendanceService {
         return this.ATTENDANCE_REPOSITORY.save(attendance);
     }
 
-    public Attendance updateAttendance(UUID id, AttendanceRequest attendanceRequest) throws NotFoundException {
+    public Attendance updateSpeakerAttendance(UUID id, AttendanceSpeakerRequest attendanceSpeakerRequest) throws NotFoundException {
         Attendance attendance = getAttendanceById(id);
-        attendance.setState(attendanceRequest.state);
-        attendance.setSpeaker(attendanceRequest.speaker);
+        attendance.setSpeaker(attendanceSpeakerRequest.speaker);
+
+        return this.ATTENDANCE_REPOSITORY.save(attendance);
+    }
+
+    public Attendance updateStateAttendance(UUID id, AttendanceStateRequest attendanceStateRequest) throws NotFoundException {
+        Attendance attendance = getAttendanceById(id);
+        attendance.setState(attendanceStateRequest.state);
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);
     }
@@ -56,30 +62,4 @@ public class AttendanceService {
     public void deleteAttendance(UUID id) {
         this.ATTENDANCE_REPOSITORY.deleteById(id);
     }
-
-
-
-    //Stashed for later implementations (niet nodig geweest om nu al te maken hoor thomas :)) - Jona
-
-//    public Attendance findAllAttendanceByPerson(Person person) {
-//        //zoek of persoon bestaat in service
-//        return attendanceRepository.findAllByPerson(person).orElseThrow(() -> new InvalidAttendanceException(person.getName()+" heeft geen kennissessies gevolgd."));
-//    }
-//
-//    public Attendance findAllAttendanceBySession(Session session) {
-//        //zoek of sessie bestaat in service
-//        return attendanceRepository.findAllBySession(session).orElseThrow(() -> new InvalidAttendanceException(session.getIETS()+" heeft geen opgeslagen aanwezigheid."));
-//    }
-
-//    public Attendance SignUpForSession(Person person, Session session) {
-//        //lezerstatus regelen waar?
-//        Person personToSignUp = personRepository.findPersonById(person.getId());
-//        Session sessionToSignUpTo = personRepository.findPersonById(person.getId());
-//        Attendance attendance = new Attendance(false, false,false, personToSignUp, sessionToSignUpTo);
-//
-//        return attendance;
-//    }
-
-    //later extra filters zoals findAllAttendanceByPersonWhere...? & findAllAttendanceBySessionWhere...? -thomas
-    //kan, met queryparams en results daarop filteren, params op query meegeven -jona
 }

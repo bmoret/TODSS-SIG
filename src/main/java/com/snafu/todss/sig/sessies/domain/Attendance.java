@@ -14,6 +14,7 @@ public class Attendance {
     private UUID id;
 
     private StateAttendance state;
+
     private boolean isSpeaker;
 
     @ManyToOne(optional = false)
@@ -37,10 +38,6 @@ public class Attendance {
 
     public UUID getId() {
         return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public StateAttendance getState() {
