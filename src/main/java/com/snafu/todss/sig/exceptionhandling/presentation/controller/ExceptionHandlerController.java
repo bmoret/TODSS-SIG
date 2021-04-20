@@ -31,11 +31,4 @@ public class ExceptionHandlerController {
         return new ResponseEntity<>(map, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(value = NotFoundException.class)
-    public ResponseEntity<Map<String, String>> nfe(Exception nfe) {
-        HashMap<String, String> map = new HashMap<>();
-        nfe.printStackTrace();
-        map.put("Error", nfe.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
-    }
 }

@@ -118,7 +118,7 @@ class SpecialInterestGroupServiceTest {
     }
 
     @Test
-    @DisplayName("Get special interet group by id returns existing special interest group")
+    @DisplayName("Get special interest group by id returns existing special interest group")
     void getSessionById_ReturnsCorrectSession() throws NotFoundException {
         SpecialInterestGroup specialInterestGroupDummy = new SpecialInterestGroup(
                 "even cooler subject",
@@ -132,6 +132,14 @@ class SpecialInterestGroupServiceTest {
 
         assertEquals(specialInterestGroupDummy, specialInterestGroup);
         verify(repository, times(1)).findById(any());
+    }
+
+    @Test
+    @DisplayName("Get associated employees by SIG id returns list of people")
+    void getAssociatedEmployeesById_ReturnsListOfPeople() throws NotFoundException {
+        when(repository.findById(any())).thenReturn(Optional.of(specialInterestGroup));
+
+        assertEquals(List.of(person), service.getAssociatedPeopleBySpecialInterestGroup(specialInterestGroup.getId()));
     }
 
     @Test
