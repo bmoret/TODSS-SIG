@@ -1,4 +1,4 @@
-package com.snafu.todss.sig.sessies.domain;
+package com.snafu.todss.sig.sessies.domain.session;
 
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import org.junit.jupiter.api.DisplayName;
