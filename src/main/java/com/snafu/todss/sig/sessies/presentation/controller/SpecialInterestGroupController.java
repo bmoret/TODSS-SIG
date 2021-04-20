@@ -4,6 +4,7 @@ import com.snafu.todss.sig.sessies.application.SpecialInterestGroupService;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.SpecialInterestGroupRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.response.PersonCompactResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SpecialInterestGroupResponse;
 import javassist.NotFoundException;
@@ -29,7 +30,7 @@ public class SpecialInterestGroupController {
         return new SpecialInterestGroupResponse(
                 specialInterestGroup.getId(),
                 specialInterestGroup.getSubject(),
-                specialInterestGroup.getManager(),
+                new PersonCompactResponse(specialInterestGroup.getManager().getId(), specialInterestGroup.getManager().getSupervisor().getDetails().getFirstname()),
                 specialInterestGroup.getOrganizers()
         );
     }
@@ -88,7 +89,7 @@ public class SpecialInterestGroupController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSpecialInterestGroup(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteSpecialInterestGroup(@PathVariable UUID id) throws NotFoundException {
         this.SERVICE.deleteSpecialInterestGroup(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
