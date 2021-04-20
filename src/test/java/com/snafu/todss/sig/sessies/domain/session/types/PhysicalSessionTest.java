@@ -40,7 +40,8 @@ class PhysicalSessionTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                address
+                address,
+                null
         );
 
         SessionDetails details = session.getDetails();
@@ -67,7 +68,8 @@ class PhysicalSessionTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                address
+                address,
+                null
         );
 
         session.nextState();
@@ -105,7 +107,8 @@ class PhysicalSessionTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                address
+                address,
+                null
         );
         return Stream.of(
                 Arguments.of(session, session, true),

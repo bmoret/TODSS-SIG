@@ -2,6 +2,7 @@ package com.snafu.todss.sig.sessies.presentation.dto.request.session;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -29,6 +30,8 @@ public abstract class SessionRequest {
     @NotNull
     public UUID sigId;
 
+    public UUID contactPerson;
+
     public SessionRequest() {
     }
 
@@ -37,12 +40,14 @@ public abstract class SessionRequest {
             @NotNull LocalDateTime endDate,
             @NotBlank String subject,
             @NotBlank String description,
-            @NotNull UUID sigId
+            @NotNull UUID sigId,
+            UUID contactPersonId
     ) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.subject = subject;
         this.description = description;
         this.sigId = sigId;
+        this.contactPerson = contactPerson;
     }
 }

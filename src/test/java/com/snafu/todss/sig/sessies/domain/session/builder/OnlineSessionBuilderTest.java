@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.domain.session.builder;
 
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
@@ -18,6 +19,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 class OnlineSessionBuilderTest {
     private OnlineSessionBuilder builder;
@@ -26,6 +28,7 @@ class OnlineSessionBuilderTest {
     private String subject;
     private String description;
     private String joinUrl;
+    private Person person = mock(Person.class);
 
     @BeforeEach
     void setup() {
@@ -38,7 +41,7 @@ class OnlineSessionBuilderTest {
     }
 
     @Test
-    @DisplayName("Default, not set builder returns Session of type PhysicalSession")
+    @DisplayName("Default, not set builder returns Session of type PhysicalSession") //todo needs to be OnlineSession instead?
     void defaultBuild_ReturnsOnlineSession() {
         Session session = builder.build();
 
@@ -46,7 +49,7 @@ class OnlineSessionBuilderTest {
     }
 
     @Test
-    @DisplayName("Default, not set builder returns PhysicalSession with default values")
+    @DisplayName("Default, not set builder returns PhysicalSession with default values") //todo needs to be OnlineSession instead?
     void defaultBuild_ReturnsOnlineSessionWithValues() {
         OnlineSession session = builder.build();
 
@@ -67,6 +70,7 @@ class OnlineSessionBuilderTest {
         builder.setSig(new SpecialInterestGroup());
         builder.setPlatform(platform);
         builder.setJoinUrl(joinUrl);
+        builder.setContactPerson(person);
 
         OnlineSession session = builder.build();
 
@@ -78,6 +82,7 @@ class OnlineSessionBuilderTest {
         assertEquals(state, session.getState());
         assertEquals(expectedPlatform, session.getPlatform());
         assertEquals(joinUrl, session.getJoinURL());
+        assertEquals(person, session.getContactPerson());
     }
     static Stream<Arguments> provideSessionArgs() {
         return Stream.of(

@@ -1,24 +1,27 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.application.SessionService;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.domain.session.types.TeamsOnlineSession;
+import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
+import javassist.NotFoundException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -43,10 +46,29 @@ class SessionControllerIntegrationTest {
     private SessionService service;
 
     @Autowired
+    private PersonService personService;
+
+    @Autowired
     private SessionRepository repository;
 
     @Autowired
     private SpecialInterestGroupRepository sigRepository;
+
+    private Person supervisor;
+
+    @BeforeEach
+    void beforeEach() throws NotFoundException {
+        PersonRequest dtoSupervisor = new PersonRequest();
+        dtoSupervisor.email = "email@email.com";
+        dtoSupervisor.firstname = "fourth";
+        dtoSupervisor.lastname = "last";
+        dtoSupervisor.expertise = "none";
+        dtoSupervisor.branch = "VIANEN";
+        dtoSupervisor.role = "EMPLOYEE";
+        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.supervisorId = null;
+        supervisor = personService.createPerson(dtoSupervisor);
+    }
 
     @AfterEach
     void tearDown() {
@@ -107,7 +129,9 @@ class SessionControllerIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        address
+                        address,
+                        supervisor
+
                 )
         );
         RequestBuilder request = MockMvcRequestBuilders
@@ -123,7 +147,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.endDate").exists())
                 .andExpect(jsonPath("$.details.subject").value(session.getDetails().getSubject()))
                 .andExpect(jsonPath("$.details.description").value(session.getDetails().getDescription()))
-                .andExpect(jsonPath("$.address").value(session.getAddress()));
+                .andExpect(jsonPath("$.address").value(session.getAddress()))
+                .andExpect(jsonPath("$.contactPerson").exists());
     }
 
     @Test
@@ -142,6 +167,7 @@ class SessionControllerIntegrationTest {
         json.put("sigId", sig.getId().toString());
         json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
         json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("contactPerson", supervisor.getId().toString());
         json.put("@type", "PHYSICAL_SESSION_REQUEST");
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/sessions")
@@ -158,7 +184,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.subject").value(subject))
                 .andExpect(jsonPath("$.details.description").value(description))
                 .andExpect(jsonPath("$.address").value(address))
-                .andExpect(jsonPath("$.type").value("PHYSICAL"));
+                .andExpect(jsonPath("$.type").value("PHYSICAL"))
+                .andExpect(jsonPath("$.contactPerson").exists());
     }
 
     @ParameterizedTest
@@ -178,6 +205,7 @@ class SessionControllerIntegrationTest {
         json.put("sigId", sig.getId().toString());
         json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
         json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("contactPerson", supervisor.getId().toString());
         json.put("@type", "ONLINE_SESSION_REQUEST");
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/sessions")
@@ -195,7 +223,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.description").value(description))
                 .andExpect(jsonPath("$.platform").value(expectedPlatform))
                 .andExpect(jsonPath("$.joinUrl").value(joinUrl))
-                .andExpect(jsonPath("$.type").value(expectedType));
+                .andExpect(jsonPath("$.type").value(expectedType))
+                .andExpect(jsonPath("$.contactPerson").exists());
     }
 
     static Stream<Arguments> provideOnlineRequests() {
@@ -221,7 +250,8 @@ class SessionControllerIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        "address"
+                        "address",
+                        supervisor
                 )
         );
 
@@ -264,6 +294,7 @@ class SessionControllerIntegrationTest {
         json.put("sigId", sig.getId().toString());
         json.put("startDate", session.getDetails().getStartDate().format(DateTimeFormatter.ISO_DATE_TIME));
         json.put("endDate", session.getDetails().getEndDate().format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("contactPerson", supervisor.getId().toString());
         json.put("@type", "ONLINE_SESSION_REQUEST");
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sessions/" + session.getId())
@@ -300,7 +331,8 @@ class SessionControllerIntegrationTest {
                                 new ArrayList<>(),
                                 new ArrayList<>(),
                                 "Platform",
-                                joinUrl
+                                joinUrl,
+                                null
                         )
                 ),
                 Arguments.of(
@@ -313,7 +345,8 @@ class SessionControllerIntegrationTest {
                                 null,
                                 new ArrayList<>(),
                                 new ArrayList<>(),
-                                joinUrl
+                                joinUrl,
+                                null
                         )
                 )
         );

@@ -2,7 +2,9 @@ package com.snafu.todss.sig.sessies.presentation.controller;
 
 import com.snafu.todss.sig.sessies.application.SpecialInterestGroupService;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.SpecialInterestGroupRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SpecialInterestGroupResponse;
 import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
@@ -48,6 +50,19 @@ public class SpecialInterestGroupController {
         SpecialInterestGroup specialInterestGroup = this.SERVICE.getSpecialInterestGroupById(id);
 
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/people")
+    public ResponseEntity<List<PersonResponse>> getAssociatedPeopleBySpecialInterestGroup(@PathVariable UUID id)
+    throws NotFoundException {
+        List<Person> people = this.SERVICE.getAssociatedPeopleBySpecialInterestGroup(id);
+        List<PersonResponse> personResponses = new ArrayList<>();
+
+        for (Person person : people) {
+            personResponses.add(new PersonResponse(person.getId(), person.getSupervisor(), person.getDetails()));
+        }
+
+        return new ResponseEntity<>(personResponses, HttpStatus.OK);
     }
 
     @PostMapping

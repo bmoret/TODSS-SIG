@@ -53,6 +53,14 @@ public class SpecialInterestGroupService {
         return this.SIG_REPOSITORY.save(specialInterestGroup);
     }
 
+    public List<Person> getAssociatedPeopleBySpecialInterestGroup(UUID id) throws NotFoundException {
+        SpecialInterestGroup sig = getSpecialInterestGroupById(id);
+        List<Person> people = sig.getOrganizers();
+        people.add(sig.getManager());
+
+        return people;
+    }
+
     public void deleteSpecialInterestGroup(UUID id) {
         this.SIG_REPOSITORY.deleteById(id);
     }}

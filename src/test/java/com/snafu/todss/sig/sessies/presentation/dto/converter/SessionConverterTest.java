@@ -66,7 +66,8 @@ class SessionConverterTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                address
+                address,
+                null
 
         );
         physicalSessionResponse = new SessionResponse();
@@ -82,7 +83,8 @@ class SessionConverterTest {
                 new ArrayList<>(),
                 new ArrayList<>(),
                 joinUrl,
-                platform
+                platform,
+                null
         );
         onlineSessionResponse = new SessionResponse();
         onlineSessionResponse.setType("ONLINE");
@@ -97,7 +99,8 @@ class SessionConverterTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                joinUrl
+                joinUrl,
+                null
         );
         teamsOnlineSessionResponse = new SessionResponse();
         teamsOnlineSessionResponse.setType("TEAMS");
