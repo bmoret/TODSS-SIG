@@ -71,15 +71,4 @@ public class Attendance {
     public void setSession(Session session) {
         this.session = session;
     }
-
-    @Override
-    public String toString() {
-        return "Attendance{" +
-                "id=" + id +
-                ", state=" + state +
-                ", isSpeaker=" + isSpeaker +
-                ", person=" + person +
-                ", session=" + session +
-                '}';
-    }
 }

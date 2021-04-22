@@ -1,12 +1,8 @@
-package com.snafu.todss.sig.sessies.domain.session;
+package com.snafu.todss.sig.sessies.domain;
 
-import com.snafu.todss.sig.sessies.domain.Attendance;
-import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
-import com.snafu.todss.sig.sessies.domain.StateAttendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
-import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +24,7 @@ class AttendanceTest {
     private Attendance attendance;
 
     @BeforeEach
-    void createUseableAttendance() {
+    void createUsableAttendance() {
         attendance = new Attendance();
     }
 
@@ -42,7 +38,6 @@ class AttendanceTest {
                 Arguments.of(PRESENT, false)
         );
     }
-
     @ParameterizedTest
     @MethodSource("attendanceFillExamples")
     @DisplayName("create all possible attendances")
@@ -51,7 +46,6 @@ class AttendanceTest {
         Attendance attendanceOf = Attendance.of(state, isSpeaker, null, null);
         assertEquals(constAttendance.getState(), attendanceOf.getState());
         assertEquals(constAttendance.isSpeaker(), attendanceOf.isSpeaker());
-        assertEquals(constAttendance.toString(), attendanceOf.toString());
     }
 
     @Test
@@ -113,10 +107,4 @@ class AttendanceTest {
         assertNotNull(attendance.getSession());
     }
 
-
-    @Test
-    @DisplayName("toString test")
-    void attendanceString() {
-        assertEquals(attendance.toString(), new Attendance().toString());
-    }
 }
