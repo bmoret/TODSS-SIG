@@ -1,6 +1,6 @@
 package com.snafu.todss.sig.sessies.presentation.dto.response;
 
-import com.snafu.todss.sig.sessies.domain.StateAttendance;
+import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonDetails;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
@@ -9,13 +9,13 @@ import java.util.UUID;
 
 public class AttendanceResponse {
     private final UUID id;
-    private final StateAttendance state;
+    private final AttendanceState state;
     private final boolean isSpeaker;
     private final PersonCompactResponse person;
     private final UUID sessionId;
 
     public AttendanceResponse(UUID id,
-                              StateAttendance state,
+                              AttendanceState state,
                               boolean isSpeaker,
                               Person person,
                               Session session
@@ -35,7 +35,7 @@ public class AttendanceResponse {
         return id;
     }
 
-    public StateAttendance getState() {
+    public AttendanceState getState() {
         return state;
     }
 

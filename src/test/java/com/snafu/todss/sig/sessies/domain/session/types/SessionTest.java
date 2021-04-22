@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.snafu.todss.sig.sessies.domain.StateAttendance.*;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
