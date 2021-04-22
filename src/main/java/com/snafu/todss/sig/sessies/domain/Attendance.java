@@ -13,10 +13,8 @@ public class Attendance {
     @GeneratedValue
     private UUID id;
 
-    //todo: isConfirmed en isAbsent vervangen met isPresent
-    // (aanmelden is attendance object aanmaken, komen is isPresent = true absent is false)
-    private boolean isConfirmed;
-    private boolean isAbsent;
+    private StateAttendance state;
+
     private boolean isSpeaker;
 
     @ManyToOne(optional = false)
@@ -25,53 +23,63 @@ public class Attendance {
     @ManyToOne(optional = false)
     private Session session;
 
-    public static Attendance of(Person person, Session session) {
-        return new Attendance(false, false, false, person, session);
+    public static Attendance of(StateAttendance state, boolean isSpeaker, Person person, Session session) {
+        return new Attendance(state, isSpeaker, person, session);
     }
 
     public Attendance() {}
 
-    public Attendance(boolean isConfirmed, boolean isAbsent, boolean speaker, Person person, Session session) {
-        this.isConfirmed = isConfirmed;
-        this.isAbsent = isAbsent;
-        this.isSpeaker = speaker;
+    public Attendance(StateAttendance state, boolean isSpeaker, Person person, Session session) {
+        this.state = state;
+        this.isSpeaker = isSpeaker;
         this.person = person;
         this.session = session;
     }
 
-    public boolean isConfirmed() {
-        return isConfirmed;
+    public UUID getId() {
+        return id;
     }
 
-    public boolean isAbsent() {
-        return isAbsent;
+    public StateAttendance getState() {
+        return state;
+    }
+
+    public void setState(StateAttendance state) {
+        this.state = state;
     }
 
     public boolean isSpeaker() {
         return isSpeaker;
     }
 
-    public UUID getAttendanceId() {
-        return this.id;
+    public void setSpeaker(boolean speaker) {
+        isSpeaker = speaker;
     }
 
     public Person getPerson() {
         return person;
     }
 
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
     public Session getSession() {
         return session;
     }
 
-    public void setConfirmed(boolean confirmed) {
-        this.isConfirmed = confirmed;
+    public void setSession(Session session) {
+        this.session = session;
     }
 
-    public void setAbsent(boolean absent) {
-        isAbsent = absent;
-    }
-
-    public void setSpeaker(boolean speaker) {
-        isSpeaker = speaker;
+    @Override
+    public String toString() {
+        return "Attendance{" +
+                "id=" + id +
+                ", state=" + state +
+                ", isSpeaker=" + isSpeaker +
+                ", person=" + person +
+                ", session=" + session +
+                '}';
     }
 }
