@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-import static com.snafu.todss.sig.sessies.domain.StateAttendance.*;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Attendance tests")
@@ -41,11 +41,23 @@ class AttendanceTest {
     @ParameterizedTest
     @MethodSource("attendanceFillExamples")
     @DisplayName("create all possible attendances")
-    void createAttendance(StateAttendance state, boolean isSpeaker) {
+    void createAttendance(AttendanceState state, boolean isSpeaker) {
         Attendance constAttendance = new Attendance(state, isSpeaker, null, null);
-        Attendance attendanceOf = Attendance.of(state, isSpeaker, null, null);
-        assertEquals(constAttendance.getState(), attendanceOf.getState());
-        assertEquals(constAttendance.isSpeaker(), attendanceOf.isSpeaker());
+        assertEquals(state, constAttendance.getState());
+        assertEquals(isSpeaker, constAttendance.isSpeaker());
+    }
+
+    @Test
+    @DisplayName("Attendance.of() returns new attendance with all false")
+    void attendanceOf_ReturnsNewAttendance() {
+        Person person = new Person();
+        Session session = new PhysicalSession();
+        Attendance attendance = Attendance.of(person, session);
+
+        assertEquals(person, attendance.getPerson());
+        assertEquals(session, attendance.getSession());
+        assertEquals(NO_SHOW, attendance.getState());
+        assertFalse(attendance.isSpeaker());
     }
 
     @Test
