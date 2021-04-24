@@ -53,10 +53,12 @@ public class SpecialInterestGroupController {
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
     }
 
+    @CrossOrigin("http://localhost:8081")
     @GetMapping("/{id}/people")
-    public ResponseEntity<List<PersonResponse>> getAssociatedPeopleBySpecialInterestGroup(@PathVariable UUID id)
+    public ResponseEntity<List<PersonResponse>> getAssociatedPeopleBySpecialInterestGroup(@PathVariable String id)
     throws NotFoundException {
-        List<Person> people = this.SERVICE.getAssociatedPeopleBySpecialInterestGroup(id);
+        UUID id1 = UUID.fromString(id);
+        List<Person> people = this.SERVICE.getAssociatedPeopleBySpecialInterestGroup(id1);
         List<PersonResponse> personResponses = new ArrayList<>();
 
         for (Person person : people) {
