@@ -51,6 +51,56 @@ public class PersonTestDataFixtures implements CommandLineRunner {
 
         this.repository.save(pb.build());
 
+        pb.setEmail("tom@email.com");
+        pb.setFirstname("tom");
+        pb.setLastname("albert");
+        pb.setExpertise("all");
+        pb.setEmployedSince(LocalDate.of(2000,1,1));
+        pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
+        pb.setRole(Role.EMPLOYEE);
+
+        this.repository.save(pb.build());
+
+        pb.setEmail("tom1@email.com");
+        pb.setFirstname("tom");
+        pb.setLastname("alberto");
+        pb.setExpertise("all");
+        pb.setEmployedSince(LocalDate.of(2000,1,1));
+        pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
+        pb.setRole(Role.EMPLOYEE);
+
+        this.repository.save(pb.build());
+
+        pb.setEmail("tom2@email.com");
+        pb.setFirstname("tom");
+        pb.setLastname("alberto");
+        pb.setExpertise("all");
+        pb.setEmployedSince(LocalDate.of(2000,1,1));
+        pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
+        pb.setRole(Role.EMPLOYEE);
+
+        this.repository.save(pb.build());
+
+        pb.setEmail("toms@email.com");
+        pb.setFirstname("toms");
+        pb.setLastname("alberto");
+        pb.setExpertise("all");
+        pb.setEmployedSince(LocalDate.of(2000,1,1));
+        pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
+        pb.setRole(Role.EMPLOYEE);
+
+        this.repository.save(pb.build());
+
+        pb.setEmail("to@email.com");
+        pb.setFirstname("to");
+        pb.setLastname("alber");
+        pb.setExpertise("all");
+        pb.setEmployedSince(LocalDate.of(2000,1,1));
+        pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
+        pb.setRole(Role.EMPLOYEE);
+
+        this.repository.save(pb.build());
+
     }
 
 }

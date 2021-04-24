@@ -8,13 +8,18 @@ import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.SearchRequest;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -100,5 +105,59 @@ public class PersonService {
 
     public void removePerson(UUID id) throws NotFoundException {
         PERSON_REPOSITORY.delete(getPerson(id));
+    }
+
+    public List<Person> searchPerson(SearchRequest request) throws NotFoundException {
+        List<Person> results = new ArrayList<>();
+        if (request.firstname != null && request.lastname != null) {
+            System.out.println("schuif aan!");
+            List<Person> persons = PERSON_REPOSITORY.findByDetails_FirstnameAndDetails_Lastname(request.firstname, request.lastname);
+            if (!persons.isEmpty()){
+                System.out.println("persoon aanwezig!");
+                results.addAll(persons);
+                return results;
+            } else {
+                //todo: add partial search
+                return fillResultList(searchPersonByLastname(request.lastname), searchPersonByFirstname(request.firstname));
+            }
+        }
+        else if (request.firstname != null) {
+            //todo: add partial search
+            return searchPersonByFirstname(request.firstname);
+        }
+        else if (request.lastname != null) {
+            //todo: add partial search
+            return searchPersonByLastname(request.lastname);
+        } else {
+            throw new NotFoundException("fillout form");
+        }
+    }
+
+    private List<Person> fillResultList(List<Person> results, List<Person> toAdd) {
+        toAdd.stream().filter(person -> !results.contains(person)).forEach(person -> results.add(person));
+        return results;
+    }
+
+    private List<Person> searchPersonByFirstname(String firstname) {
+        System.out.println("in searchPersonByFirstname: "+firstname);
+        List<Person> results = new ArrayList<>();
+        List<Person> firstnameList = PERSON_REPOSITORY.findByDetails_Firstname(firstname);
+        for (Person firstnameResult : firstnameList) {
+            if (firstnameResult != null) {
+                results.add(firstnameResult);
+            }
+        }
+        return results;
+    }
+
+    private List<Person> searchPersonByLastname(String lastname) {
+        List<Person> results = new ArrayList<>();
+        List<Person> lastnameList = PERSON_REPOSITORY.findByDetails_Lastname(lastname);
+        for (Person lastnameResult : lastnameList) {
+            if (lastnameResult != null) {
+                results.add(lastnameResult);
+            }
+        }
+        return results;
     }
 }
