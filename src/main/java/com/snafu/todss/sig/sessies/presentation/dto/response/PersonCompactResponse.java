@@ -3,19 +3,19 @@ package com.snafu.todss.sig.sessies.presentation.dto.response;
 import java.util.UUID;
 
 public class PersonCompactResponse {
-    private final UUID supervisorId;
-    private final String supervisorName;
+    private final UUID personId;
+    private final String personName;
 
-    public PersonCompactResponse(UUID supervisorId, String supervisorName) {
-        this.supervisorId = supervisorId;
-        this.supervisorName = supervisorName;
+    public PersonCompactResponse(UUID personId, String personName) {
+        this.personId = personId;
+        this.personName = personName;
     }
 
-    public UUID getSupervisorId() {
-        return supervisorId;
+    public UUID getPersonId() {
+        return personId;
     }
 
-    public String getSupervisorName() {
-        return supervisorName;
+    public String getPersonName() {
+        return personName;
     }
 }
