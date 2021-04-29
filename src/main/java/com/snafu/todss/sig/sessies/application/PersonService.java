@@ -111,16 +111,8 @@ public class PersonService {
         List<Person> results = new ArrayList<>();
         if (request.firstname != null && request.lastname != null) {
             System.out.println("schuif aan!");
-            List<Person> persons = PERSON_REPOSITORY.findByDetails_FirstnameAndDetails_Lastname(
-                    request.firstname,
-                    request.lastname
-            );
-            if (!persons.isEmpty()){
-                System.out.println("persoon aanwezig!");
-                results.addAll(persons);
-                return results;
-            } else {
-                //search by first and last
+            searchCorrectByFirstnameLastname(request.firstname, request.lastname).forEach(person -> results.add(person));
+            if (results.isEmpty()) {
                 compareLists(searchByLastname(request.lastname), searchByFirstname(request.firstname))
                         .forEach(person -> results.add(person));
                 if (results.isEmpty()) {
@@ -128,7 +120,6 @@ public class PersonService {
                             .forEach(person -> results.add(person));
                 }
                 if (results.isEmpty()) {
-
                     throw new NotFoundException(
                             String.format(
                                 "Er zijn geen medewerkers met voornaam \"%s\" en achternaam \"%s\" gevonden.",
@@ -136,7 +127,6 @@ public class PersonService {
                                 request.lastname)
                     );
                 }
-                return results;
             }
         }
         else if (request.firstname != null) {
@@ -151,7 +141,6 @@ public class PersonService {
                                 request.firstname)
                 );
             }
-            return results;
         }
         else if (request.lastname != null) {
             searchByLastname(request.lastname).forEach(person -> results.add(person));
@@ -165,11 +154,18 @@ public class PersonService {
                                 request.lastname)
                 );
             }
-            return results;
         }
         else {
             throw new NotFoundException("fillout form");
         }
+        return results;
+    }
+
+    public List<Person> searchCorrectByFirstnameLastname(String firstname, String lastname) {
+        List<Person> results = new ArrayList<>();
+        PERSON_REPOSITORY.findByDetails_FirstnameAndDetails_Lastname(firstname, lastname)
+                .forEach(person -> results.add(person));
+        return results;
     }
 
     public List<Person> compareLists(List<Person> results, List<Person> toAdd) {
@@ -192,46 +188,58 @@ public class PersonService {
     public List<Person> searchPersonByPartial(String firstname, String lastname) {
         List<Person> results = new ArrayList<>();
         String first; String middle; String last;
-        int aThird; int half; int twoThirds;
+        int aThird; int half; int twoThirds; int min = 0; int max;
         if (firstname != null && !firstname.isEmpty()) {
             List<Person> firstnameResults = new ArrayList<>();
             aThird = firstname.length()/3;
             half = firstname.length()/2;
             twoThirds = firstname.length()/3*2;
+            if (firstname.length() > 2) {
+                min = firstname.length()-2;
+                System.out.println("min: "+min);
+            }
+            max = firstname.length()+2;
+            System.out.println("max: "+max);
 
             if (firstname.length() < 4) {
                 first = firstname.substring(0, half);
                 last = firstname.substring(half);
                 compareLists(
-                        PERSON_REPOSITORY.findPersonByFirstPartialFirstname(first),
-                        PERSON_REPOSITORY.findPersonByLastPartialFirstname(last)
+                        PERSON_REPOSITORY.findPersonByFirstPartialFirstname(first, min, max),
+                        PERSON_REPOSITORY.findPersonByLastPartialFirstname(last, min, max)
                 ).forEach(person -> firstnameResults.add(person));
             } else {
                 first = firstname.substring(0, aThird);
                 middle = firstname.substring(aThird, twoThirds);
                 last = firstname.substring(twoThirds);
+                System.out.println(first +" "+ middle +" "+ last);
                 compareLists(
                         compareLists(
-                                PERSON_REPOSITORY.findPersonByFirstPartialFirstname(first),
-                                PERSON_REPOSITORY.findPersonByLastPartialFirstname(middle)
+                                PERSON_REPOSITORY.findPersonByFirstPartialFirstname(first, min, max),
+                                PERSON_REPOSITORY.findPersonByMiddlePartialFirstname(middle, min, max)
                         ),
-                        PERSON_REPOSITORY.findPersonByLastPartialFirstname(last)
+                        PERSON_REPOSITORY.findPersonByLastPartialFirstname(last, min, max)
                 ).forEach(person -> firstnameResults.add(person));
             }
             compareLists(results, firstnameResults);
+            System.out.println(results);
         }
         if (lastname != null && !lastname.isEmpty())  {
             List<Person> lastnameResults = new ArrayList<>();
             aThird = lastname.length()/3;
             half = lastname.length()/2;
             twoThirds = lastname.length()/3*2;
+            if (lastname.length() > 2) {
+                min = lastname.length()-2;
+            }
+            max = lastname.length()+2;
 
             if (lastname.length() < 4) {
                 first = lastname.substring(0, half);
                 last = lastname.substring(half);
                 compareLists(
-                        PERSON_REPOSITORY.findPersonByFirstPartialLastname(first),
-                        PERSON_REPOSITORY.findPersonByLastPartialLastname(last)
+                        PERSON_REPOSITORY.findPersonByFirstPartialLastname(first, min, max),
+                        PERSON_REPOSITORY.findPersonByLastPartialLastname(last, min, max)
                 ).forEach(person -> lastnameResults.add(person));
             } else {
                 first = lastname.substring(0, aThird);
@@ -239,10 +247,10 @@ public class PersonService {
                 last = lastname.substring(twoThirds);
                 compareLists(
                         compareLists(
-                                PERSON_REPOSITORY.findPersonByFirstPartialLastname(first),
-                                PERSON_REPOSITORY.findPersonByMiddlePartialLastname(middle)
+                                PERSON_REPOSITORY.findPersonByFirstPartialLastname(first, min, max),
+                                PERSON_REPOSITORY.findPersonByMiddlePartialLastname(middle, min, max)
                         ),
-                        PERSON_REPOSITORY.findPersonByLastPartialLastname(last)
+                        PERSON_REPOSITORY.findPersonByLastPartialLastname(last, min, max)
                 ).forEach(person -> lastnameResults.add(person));
             }
             compareLists(results, lastnameResults);
