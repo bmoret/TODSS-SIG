@@ -113,4 +113,17 @@ public class PersonDetails {
                 && getBranch() == that.getBranch()
                 && getRole() == that.getRole();
     }
+
+    @Override
+    public String toString() {
+        return "PersonDetails{" +
+                "email='" + email + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", expertise='" + expertise + '\'' +
+                ", employedSince=" + employedSince +
+                ", branch=" + branch +
+                ", role=" + role +
+                '}';
+    }
 }

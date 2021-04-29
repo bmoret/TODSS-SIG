@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -29,6 +30,8 @@ class PersonServiceTest {
 
     @Autowired
     private PersonService service;
+    @Autowired
+    private SpringPersonRepository repo;
 
     @BeforeEach
     void beforeEach() throws NotFoundException {
@@ -123,6 +126,8 @@ class PersonServiceTest {
         }
     }
 
+
+
     @Test
     void removePerson() {
         Person person = null;
@@ -161,24 +166,24 @@ class PersonServiceTest {
         assertEquals(expectedSize, results.size());
     }
 
-    private static Stream<Arguments> wrongFirstAndLastFillExamples() {
-        return Stream.of(
-                Arguments.of("t", "albet", 0),
-                Arguments.of("a", "b", 0)
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("wrongFirstAndLastFillExamples")
-    @DisplayName("search person by using non-existing first- and lastname")
-    void searchPersonIncorrect(String first, String last, Integer expectedSize) throws NotFoundException {
-        SearchRequest request = new SearchRequest();
-        request.firstname = first;
-        request.lastname = last;
-        List<Person> results = service.searchPerson(request);
-
-        assertEquals(expectedSize, results.size());
-    }
+//    private static Stream<Arguments> wrongFirstAndLastFillExamples() {
+//        return Stream.of(
+//                Arguments.of("t", "albet", 0),
+//                Arguments.of("a", "b", 0)
+//        );
+//    }
+//
+//    @ParameterizedTest
+//    @MethodSource("wrongFirstAndLastFillExamples")
+//    @DisplayName("search person by using non-existing first- and lastname")
+//    void searchPersonIncorrect(String first, String last, Integer expectedSize) throws NotFoundException {
+//        SearchRequest request = new SearchRequest();
+//        request.firstname = first;
+//        request.lastname = last;
+//        List<Person> results = service.searchPerson(request);
+//
+//        assertEquals(expectedSize, results.size());
+//    }
 
     private static Stream<Arguments> wrongFirstWhenSearchingfirstAndLastFillExamples() {
         return Stream.of(
@@ -248,51 +253,87 @@ class PersonServiceTest {
         assertEquals(expectedSize, results.size());
     }
 
+    //firstname only
+//    private static Stream<Arguments> firstFillExamples() {
+//        return Stream.of(
+//                Arguments.of("tom", 3),
+//                Arguments.of("toms", 1),
+//                Arguments.of("a", 0)
+//        );
+//    }
+//
+//    @ParameterizedTest
+//    @MethodSource("firstFillExamples")
+//    @DisplayName("search person by only using existing firstname")
+//    void searchPersonByFirstname(String first, Integer expectedSize) throws NotFoundException {
+//        SearchRequest request = new SearchRequest();
+//        request.firstname = first;
+//        List<Person> results = service.searchPerson(request);
+//        for(int i = 0; i < expectedSize; i++) {
+//            assertEquals(first, results.get(i).getDetails().getFirstname());
+//        }
+//        assertEquals(expectedSize, results.size());
+//    }
 
-    private static Stream<Arguments> firstFillExamples() {
-        return Stream.of(
-                Arguments.of("tom", 3),
-                Arguments.of("toms", 1),
-                Arguments.of("a", 0)
-        );
-    }
+//    private static Stream<Arguments> firstShortFillExamples() {
+//        return Stream.of(
+//                Arguments.of("t", 0),
+//                Arguments.of("ay", 0)
+//        );
+//    }
+//
+//    @ParameterizedTest
+//    @MethodSource("firstShortFillExamples")
+//    @DisplayName("search person by short firstname therefore no results")
+//    void searchPersonByShortFirstname(String first, Integer expectedSize) throws NotFoundException {
+//        SearchRequest request = new SearchRequest();
+//        request.firstname = first;
+//        List<Person> results = service.searchPerson(request);
+//        assertEquals(expectedSize, results.size());
+//    }
 
-    @ParameterizedTest
-    @MethodSource("firstFillExamples")
-    @DisplayName("search person by only using existing firstname")
-    void searchPersonByFirstname(String first, Integer expectedSize) throws NotFoundException {
-        SearchRequest request = new SearchRequest();
-        request.firstname = first;
-        List<Person> results = service.searchPerson(request);
-        for(int i = 0; i < expectedSize; i++) {
-            assertEquals(first, results.get(i).getDetails().getFirstname());
-        }
-        assertEquals(expectedSize, results.size());
-    }
+    //lastname only
+//    private static Stream<Arguments> lastFillExamples() {
+//        return Stream.of(
+//                Arguments.of("alberto", 3),
+//                Arguments.of("albert", 1),
+//                Arguments.of("a", 0)
+//        );
+//    }
+//
+//    @ParameterizedTest
+//    @MethodSource("lastFillExamples")
+//    @DisplayName("search person by only using existing lastname")
+//    void searchPersonByLastname(String last, Integer expectedSize) throws NotFoundException {
+//        SearchRequest request = new SearchRequest();
+//        request.lastname = last;
+//        List<Person> results = service.searchPerson(request);
+//        for(int i = 0; i < expectedSize; i++) {
+//            assertEquals(last, results.get(i).getDetails().getLastname());
+//        }
+//        assertEquals(expectedSize, results.size());
+//    }
 
-    private static Stream<Arguments> lastFillExamples() {
-        return Stream.of(
-                Arguments.of("alberto", 3),
-                Arguments.of("albert", 1),
-                Arguments.of("a", 0)
-        );
-    }
+//    private static Stream<Arguments> lastShortFillExamples() {
+//        return Stream.of(
+//                Arguments.of("t", 0),
+//                Arguments.of("ay", 0)
+//        );
+//    }
+//
+//    @ParameterizedTest
+//    @MethodSource("lastShortFillExamples")
+//    @DisplayName("search person by short firstname therefore no results")
+//    void searchPersonByShortLastname(String last, Integer expectedSize) throws NotFoundException {
+//        SearchRequest request = new SearchRequest();
+//        request.lastname = last;
+//        List<Person> results = service.searchPerson(request);
+//        assertEquals(expectedSize, results.size());
+//    }
 
-    @ParameterizedTest
-    @MethodSource("lastFillExamples")
-    @DisplayName("search person by only using existing lastname")
-    void searchPersonByLastname(String last, Integer expectedSize) throws NotFoundException {
-        SearchRequest request = new SearchRequest();
-        request.lastname = last;
-        List<Person> results = service.searchPerson(request);
-        for(int i = 0; i < expectedSize; i++) {
-            assertEquals(last, results.get(i).getDetails().getLastname());
-        }
-        assertEquals(expectedSize, results.size());
-    }
-
+    //empty search
     @Test
-    @DisplayName("search person by only using existing lastname")
+    @DisplayName("not filling out form throws")
     void searchPersonWithEmpty() {
         SearchRequest request = new SearchRequest();
         assertThrows(
@@ -300,4 +341,111 @@ class PersonServiceTest {
                 () -> service.searchPerson(request)
         );
     }
+
+    @Test
+    @DisplayName("compare list filters out doubles")
+    void compareLists() throws NotFoundException {
+        Person p1 = service.getPersonByEmail("tom@email.com");
+        Person p2 = service.getPersonByEmail("tom1@email.com");
+        Person p3 = service.getPersonByEmail("tom2@email.com");
+        List<Person> list1 = new ArrayList<>();
+        List<Person> list2 = new ArrayList<>();
+        list1.add(p1);
+        list1.add(p2);
+        list2.add(p1);
+        list2.add(p3);
+
+        List<Person> results = service.compareLists(list1, list2);
+        assertEquals(3, results.size());
+    }
+
+    private static Stream<Arguments> searchByFirstnameExamples() {
+        return Stream.of(
+                Arguments.of("tom", 3),
+                Arguments.of("toms", 1),
+                Arguments.of("", 0),
+                Arguments.of(null, 0)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("searchByFirstnameExamples")
+    @DisplayName("search person by firstname")
+    void searchByFirstname(String firstname, Integer expectedSize) {
+        List<Person> results = service.searchByFirstname(firstname);
+        assertEquals(expectedSize, results.size());
+    }
+
+    private static Stream<Arguments> searchByLastnameExamples() {
+        return Stream.of(
+                Arguments.of("alberto", 3),
+                Arguments.of("albert", 1),
+                Arguments.of("", 0),
+                Arguments.of(null, 0)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("searchByLastnameExamples")
+    @DisplayName("search person by lastname")
+    void searchByLastname(String lastname, Integer expectedSize) {
+        List<Person> results = service.searchByLastname(lastname);
+        assertEquals(expectedSize, results.size());
+    }
+
+    private static Stream<Arguments> searchPersonByPartialExamples() {
+        return Stream.of(
+                Arguments.of("to", "alb", 5),
+                Arguments.of("ms","ert", 1),
+                Arguments.of("", "", 0),
+                Arguments.of(null, null, 0)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("searchPersonByPartialExamples")
+    @DisplayName("search person by partial first and lastname")
+    void searchPersonByPartial(String firstname, String lastname, Integer expectedSize) {
+        List<Person> results = service.searchPersonByPartial(firstname, lastname);
+        System.out.println(results.toString());
+        assertEquals(expectedSize, results.size());
+    }
+
+    private static Stream<Arguments> searchByPartialFirstnameExamples() {
+        return Stream.of(
+                Arguments.of("tom", 5),
+                Arguments.of("ms", 1),
+                Arguments.of("eeemaz", 1),
+                Arguments.of("", 0),
+                Arguments.of(null,0)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("searchByPartialFirstnameExamples")
+    @DisplayName("search person by partial firstname")
+    void searchPersonByPartialFirstname(String firstname, Integer expectedSize) {
+        List<Person> results = service.searchPersonByPartial(firstname, null);
+        assertEquals(expectedSize, results.size());
+    }
+
+    private static Stream<Arguments> searchByPartialLastnameExamples() {
+        return Stream.of(
+                Arguments.of("alb", 5),
+                Arguments.of("rto", 3),
+                Arguments.of("albert", 5),
+                Arguments.of("eeeetorieee", 1),
+                Arguments.of("", 0),
+                Arguments.of(null, 0)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("searchByPartialLastnameExamples")
+    @DisplayName("search person by partial lastname")
+    void searchPersonByPartialLastname(String lastname, Integer expectedSize) {
+        List<Person> results = service.searchPersonByPartial(null, lastname);
+        assertEquals(expectedSize, results.size());
+    }
+
 }

@@ -111,53 +111,143 @@ public class PersonService {
         List<Person> results = new ArrayList<>();
         if (request.firstname != null && request.lastname != null) {
             System.out.println("schuif aan!");
-            List<Person> persons = PERSON_REPOSITORY.findByDetails_FirstnameAndDetails_Lastname(request.firstname, request.lastname);
+            List<Person> persons = PERSON_REPOSITORY.findByDetails_FirstnameAndDetails_Lastname(
+                    request.firstname,
+                    request.lastname
+            );
             if (!persons.isEmpty()){
                 System.out.println("persoon aanwezig!");
                 results.addAll(persons);
                 return results;
             } else {
-                //todo: add partial search
-                return fillResultList(searchPersonByLastname(request.lastname), searchPersonByFirstname(request.firstname));
+                //search by first and last
+                compareLists(searchByLastname(request.lastname), searchByFirstname(request.firstname))
+                        .forEach(person -> results.add(person));
+                if (results.isEmpty()) {
+                    searchPersonByPartial(request.firstname, request.lastname)
+                            .forEach(person -> results.add(person));
+                }
+                if (results.isEmpty()) {
+
+                    throw new NotFoundException(
+                            String.format(
+                                "Er zijn geen medewerkers met voornaam \"%s\" en achternaam \"%s\" gevonden.",
+                                request.firstname,
+                                request.lastname)
+                    );
+                }
+                return results;
             }
         }
         else if (request.firstname != null) {
-            //todo: add partial search
-            return searchPersonByFirstname(request.firstname);
+            searchByFirstname(request.firstname).forEach(person -> results.add(person));
+            if (results.isEmpty()) {
+                searchPersonByPartial(request.firstname, request.lastname);
+            }
+            if (results.isEmpty()) {
+                throw new NotFoundException(
+                        String.format(
+                                "Er zijn geen medewerkers met voornaam \"%s\" gevonden.",
+                                request.firstname)
+                );
+            }
+            return results;
         }
         else if (request.lastname != null) {
-            //todo: add partial search
-            return searchPersonByLastname(request.lastname);
-        } else {
+            searchByLastname(request.lastname).forEach(person -> results.add(person));
+            if (results.isEmpty()) {
+                searchPersonByPartial(request.firstname, request.lastname);
+            }
+            if (results.isEmpty()) {
+                throw new NotFoundException(
+                        String.format(
+                                "Er zijn geen medewerkers met achternaam \"%s\"",
+                                request.lastname)
+                );
+            }
+            return results;
+        }
+        else {
             throw new NotFoundException("fillout form");
         }
     }
 
-    private List<Person> fillResultList(List<Person> results, List<Person> toAdd) {
+    public List<Person> compareLists(List<Person> results, List<Person> toAdd) {
         toAdd.stream().filter(person -> !results.contains(person)).forEach(person -> results.add(person));
         return results;
     }
 
-    private List<Person> searchPersonByFirstname(String firstname) {
-        System.out.println("in searchPersonByFirstname: "+firstname);
+    public List<Person> searchByFirstname(String firstname) {
         List<Person> results = new ArrayList<>();
-        List<Person> firstnameList = PERSON_REPOSITORY.findByDetails_Firstname(firstname);
-        for (Person firstnameResult : firstnameList) {
-            if (firstnameResult != null) {
-                results.add(firstnameResult);
+        PERSON_REPOSITORY.findByDetails_Firstname(firstname).forEach(person -> results.add(person));
+        return results;
+    }
+
+    public List<Person> searchByLastname(String lastname) {
+        List<Person> results = new ArrayList<>();
+        PERSON_REPOSITORY.findByDetails_Lastname(lastname).forEach(person -> results.add(person));
+        return results;
+    }
+
+    public List<Person> searchPersonByPartial(String firstname, String lastname) {
+        List<Person> results = new ArrayList<>();
+        String first; String middle; String last;
+        int aThird; int half; int twoThirds;
+        if (firstname != null && !firstname.isEmpty()) {
+            List<Person> firstnameResults = new ArrayList<>();
+            aThird = firstname.length()/3;
+            half = firstname.length()/2;
+            twoThirds = firstname.length()/3*2;
+
+            if (firstname.length() < 4) {
+                first = firstname.substring(0, half);
+                last = firstname.substring(half);
+                compareLists(
+                        PERSON_REPOSITORY.findPersonByFirstPartialFirstname(first),
+                        PERSON_REPOSITORY.findPersonByLastPartialFirstname(last)
+                ).forEach(person -> firstnameResults.add(person));
+            } else {
+                first = firstname.substring(0, aThird);
+                middle = firstname.substring(aThird, twoThirds);
+                last = firstname.substring(twoThirds);
+                compareLists(
+                        compareLists(
+                                PERSON_REPOSITORY.findPersonByFirstPartialFirstname(first),
+                                PERSON_REPOSITORY.findPersonByLastPartialFirstname(middle)
+                        ),
+                        PERSON_REPOSITORY.findPersonByLastPartialFirstname(last)
+                ).forEach(person -> firstnameResults.add(person));
             }
+            compareLists(results, firstnameResults);
+        }
+        if (lastname != null && !lastname.isEmpty())  {
+            List<Person> lastnameResults = new ArrayList<>();
+            aThird = lastname.length()/3;
+            half = lastname.length()/2;
+            twoThirds = lastname.length()/3*2;
+
+            if (lastname.length() < 4) {
+                first = lastname.substring(0, half);
+                last = lastname.substring(half);
+                compareLists(
+                        PERSON_REPOSITORY.findPersonByFirstPartialLastname(first),
+                        PERSON_REPOSITORY.findPersonByLastPartialLastname(last)
+                ).forEach(person -> lastnameResults.add(person));
+            } else {
+                first = lastname.substring(0, aThird);
+                middle = lastname.substring(aThird, twoThirds);
+                last = lastname.substring(twoThirds);
+                compareLists(
+                        compareLists(
+                                PERSON_REPOSITORY.findPersonByFirstPartialLastname(first),
+                                PERSON_REPOSITORY.findPersonByMiddlePartialLastname(middle)
+                        ),
+                        PERSON_REPOSITORY.findPersonByLastPartialLastname(last)
+                ).forEach(person -> lastnameResults.add(person));
+            }
+            compareLists(results, lastnameResults);
         }
         return results;
     }
 
-    private List<Person> searchPersonByLastname(String lastname) {
-        List<Person> results = new ArrayList<>();
-        List<Person> lastnameList = PERSON_REPOSITORY.findByDetails_Lastname(lastname);
-        for (Person lastnameResult : lastnameList) {
-            if (lastnameResult != null) {
-                results.add(lastnameResult);
-            }
-        }
-        return results;
-    }
 }

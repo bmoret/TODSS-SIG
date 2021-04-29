@@ -1,10 +1,7 @@
 package com.snafu.todss.sig.sessies;
 
-import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
-import javassist.NotFoundException;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.boot.CommandLineRunner;
 import com.snafu.todss.sig.sessies.data.*;
 
@@ -94,6 +91,16 @@ public class PersonTestDataFixtures implements CommandLineRunner {
         pb.setEmail("to@email.com");
         pb.setFirstname("to");
         pb.setLastname("alber");
+        pb.setExpertise("all");
+        pb.setEmployedSince(LocalDate.of(2000,1,1));
+        pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
+        pb.setRole(Role.EMPLOYEE);
+
+        this.repository.save(pb.build());
+
+        pb.setEmail("thomaz@email.com");
+        pb.setFirstname("thomaz");
+        pb.setLastname("albertorinie");
         pb.setExpertise("all");
         pb.setEmployedSince(LocalDate.of(2000,1,1));
         pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
