@@ -109,49 +109,54 @@ public class PersonService {
 
     public List<Person> searchPerson(SearchRequest request) throws NotFoundException {
         List<Person> results = new ArrayList<>();
-        if (request.firstname != null && request.lastname != null) {
+        String firstname = request.firstname;
+        String lastname = request.lastname;
+        if (firstname != null && lastname != null && !firstname.isEmpty() && !lastname.isEmpty()) {
             System.out.println("schuif aan!");
-            searchCorrectByFirstnameLastname(request.firstname, request.lastname).forEach(person -> results.add(person));
+            searchCorrectByFirstnameLastname(firstname, lastname).forEach(person -> results.add(person));
             if (results.isEmpty()) {
-                compareLists(searchByLastname(request.lastname), searchByFirstname(request.firstname))
+                compareLists(searchByLastname(lastname), searchByFirstname(firstname))
                         .forEach(person -> results.add(person));
                 if (results.isEmpty()) {
-                    searchPersonByPartial(request.firstname, request.lastname)
+                    searchPersonByPartial(firstname, lastname)
                             .forEach(person -> results.add(person));
                 }
                 if (results.isEmpty()) {
                     throw new NotFoundException(
                             String.format(
                                 "Er zijn geen medewerkers met voornaam \"%s\" en achternaam \"%s\" gevonden.",
-                                request.firstname,
-                                request.lastname)
+                                firstname,
+                                lastname)
                     );
                 }
             }
         }
-        else if (request.firstname != null) {
-            searchByFirstname(request.firstname).forEach(person -> results.add(person));
+        else if (firstname != null && !firstname.isEmpty()) {
+            System.out.println("alleen voornaam");
+            searchByFirstname(firstname).forEach(person -> results.add(person));
             if (results.isEmpty()) {
-                searchPersonByPartial(request.firstname, request.lastname);
+                searchPersonByPartial(firstname, lastname).forEach(person -> results.add(person));
             }
             if (results.isEmpty()) {
                 throw new NotFoundException(
                         String.format(
                                 "Er zijn geen medewerkers met voornaam \"%s\" gevonden.",
-                                request.firstname)
+                                firstname)
                 );
             }
         }
-        else if (request.lastname != null) {
-            searchByLastname(request.lastname).forEach(person -> results.add(person));
+        else if (lastname != null && !lastname.isEmpty()) {
+        //todo: geblijft@@#
+            System.out.println("alleen achternaam");
+            searchByLastname(lastname).forEach(person -> results.add(person));
             if (results.isEmpty()) {
-                searchPersonByPartial(request.firstname, request.lastname);
+                searchPersonByPartial(firstname, lastname).forEach(person -> results.add(person));
             }
             if (results.isEmpty()) {
                 throw new NotFoundException(
                         String.format(
                                 "Er zijn geen medewerkers met achternaam \"%s\"",
-                                request.lastname)
+                                lastname)
                 );
             }
         }
@@ -201,13 +206,18 @@ public class PersonService {
             max = firstname.length()+2;
             System.out.println("max: "+max);
 
-            if (firstname.length() < 4) {
-                first = firstname.substring(0, half);
-                last = firstname.substring(half);
-                compareLists(
-                        PERSON_REPOSITORY.findPersonByFirstPartialFirstname(first, min, max),
-                        PERSON_REPOSITORY.findPersonByLastPartialFirstname(last, min, max)
-                ).forEach(person -> firstnameResults.add(person));
+            if (firstname.length() < 5) {
+                if (firstname.length() == 1) {
+                    PERSON_REPOSITORY.findPersonByFirstPartialFirstname(firstname, min, max)
+                            .forEach(person -> firstnameResults.add(person));
+                } else {
+                    first = firstname.substring(0, half);
+                    last = firstname.substring(half);
+                    compareLists(
+                            PERSON_REPOSITORY.findPersonByFirstPartialFirstname(first, min, max),
+                            PERSON_REPOSITORY.findPersonByLastPartialFirstname(last, min, max)
+                    ).forEach(person -> firstnameResults.add(person));
+                }
             } else {
                 first = firstname.substring(0, aThird);
                 middle = firstname.substring(aThird, twoThirds);
@@ -221,8 +231,8 @@ public class PersonService {
                         PERSON_REPOSITORY.findPersonByLastPartialFirstname(last, min, max)
                 ).forEach(person -> firstnameResults.add(person));
             }
+            System.out.println("results in: "+ results);
             compareLists(results, firstnameResults);
-            System.out.println(results);
         }
         if (lastname != null && !lastname.isEmpty())  {
             List<Person> lastnameResults = new ArrayList<>();
@@ -234,7 +244,7 @@ public class PersonService {
             }
             max = lastname.length()+2;
 
-            if (lastname.length() < 4) {
+            if (lastname.length() < 5) {
                 first = lastname.substring(0, half);
                 last = lastname.substring(half);
                 compareLists(
@@ -255,6 +265,7 @@ public class PersonService {
             }
             compareLists(results, lastnameResults);
         }
+        System.out.println("results eind: "+ results);
         return results;
     }
 
