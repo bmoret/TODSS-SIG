@@ -1,8 +1,10 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.application.SpecialInterestGroupService;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.SpecialInterestGroupRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonCompactResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
@@ -21,9 +23,11 @@ import java.util.UUID;
 @RequestMapping("/sig")
 public class SpecialInterestGroupController {
     private final SpecialInterestGroupService SERVICE;
+    private final PersonService personService;
 
-    public SpecialInterestGroupController(SpecialInterestGroupService specialInterestGroupService) {
+    public SpecialInterestGroupController(SpecialInterestGroupService specialInterestGroupService, PersonService personService) {
         this.SERVICE = specialInterestGroupService;
+        this.personService = personService;
     }
 
     private SpecialInterestGroupResponse convertSpecialInterestGroupToResponse(SpecialInterestGroup specialInterestGroup) {
