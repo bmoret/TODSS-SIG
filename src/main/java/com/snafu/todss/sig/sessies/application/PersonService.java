@@ -146,7 +146,6 @@ public class PersonService {
             }
         }
         else if (lastname != null && !lastname.isEmpty()) {
-        //todo: geblijft@@#
             System.out.println("alleen achternaam");
             searchByLastname(lastname).forEach(person -> results.add(person));
             if (results.isEmpty()) {
@@ -245,16 +244,22 @@ public class PersonService {
             max = lastname.length()+2;
 
             if (lastname.length() < 5) {
-                first = lastname.substring(0, half);
-                last = lastname.substring(half);
-                compareLists(
-                        PERSON_REPOSITORY.findPersonByFirstPartialLastname(first, min, max),
-                        PERSON_REPOSITORY.findPersonByLastPartialLastname(last, min, max)
-                ).forEach(person -> lastnameResults.add(person));
+                if (lastname.length() == 1) {
+                    PERSON_REPOSITORY.findPersonByFirstPartialLastname(lastname, min, max).forEach(person -> lastnameResults.add(person));
+                } else {
+                    first = lastname.substring(0, half);
+                    last = lastname.substring(half);
+                    compareLists(
+                            PERSON_REPOSITORY.findPersonByFirstPartialLastname(first, min, max),
+                            PERSON_REPOSITORY.findPersonByLastPartialLastname(last, min, max)
+                    ).forEach(person -> lastnameResults.add(person));
+                }
             } else {
                 first = lastname.substring(0, aThird);
                 middle = lastname.substring(aThird, twoThirds);
                 last = lastname.substring(twoThirds);
+
+                System.out.println(first +" "+ middle +" "+ last);
                 compareLists(
                         compareLists(
                                 PERSON_REPOSITORY.findPersonByFirstPartialLastname(first, min, max),

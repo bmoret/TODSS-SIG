@@ -108,6 +108,14 @@ public class PersonTestDataFixtures implements CommandLineRunner {
 
         this.repository.save(pb.build());
 
-    }
+        pb.setEmail("thomaz2@email.com");
+        pb.setFirstname("thomaz");
+        pb.setLastname("ali");
+        pb.setExpertise("all");
+        pb.setEmployedSince(LocalDate.of(2000,1,1));
+        pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
+        pb.setRole(Role.EMPLOYEE);
 
+        this.repository.save(pb.build());
+    }
 }
