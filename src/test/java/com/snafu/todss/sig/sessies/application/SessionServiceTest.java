@@ -23,9 +23,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static org.mockito.Mockito.*;
-
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class SessionServiceTest {
     private static final SessionRepository repository = mock(SessionRepository.class);
@@ -166,13 +165,26 @@ class SessionServiceTest {
 
     @Test
     @DisplayName("Delete session with not existing id throws not found")
-    void deleteNotExistingSession_ThrowsNotFOund() {
+    void deleteNotExistingSession_ThrowsNotFound() {
         when(repository.existsById(session.getId())).thenReturn(false);
 
-       assertThrows(
-               NotFoundException.class,
-               () -> service.deleteSession(UUID.randomUUID())
-       );
+        assertThrows(
+                NotFoundException.class,
+                () -> service.deleteSession(UUID.randomUUID())
+        );
+
+        verify(repository, times(1)).existsById(any(UUID.class));
+    }
+
+    @Test
+    @DisplayName("Delete session with not existing id throws not found")
+    void requestExistingSessionToBePlanned() {
+        when(repository.existsById(session.getId())).thenReturn(false);
+
+        assertThrows(
+                NotFoundException.class,
+                () -> service.deleteSession(UUID.randomUUID())
+        );
 
         verify(repository, times(1)).existsById(any(UUID.class));
     }
