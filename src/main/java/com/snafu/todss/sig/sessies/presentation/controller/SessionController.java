@@ -40,6 +40,7 @@ SessionController {
         return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @PostMapping
     public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest) throws NotFoundException {
         Session session = this.SERVICE.createSession(sessionRequest);

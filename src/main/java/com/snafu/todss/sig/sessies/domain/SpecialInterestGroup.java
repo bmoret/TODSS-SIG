@@ -4,7 +4,6 @@ import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,9 +30,7 @@ public class SpecialInterestGroup {
     public SpecialInterestGroup(String subject, Person manager, List<Person> organizers, List<Session> sessions) {
         this.subject = subject;
         this.manager = manager;
-        if(organizers.isEmpty()) {
-            this.organizers = new ArrayList<>();
-        } this.organizers = organizers;
+        this.organizers = organizers;
         this.sessions = sessions;
     }
 
@@ -68,8 +65,8 @@ public class SpecialInterestGroup {
         return this.organizers.add(organizor);
     }
 
-    public boolean removeOrganizer(Person organizor) {
-        return this.organizers.remove(organizor);
+    public boolean removeOrganizer(Person organizer) {
+        return this.organizers.remove(organizer);
     }
 
     public List<Session> getSessions() {

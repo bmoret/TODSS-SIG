@@ -1,7 +1,5 @@
 package com.snafu.todss.sig.sessies.presentation.dto.response;
 
-import com.snafu.todss.sig.sessies.domain.person.Person;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -9,9 +7,9 @@ public class SpecialInterestGroupResponse {
     public final UUID id;
     public final String subject;
     public final PersonCompactResponse manager;
-    public final List<Person> organizers;
+    public final List<PersonCompactResponse> organizers;
 
-    public SpecialInterestGroupResponse(UUID id, String subject, PersonCompactResponse manager, List<Person> organizers) {
+    public SpecialInterestGroupResponse(UUID id, String subject, PersonCompactResponse manager, List<PersonCompactResponse> organizers) {
         this.id = id;
         this.subject = subject;
         this.manager = manager;
@@ -30,7 +28,7 @@ public class SpecialInterestGroupResponse {
         return manager;
     }
 
-    public List<Person> getOrganizers() {
+    public List<PersonCompactResponse> getOrganizers() {
         return organizers;
     }
 }
