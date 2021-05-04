@@ -50,7 +50,8 @@ public class SpecialInterestGroupController {
         return null;
     }
 
-    @CrossOrigin
+
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping
     public ResponseEntity<List<SpecialInterestGroupResponse>> getAllSpecialInterestGroups() {
         List<SpecialInterestGroup> specialInterestGroups = this.SERVICE.getAllSpecialInterestGroups();
@@ -62,6 +63,7 @@ public class SpecialInterestGroupController {
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/{id}")
     public ResponseEntity<SpecialInterestGroupResponse> getSpecialInterestGroup(@PathVariable UUID id) throws NotFoundException {
         SpecialInterestGroup specialInterestGroup = this.SERVICE.getSpecialInterestGroupById(id);
