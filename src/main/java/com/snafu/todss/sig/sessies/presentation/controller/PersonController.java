@@ -80,7 +80,7 @@ public class PersonController {
         return persons.stream().map(this::convertPersonToResponse).collect(Collectors.toList());
     }
 
-    @GetMapping(path = "/search")
+    @PostMapping(path = "/search")
     public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws NotFoundException {
         List<Person> personList = SERVICE.searchPerson(request);
         return new ResponseEntity<>(convertSearchPersonToListResponse(personList), HttpStatus.OK);
