@@ -177,15 +177,16 @@ class SessionServiceTest {
     }
 
     @Test
-    @DisplayName("Delete session with not existing id throws not found")
-    void requestExistingSessionToBePlanned() {
-        when(repository.existsById(session.getId())).thenReturn(false);
+    @DisplayName("Request Not existing session to be planned throws not found")
+    void requestNotExistingSessionToBePlanned_ThrowsNotFound() {
+        when(repository.findById(session.getId())).thenReturn(Optional.empty());
 
         assertThrows(
                 NotFoundException.class,
-                () -> service.deleteSession(UUID.randomUUID())
+                () -> service.requestSessionToBePlanned(UUID.randomUUID())
         );
 
         verify(repository, times(1)).existsById(any(UUID.class));
     }
+
 }
