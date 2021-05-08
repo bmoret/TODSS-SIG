@@ -34,7 +34,7 @@ public class SpecialInterestGroupService {
 
     public List<Person> getAssociatedPeopleBySpecialInterestGroup(UUID id) throws NotFoundException {
         SpecialInterestGroup sig = getSpecialInterestGroupById(id);
-        List<Person> people = sig.getOrganizers();
+        List<Person> people = new ArrayList<>(sig.getOrganizers());
         people.add(sig.getManager());
 
         return people;

@@ -11,6 +11,7 @@ create table sig_organizers (organised_special_interest_groups_id uuid not null,
 create table teams_online_session (online_session_id uuid not null, primary key (online_session_id));
 alter table session_attendance_list add constraint UK_b9c4s26st356o6ow4tm28ce8y unique (attendance_list_id);
 alter table session_feedback_list add constraint UK_sf56n9tp81jfi7w5clyrbk580 unique (feedback_list_id);
+alter table sig_organizers add constraint UK_dqwe6n9t321clyrbk580 unique (organised_special_interest_groups_id, organizers_id);
 alter table session add constraint FKw3456sbs8o3456sfghrr foreign key (contact_person_id) references person;
 alter table attendance add constraint FKd5wmpdsbs8oyb3b2amd78lfev foreign key (person_id) references person;
 alter table attendance add constraint FKras5lsk62ds9j7f8myss8nwcs foreign key (session_id) references session;
