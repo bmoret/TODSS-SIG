@@ -18,7 +18,7 @@ public class SessionResponse {
     private String platform;
     private String joinUrl;
 
-    private Person contactPerson;
+    private PersonCompactResponse contactPerson;
 
     public SessionResponse() {
         //For Modelmapper to map domain class to this DTO
@@ -80,7 +80,8 @@ public class SessionResponse {
         this.joinUrl = joinUrl;
     }
 
-    public void setContactPerson(Person contactPerson) { this.contactPerson = contactPerson; }
+    public void setContactPerson(Person contactPerson) {
+        this.contactPerson = new PersonCompactResponse(contactPerson.getId(), contactPerson.getDetails().getFirstname()); }
 
-    public Person getContactPerson() { return contactPerson; }
+    public PersonCompactResponse getContactPerson() { return contactPerson; }
 }

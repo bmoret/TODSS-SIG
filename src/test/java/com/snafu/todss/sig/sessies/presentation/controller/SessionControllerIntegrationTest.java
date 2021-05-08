@@ -395,7 +395,8 @@ class SessionControllerIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        "Address"
+                        "Address",
+                        null
                 )
         );
 
@@ -417,7 +418,8 @@ class SessionControllerIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        "Address"
+                        "Address",
+                        null
                 )
         );
 
