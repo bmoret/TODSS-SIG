@@ -2,6 +2,7 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
@@ -63,5 +64,13 @@ public class SessionService {
             throw new NotFoundException("No session found with given id");
         }
         this.SESSION_REPOSITORY.deleteById(sessionId);
+    }
+
+    public void requestSessionToBePlanned(UUID sessionId) throws NotFoundException {
+        Session session = getSessionById(sessionId);
+        if (session.getState() != SessionState.DRAFT) {
+            throw new IllegalStateException("Session can only be requested for planning as a draft");
+        }
+        session.nextState();
     }
 }
