@@ -40,6 +40,7 @@ SessionController {
         return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @PostMapping
     public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest) throws NotFoundException {
         Session session = this.SERVICE.createSession(sessionRequest);
@@ -62,5 +63,13 @@ SessionController {
         this.SERVICE.deleteSession(sessionId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @CrossOrigin(origins = "http://localhost:8081")
+    @PutMapping("/{sessionId}/request")
+    public ResponseEntity<Void> requestSessionToBePlanned(@PathVariable UUID sessionId) throws NotFoundException {
+        this.SERVICE.requestSessionToBePlanned(sessionId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

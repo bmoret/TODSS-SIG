@@ -23,9 +23,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static org.mockito.Mockito.*;
-
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class SessionServiceTest {
     private static final SessionRepository repository = mock(SessionRepository.class);
@@ -166,14 +165,50 @@ class SessionServiceTest {
 
     @Test
     @DisplayName("Delete session with not existing id throws not found")
-    void deleteNotExistingSession_ThrowsNotFOund() {
+    void deleteNotExistingSession_ThrowsNotFound() {
         when(repository.existsById(session.getId())).thenReturn(false);
 
-       assertThrows(
-               NotFoundException.class,
-               () -> service.deleteSession(UUID.randomUUID())
-       );
+        assertThrows(
+                NotFoundException.class,
+                () -> service.deleteSession(UUID.randomUUID())
+        );
 
         verify(repository, times(1)).existsById(any(UUID.class));
+    }
+
+    @Test
+    @DisplayName("Request Not existing session to be planned throws not found")
+    void requestNotExistingSessionToBePlanned_ThrowsNotFound() {
+        when(repository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+        assertThrows(
+                NotFoundException.class,
+                () -> service.requestSessionToBePlanned(UUID.randomUUID())
+        );
+
+        verify(repository, times(1)).findById(any(UUID.class));
+    }
+
+    @Test
+    @DisplayName("Request Not existing session to be planned throws not found")
+    void requestSessionToBePlannedWithWrongState_ThrowsIAE() {
+        session.nextState();
+        when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> service.requestSessionToBePlanned(UUID.randomUUID())
+        );
+        verify(repository, times(1)).findById(any(UUID.class));
+    }
+
+    @Test
+    @DisplayName("Request session to be planned requests planning")
+    void requestSessionToBePlanned_RequestsPlanning() throws NotFoundException {
+        when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
+
+        service.requestSessionToBePlanned(UUID.randomUUID());
+
+        verify(repository, times(1)).findById(any(UUID.class));
     }
 }

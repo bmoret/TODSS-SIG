@@ -2,6 +2,7 @@ package com.snafu.todss.sig.sessies.presentation.controller;
 
 import com.snafu.todss.sig.sessies.application.SpecialInterestGroupService;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.SpecialInterestGroupRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonCompactResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SpecialInterestGroupResponse;
@@ -14,6 +15,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/sig")
@@ -24,15 +26,31 @@ public class SpecialInterestGroupController {
         this.SERVICE = specialInterestGroupService;
     }
 
-    private SpecialInterestGroupResponse convertSpecialInterestGroupToResponse(SpecialInterestGroup specialInterestGroup) {
+    private SpecialInterestGroupResponse convertSpecialInterestGroupToResponse(SpecialInterestGroup sig) {
+        PersonCompactResponse managerResponse = createPcr(sig.getManager());
+        List<PersonCompactResponse> organizers = sig.getOrganizers().stream()
+                .map(this::createPcr)
+                .collect(Collectors.toList());
+
         return new SpecialInterestGroupResponse(
-                specialInterestGroup.getId(),
-                specialInterestGroup.getSubject(),
-                new PersonCompactResponse(specialInterestGroup.getManager().getId(), specialInterestGroup.getManager().getSupervisor().getDetails().getFirstname()),
-                specialInterestGroup.getOrganizers()
+                sig.getId(),
+                sig.getSubject(),
+                managerResponse,
+                organizers
         );
     }
 
+    private PersonCompactResponse createPcr(Person person) {
+        if (person != null) {
+            return new PersonCompactResponse(person.getId(),
+                    String.format("%s, %s", person.getDetails().getLastname(), person.getDetails().getFirstname())
+            );
+        }
+
+        return null;
+    }
+
+    @CrossOrigin
     @GetMapping
     public ResponseEntity<List<SpecialInterestGroupResponse>> getAllSpecialInterestGroups() {
         List<SpecialInterestGroup> specialInterestGroups = this.SERVICE.getAllSpecialInterestGroups();
