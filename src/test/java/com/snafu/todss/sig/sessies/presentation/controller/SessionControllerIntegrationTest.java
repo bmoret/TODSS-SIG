@@ -392,6 +392,7 @@ class SessionControllerIntegrationTest {
                 .put("/sessions/" + session.getId() + "/request");
 
         mockMvc.perform(request)
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("TO_BE_PLANNED"));
     }
 }

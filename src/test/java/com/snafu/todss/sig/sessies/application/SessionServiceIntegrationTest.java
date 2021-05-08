@@ -273,8 +273,8 @@ class SessionServiceIntegrationTest {
     @Test
     @DisplayName("Request session to be planned requests planning")
     void requestSessionToBePlanned_RequestsPlanning() throws NotFoundException {
-        sessionService.requestSessionToBePlanned(testSession.getId());
+        Session session = sessionService.requestSessionToBePlanned(testSession.getId());
 
-        assertEquals(SessionState.TO_BE_PLANNED, repository.findById(testSession.getId()).get().getState());
+        assertEquals(SessionState.TO_BE_PLANNED, session.getState());
     }
 }

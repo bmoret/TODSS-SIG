@@ -53,11 +53,12 @@ public class SessionService {
         this.SESSION_REPOSITORY.deleteById(sessionId);
     }
 
-    public void requestSessionToBePlanned(UUID sessionId) throws NotFoundException {
+    public Session requestSessionToBePlanned(UUID sessionId) throws NotFoundException {
         Session session = getSessionById(sessionId);
         if (session.getState() != SessionState.DRAFT) {
             throw new IllegalStateException("Session can only be requested for planning as a draft");
         }
         session.nextState();
+        return session;
     }
 }

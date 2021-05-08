@@ -77,9 +77,9 @@ SessionController {
 
     @CrossOrigin(origins = "http://localhost:8081")
     @PutMapping("/{sessionId}/request")
-    public ResponseEntity<Void> requestSessionToBePlanned(@PathVariable UUID sessionId) throws NotFoundException {
-        this.SERVICE.requestSessionToBePlanned(sessionId);
+    public ResponseEntity<SessionResponse> requestSessionToBePlanned(@PathVariable UUID sessionId) throws NotFoundException {
+        Session session = this.SERVICE.requestSessionToBePlanned(sessionId);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 }
