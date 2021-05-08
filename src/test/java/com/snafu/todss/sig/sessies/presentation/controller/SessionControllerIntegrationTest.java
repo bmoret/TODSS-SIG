@@ -340,4 +340,62 @@ class SessionControllerIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @DisplayName("Plan session returns OK with body")
+    void planSession_ReturnsOkWithBody() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(null, null, "Subject", "Description"),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address"
+                )
+        );
+        RequestBuilder request = MockMvcRequestBuilders
+                .put(String.format("/sessions/%s/plan?startDate=%s&endDate=%s",
+                        session.getId(),
+                        LocalDateTime.now().plusHours(1),
+                        LocalDateTime.now().plusHours(2))
+                );
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @ParameterizedTest
+    @MethodSource("ProvideInvalidDateCombinations")
+    @DisplayName("Plan session with missing date time arguments is conflict")
+    void planSessionWithMissingArgs_IsConflict(String startDate, String endDate) throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(null, null, "Subject", "Description"),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address"
+                )
+        );
+        RequestBuilder request = MockMvcRequestBuilders
+                .put(String.format("/sessions/%s/plan?startdDate=%s&endDate=%s",
+                        session.getId(),
+                        startDate,
+                        endDate)
+                );
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+    private static Stream<Arguments> ProvideInvalidDateCombinations() {
+        return Stream.of(
+                Arguments.of("", LocalDateTime.now().minusHours(2).toString()),
+                Arguments.of(LocalDateTime.now().minusHours(1).toString(), ""),
+                Arguments.of("", "")
+        );
+    }
 }

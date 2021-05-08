@@ -2,6 +2,7 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
@@ -9,6 +10,7 @@ import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,5 +52,19 @@ public class SessionService {
             throw new NotFoundException("No session found with given id");
         }
         this.SESSION_REPOSITORY.deleteById(sessionId);
+    }
+
+    public Session planSession(UUID sessionId, LocalDateTime startDate, LocalDateTime endDate) throws NotFoundException {
+        Session session = getSessionById(sessionId);
+        if (session.getState() != SessionState.TO_BE_PLANNED) {
+            throw new IllegalStateException("Session can only be planned if session state is TO_BE_PLANNED");
+        }
+        if (startDate.isBefore(LocalDateTime.now()) || endDate.isBefore(LocalDateTime.now()) ) {
+            throw new IllegalArgumentException("Dates must be after now");
+        }
+        session.getDetails().setStartDate(startDate);
+        session.getDetails().setEndDate(endDate);
+        session.nextState();
+        return SESSION_REPOSITORY.save(session);
     }
 }

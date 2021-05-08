@@ -5,11 +5,13 @@ import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SessionResponse;
 import javassist.NotFoundException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,5 +65,16 @@ SessionController {
         this.SERVICE.deleteSession(sessionId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/{sessionId}/plan")
+    public ResponseEntity<SessionResponse> planSession(
+            @PathVariable UUID sessionId,
+            @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+    ) throws NotFoundException {
+        Session session = this.SERVICE.planSession(sessionId, startDate, endDate);
+
+        return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
     }
 }
