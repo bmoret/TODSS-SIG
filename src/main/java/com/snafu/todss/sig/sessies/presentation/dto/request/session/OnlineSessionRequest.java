@@ -25,7 +25,7 @@ public class OnlineSessionRequest extends SessionRequest{
             @NotNull UUID sigId,
             @NotBlank String platform,
             @NotBlank String joinUrl,
-            UUID contactPerson
+            String contactPerson
     ) {
         super(startDate, endDate, subject, description, sigId, contactPerson);
         this.platform = platform;

@@ -62,7 +62,7 @@ class SessionDirectorTest {
                 "Description",
                 UUID.randomUUID(),
                "Address",
-                UUID.randomUUID()
+                UUID.randomUUID().toString()
         );
         OnlineSessionRequest onlineSessionRequest = new OnlineSessionRequest(
                 now,
@@ -72,7 +72,7 @@ class SessionDirectorTest {
                 UUID.randomUUID(),
                 "Random Platform",
                 "link",
-                UUID.randomUUID()
+                UUID.randomUUID().toString()
         );
         OnlineSessionRequest teamsOnlineSessionRequest = new OnlineSessionRequest(
                 now,
@@ -82,7 +82,7 @@ class SessionDirectorTest {
                 UUID.randomUUID(),
                 "Teams",
                 "link",
-                UUID.randomUUID()
+                UUID.randomUUID().toString()
         );
         return Stream.of(
                 Arguments.of(physicalSessionRequest, PhysicalSession.class),

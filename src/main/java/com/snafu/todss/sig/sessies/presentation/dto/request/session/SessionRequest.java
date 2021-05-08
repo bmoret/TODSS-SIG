@@ -41,13 +41,13 @@ public abstract class SessionRequest {
             @NotBlank String subject,
             @NotBlank String description,
             @NotNull UUID sigId,
-            UUID contactPersonId
+            String contactPerson
     ) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.subject = subject;
         this.description = description;
         this.sigId = sigId;
-        this.contactPerson = contactPerson;
+        this.contactPerson = UUID.fromString(contactPerson);
     }
 }

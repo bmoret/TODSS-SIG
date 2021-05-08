@@ -22,7 +22,7 @@ public class PhysicalSessionRequest extends SessionRequest{
             @NotBlank String description,
             @NotNull UUID sigId,
             @NotBlank String address,
-            UUID contactPerson
+            String contactPerson
     ) {
         super(startDate, endDate, subject, description, sigId, contactPerson);
         this.address = address;

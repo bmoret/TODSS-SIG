@@ -111,7 +111,8 @@ class AttendanceTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        address
+                        address,
+                null
                 );
 
         assertNull(attendance.getSession());

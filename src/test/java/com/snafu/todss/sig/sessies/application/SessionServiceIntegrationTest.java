@@ -254,7 +254,7 @@ class SessionServiceIntegrationTest {
                 "Description",
                 UUID.randomUUID(),
                 "Address",
-                supervisor.getId()
+                supervisor.getId().toString()
         );
 
         assertThrows(
