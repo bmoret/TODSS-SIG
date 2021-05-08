@@ -8,10 +8,10 @@ import java.util.UUID;
 public class SpecialInterestGroupResponse {
     public final UUID id;
     public final String subject;
-    public final Person manager;
+    public final PersonCompactResponse manager;
     public final List<Person> organizers;
 
-    public SpecialInterestGroupResponse(UUID id, String subject, Person manager, List<Person> organizers) {
+    public SpecialInterestGroupResponse(UUID id, String subject, PersonCompactResponse manager, List<Person> organizers) {
         this.id = id;
         this.subject = subject;
         this.manager = manager;
@@ -26,7 +26,7 @@ public class SpecialInterestGroupResponse {
         return subject;
     }
 
-    public Person getManager() {
+    public PersonCompactResponse getManager() {
         return manager;
     }
 

@@ -19,7 +19,7 @@ public class SpecialInterestGroup {
     @ManyToOne
     private Person manager;
 
-    @ManyToMany
+    @ManyToMany()
     private List<Person> organizers;
 
     @OneToMany(mappedBy = "sig")
@@ -65,8 +65,8 @@ public class SpecialInterestGroup {
         return this.organizers.add(organizor);
     }
 
-    public boolean removeOrganizer(Person organizor) {
-        return this.organizers.remove(organizor);
+    public boolean removeOrganizer(Person organizer) {
+        return this.organizers.remove(organizer);
     }
 
     public List<Session> getSessions() {

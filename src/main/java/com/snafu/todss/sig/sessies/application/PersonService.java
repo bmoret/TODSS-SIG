@@ -98,6 +98,7 @@ public class PersonService {
                 throw new NotFoundException("The given supervisor id is not related to a person");
             }
         }
+      
         return null;
     }
 

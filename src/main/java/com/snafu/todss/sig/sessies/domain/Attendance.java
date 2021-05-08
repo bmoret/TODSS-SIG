@@ -13,10 +13,8 @@ public class Attendance {
     @GeneratedValue
     private UUID id;
 
-    //todo: isConfirmed en isAbsent vervangen met isPresent
-    // (aanmelden is attendance object aanmaken, komen is isPresent = true absent is false)
-    private boolean isConfirmed;
-    private boolean isAbsent;
+    private AttendanceState state;
+
     private boolean isSpeaker;
 
     @ManyToOne(optional = false)
@@ -26,52 +24,51 @@ public class Attendance {
     private Session session;
 
     public static Attendance of(Person person, Session session) {
-        return new Attendance(false, false, false, person, session);
+        return new Attendance(AttendanceState.NO_SHOW, false, person, session);
     }
 
     public Attendance() {}
 
-    public Attendance(boolean isConfirmed, boolean isAbsent, boolean speaker, Person person, Session session) {
-        this.isConfirmed = isConfirmed;
-        this.isAbsent = isAbsent;
-        this.isSpeaker = speaker;
+    public Attendance(AttendanceState state, boolean isSpeaker, Person person, Session session) {
+        this.state = state;
+        this.isSpeaker = isSpeaker;
         this.person = person;
         this.session = session;
     }
 
-    public boolean isConfirmed() {
-        return isConfirmed;
+    public UUID getId() {
+        return id;
     }
 
-    public boolean isAbsent() {
-        return isAbsent;
+    public AttendanceState getState() {
+        return state;
+    }
+
+    public void setState(AttendanceState state) {
+        this.state = state;
     }
 
     public boolean isSpeaker() {
         return isSpeaker;
     }
 
-    public UUID getAttendanceId() {
-        return this.id;
+    public void setSpeaker(boolean speaker) {
+        isSpeaker = speaker;
     }
 
     public Person getPerson() {
         return person;
     }
 
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
     public Session getSession() {
         return session;
     }
 
-    public void setConfirmed(boolean confirmed) {
-        this.isConfirmed = confirmed;
-    }
-
-    public void setAbsent(boolean absent) {
-        isAbsent = absent;
-    }
-
-    public void setSpeaker(boolean speaker) {
-        isSpeaker = speaker;
+    public void setSession(Session session) {
+        this.session = session;
     }
 }

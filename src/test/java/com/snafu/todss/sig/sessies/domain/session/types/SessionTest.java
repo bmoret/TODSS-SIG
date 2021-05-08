@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -58,7 +59,7 @@ class SessionTest {
                 new ArrayList<>()
         );
 
-        testAttendance = new Attendance(false, false, false, testPerson, session);
+        testAttendance = new Attendance(PRESENT, false, testPerson, session);
 
         testFeedback = new Feedback(
                 "Description with feedback",
@@ -141,7 +142,8 @@ class SessionTest {
     @DisplayName("Altering attendances from getter doesn't alter the list in Session itself")
     void alterAttendancesOfGetter_DoesNotAlterListInSession() {
         List<Attendance> attendanceList = session.getAttendances();
-        Attendance attendance = new Attendance(false, false, false, testPerson, session);
+        Attendance attendance = new Attendance(PRESENT, false, testPerson, session);
+
 
         assertThrows(
                 UnsupportedOperationException.class,
@@ -162,7 +164,8 @@ class SessionTest {
                 new PersonDetails("mail", "first", "last", "expertise", LocalDate.now(), Branch.VIANEN, Role.EMPLOYEE),
                 null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()
         );
-        testAttendance = new Attendance(false, false, false, testPerson, session);
+        testAttendance =  new Attendance(PRESENT, false, testPerson, session);
+
         return Stream.of(
                 Arguments.of(
                         testAttendance,
@@ -180,9 +183,9 @@ class SessionTest {
                         false
                 ),
                 Arguments.of(
-                        new Attendance(false, false, false, new Person(), session),
+                        new Attendance(PRESENT, false, testPerson, session),
                         testPerson,
-                        false
+                        true
                 )
         );
     }
@@ -191,9 +194,13 @@ class SessionTest {
     @MethodSource("provideRemoveAttendeeArgs")
     @DisplayName("Remove a person from attendances removes attendance of person")
     void removePersonFromAttendances_RemovesAttendance(Attendance addedAttendance, Person toBeRemovedAttendance, boolean shouldReturn) {
+
+        System.out.println(session.getAttendances());
         session.addAttendee(addedAttendance);
+        System.out.println(session.getAttendances());
 
         session.removeAttendee(toBeRemovedAttendance);
+        System.out.println(session.getAttendances());
 
         assertEquals(shouldReturn, session.getAttendances().isEmpty());
     }

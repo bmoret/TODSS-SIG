@@ -24,7 +24,7 @@ public class Feedback {
 
     public Feedback() {}
     public Feedback(String description, Session session, Person person) {
-        if (description.equals("")) {
+        if (description.isBlank()) {
             throw new IllegalArgumentException("Description of feedback cannot be empty.");
         }
 
