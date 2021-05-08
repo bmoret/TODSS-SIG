@@ -26,6 +26,7 @@ SessionController {
         this.SERVICE = sessionService;
     }
 
+    @CrossOrigin("http://localhost:8081")
     @GetMapping
     public ResponseEntity<List<SessionResponse>> getAllSessions() {
         List<Session> sessions = this.SERVICE.getAllSessions();

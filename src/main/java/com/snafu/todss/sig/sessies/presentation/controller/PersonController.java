@@ -80,6 +80,7 @@ public class PersonController {
         return persons.stream().map(this::convertPersonToResponse).collect(Collectors.toList());
     }
 
+    @CrossOrigin("http://localhost:8081")
     @PostMapping(path = "/search")
     public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws NotFoundException {
         List<Person> personList = SERVICE.searchPerson(request);
