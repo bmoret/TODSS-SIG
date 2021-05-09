@@ -74,7 +74,6 @@ public class PersonController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-
     //search person/medewerker
     private List<PersonResponse> convertSearchPersonToListResponse(List<Person> persons) {
         return persons.stream().map(this::convertPersonToResponse).collect(Collectors.toList());
@@ -83,6 +82,8 @@ public class PersonController {
     @CrossOrigin("http://localhost:8081")
     @PostMapping(path = "/search")
     public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws NotFoundException {
+        System.out.println(request.firstname);
+        System.out.println(request);
         List<Person> personList = SERVICE.searchPerson(request);
         return new ResponseEntity<>(convertSearchPersonToListResponse(personList), HttpStatus.OK);
     }

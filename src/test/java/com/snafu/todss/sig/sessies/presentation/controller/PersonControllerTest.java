@@ -164,4 +164,18 @@ class PersonControllerTest {
 //                () -> mockMvc.perform(finalRequest)
 //        );
     }
+
+    @Test
+    @DisplayName("update state of attendance throws when attendance not found")
+    void search() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
+                .content("{\"firstname\":\"second\"}")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(content().contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").doesNotExist());
+    }
 }

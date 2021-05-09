@@ -84,7 +84,7 @@ class AttendanceControllerIntegrationTest {
                         address
                 )
         );
-        attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session));
+        attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, true, person, session));
     }
 
     @AfterEach
@@ -102,7 +102,7 @@ class AttendanceControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.state").value(PRESENT.toString()))
                 .andExpect(jsonPath("$.person").exists())
-                .andExpect(jsonPath("$.speaker").value(false))
+                .andExpect(jsonPath("$.speaker").value(true))
                 .andExpect(jsonPath("$.session").exists());
     }
 
@@ -185,6 +185,19 @@ class AttendanceControllerIntegrationTest {
         mockMvc.perform(
                 delete("/attendances/{id}", attendance.getId()))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("update state of attendance throws when attendance not found")
+    void getSpeakers() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders.get("/attendances/{id}/speaker", attendance.getSession().getId())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(content().contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").doesNotExist());
     }
 
 }

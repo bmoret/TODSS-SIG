@@ -11,6 +11,8 @@ import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -61,5 +63,19 @@ public class AttendanceService {
 
     public void deleteAttendance(UUID id) {
         this.ATTENDANCE_REPOSITORY.deleteById(id);
+    }
+
+    public List<Attendance> getSpeakersFromAttendanceSession(UUID id) throws NotFoundException {
+        Session session = this.SESSION_SERVICE.getSessionById(id);
+        List<Attendance> attendances = this.ATTENDANCE_REPOSITORY.findAttendancesBySession(session);
+        List<Attendance> speakers = new ArrayList<>();
+        attendances.forEach(
+                attendance -> {
+                    if (attendance.isSpeaker()) {
+                        speakers.add(attendance);
+                    }
+                }
+        );
+        return speakers;
     }
 }

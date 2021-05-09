@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -259,5 +260,21 @@ class AttendanceServiceTest {
         SERVICE.deleteAttendance(UUID.randomUUID());
 
         verify(ATTENDANCE_REPOSITORY, times(1)).deleteById(any(UUID.class));
+    }
+
+    @Test
+    @DisplayName("get speakers from session")
+    void getSpeakersFromAttendanceSession() throws NotFoundException {
+        List<Attendance> attendances = new ArrayList<>();
+        attendances.add(attendance);
+        when(SESSION_SERVICE.getSessionById(session.getId())).thenReturn(session);
+        when(ATTENDANCE_REPOSITORY.findAttendancesBySession(session)).thenReturn(attendances);
+        assertDoesNotThrow(
+                () -> SERVICE.getSpeakersFromAttendanceSession(attendance.getSession().getId())
+        );
+
+        verify(SESSION_SERVICE, times(1)).getSessionById(session.getId());
+        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendancesBySession(session);
+
     }
 }

@@ -64,7 +64,7 @@ class SessionControllerIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[0]").doesNotExist())
                 .andExpect(jsonPath("$[1]").doesNotExist());
     }
 
@@ -131,6 +131,8 @@ class SessionControllerIntegrationTest {
     void createPhysicalSession_ReturnsSession() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        System.out.println(now);
+        System.out.println(nowPlusOneHour);
         String subject = "Subject";
         String description = "Description";
         String address = "Address";
