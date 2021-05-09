@@ -279,12 +279,11 @@ class AttendanceIntergrationServiceTest {
                 new Attendance(PRESENT, true, person1, attendance.getSession()
                 ));
 
-        List<Attendance> speakers = assertDoesNotThrow(
+        List<Person> speakers = assertDoesNotThrow(
                 () -> ATTENDANCE_SERVICE.getSpeakersFromAttendanceSession(attendance.getSession().getId())
         );
 
         assertEquals(2, speakers.size());
-        speakers.forEach(attendance1 -> assertTrue(attendance1.isSpeaker()));
     }
 
 

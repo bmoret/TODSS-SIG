@@ -50,14 +50,29 @@ public class AttendanceController {
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 
+    //todo: verplaats maybe
+    private List<PersonResponse> convertPersonToListResponse(List<Person> attendances) {
+        return attendances.stream().map(this::convertPersonToResponse).collect(Collectors.toList());
+    }
+
+    private PersonResponse convertPersonToResponse(Person person) {
+        return new PersonResponse(
+                person.getId(),
+                person.getSupervisor(),
+                person.getDetails()
+        );
+    }
+
     @CrossOrigin("http://localhost:8081")
     @GetMapping ("/{id}/speaker")
-    public ResponseEntity<List<AttendanceResponse>> getSpeakerAttendance(
+    public ResponseEntity<List<PersonResponse>> getSpeakerAttendance(
             @PathVariable UUID id
     ) throws NotFoundException {
-        List<Attendance> speakers = this.SERVICE.getSpeakersFromAttendanceSession(id);
+        System.out.println(id);
+        List<Person> speakers = this.SERVICE.getSpeakersFromAttendanceSession(id);
+        System.out.println(speakers);
 
-        return new ResponseEntity<>(convertAttendanceToListResponse(speakers), HttpStatus.OK);
+        return new ResponseEntity<>(convertPersonToListResponse(speakers), HttpStatus.OK);
     }
 
     @PutMapping("/{id}/speaker")

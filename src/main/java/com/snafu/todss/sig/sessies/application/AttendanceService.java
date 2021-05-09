@@ -65,14 +65,14 @@ public class AttendanceService {
         this.ATTENDANCE_REPOSITORY.deleteById(id);
     }
 
-    public List<Attendance> getSpeakersFromAttendanceSession(UUID id) throws NotFoundException {
+    public List<Person> getSpeakersFromAttendanceSession(UUID id) throws NotFoundException {
         Session session = this.SESSION_SERVICE.getSessionById(id);
         List<Attendance> attendances = this.ATTENDANCE_REPOSITORY.findAttendancesBySession(session);
-        List<Attendance> speakers = new ArrayList<>();
+        List<Person> speakers = new ArrayList<>();
         attendances.forEach(
                 attendance -> {
                     if (attendance.isSpeaker()) {
-                        speakers.add(attendance);
+                        speakers.add(attendance.getPerson());
                     }
                 }
         );

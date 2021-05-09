@@ -34,6 +34,7 @@ public class PersonController {
         );
     }
 
+    @CrossOrigin("http://localhost:8081")
     @GetMapping(path = "/{id}")
     public ResponseEntity<PersonResponse> getPerson(@PathVariable("id") UUID id) throws NotFoundException {
         Person person = SERVICE.getPerson(id);
