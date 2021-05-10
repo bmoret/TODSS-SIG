@@ -10,6 +10,7 @@ import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -62,11 +63,39 @@ public class SessionService {
         if (startDate.isBefore(LocalDateTime.now()) || endDate.isBefore(LocalDateTime.now()) ) {
             throw new IllegalArgumentException("Dates must be after now");
         }
+        checkForSessionStartBeforeEnd(startDate, endDate);
+        checkForSessionDuration(startDate, endDate);
+
         session.getDetails().setStartDate(startDate);
         session.getDetails().setEndDate(endDate);
         session.nextState();
         return SESSION_REPOSITORY.save(session);
     }
+
+    private void checkForSessionStartBeforeEnd(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate != null &&
+                endDate != null &&
+                startDate.isAfter(endDate)
+        ) {
+            throw new IllegalArgumentException("Start date must come before the end date");
+        }
+    }
+
+    private void checkForSessionDuration(LocalDateTime startDate, LocalDateTime endDate) {
+        final int MAXIMUM_SESSION_LENGTH_IN_MS = 604800000;
+        if ( endDate != null &&
+                startDate != null &&
+                Math.abs(Duration.between(endDate, startDate).toMillis()) > MAXIMUM_SESSION_LENGTH_IN_MS
+        ) {
+            throw new IllegalArgumentException(String.format("Session duration cannot be longer than %s milliseconds", MAXIMUM_SESSION_LENGTH_IN_MS));
+        }
+    }
+
+
+
+
+
+
 
     public Session requestSessionToBePlanned(UUID sessionId) throws NotFoundException {
         Session session = getSessionById(sessionId);
