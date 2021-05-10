@@ -36,8 +36,7 @@ class PersonControllerTest {
     @BeforeEach
     void setup() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/person")
-                .content("email@email.com")
+                .get("/person/email/email@email.com")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         MvcResult ra = mockMvc.perform(request)
@@ -47,8 +46,7 @@ class PersonControllerTest {
         supervisorId = Arrays.asList(dubbelepunt.split("\"")).get(1);
 
         RequestBuilder request2 = MockMvcRequestBuilders
-                .get("/person")
-                .content("email2@email.com")
+                .get("/person/email/email2@email.com")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         MvcResult ra2 = mockMvc.perform(request2)
@@ -75,8 +73,7 @@ class PersonControllerTest {
     @DisplayName("Get person by email")
     void getPersonByEmail() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/person")
-                .content("email@email.com")
+                .get("/person/email/email@email.com")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -139,8 +136,7 @@ class PersonControllerTest {
     @Test
     void removePerson() throws Exception {
         RequestBuilder request2 = MockMvcRequestBuilders
-                .get("/person")
-                .content("email3@email.com")
+                .get("/person/email/email3@email.com")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         MvcResult ra2 = mockMvc.perform(request2)
