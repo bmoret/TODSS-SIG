@@ -249,6 +249,14 @@ class SessionServiceIntegrationTest {
         assertDoesNotThrow(() -> sessionService.deleteSession(testSession.getId()));
     }
 
+
+    @Test
+    @DisplayName("Plan session that doesnt exist throws not found")
+    void planSessionThatDoesNotExist_ThrowsNotFound() {
+        assertThrows(
+                NotFoundException.class,
+                () -> sessionService.planSession(UUID.randomUUID(), null, null)
+
     @Test
     @DisplayName("Request Not existing session to be planned throws not found")
     void requestNotExistingSessionToBePlanned_ThrowsNotFound() throws NotFoundException {
@@ -259,6 +267,15 @@ class SessionServiceIntegrationTest {
     }
 
     @Test
+    @DisplayName("Plan session that is in the wrong state throws illegalStateException")
+    void planSessionThatInWrongState_ThrowsIllegalState() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusHour = LocalDateTime.now().plusHours(1);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> sessionService.planSession(testSession.getId(), now, nowPlusHour)
+
     @DisplayName("Request Not existing session to be planned throws not found")
     void requestSessionToBePlannedWithWrongState_ThrowsIAE() {
         testSession.nextState();
@@ -271,6 +288,56 @@ class SessionServiceIntegrationTest {
     }
 
     @Test
+    @DisplayName("Plan session plans session")
+    void planSession_PlansSession() throws NotFoundException {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        this.testSession = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(null, null, "Subject", "Description"),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address"
+                )
+        );
+        LocalDateTime now = LocalDateTime.now().plusHours(1);
+        LocalDateTime nowPlusHour = LocalDateTime.now().plusHours(2);
+
+        Session session = sessionService.planSession(testSession.getId(), now, nowPlusHour);
+
+        assertEquals(SessionState.PLANNED, session.getState());
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("provideWrongDates")
+    @DisplayName("Plan session with wrong dates throw Illegal Argument Exception")
+    void planSessionWithWrongDates_ThrowsIAE(LocalDateTime now, LocalDateTime nowPlusHour) {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        this.testSession = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(null, null, "Subject", "Description"),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address"
+                )
+        );
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> sessionService.planSession(testSession.getId(), now, nowPlusHour)
+        );
+    }
+    private static Stream<Arguments> provideWrongDates() {
+        return Stream.of(
+                Arguments.of(LocalDateTime.now().minusHours(1), LocalDateTime.now().minusHours(2)),
+                Arguments.of(LocalDateTime.now().minusHours(2), LocalDateTime.now().minusHours(1)),
+                Arguments.of(LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(1)),
+                Arguments.of(LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1)),
+                Arguments.of(LocalDateTime.now().plusHours(1), LocalDateTime.now().minusHours(1))
+        );
     @DisplayName("Request session to be planned requests planning")
     void requestSessionToBePlanned_RequestsPlanning() throws NotFoundException {
         sessionService.requestSessionToBePlanned(testSession.getId());
