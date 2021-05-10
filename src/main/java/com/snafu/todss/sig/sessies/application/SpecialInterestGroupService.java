@@ -32,6 +32,14 @@ public class SpecialInterestGroupService {
                 .orElseThrow(() -> new NotFoundException("No special interest group with given id"));
     }
 
+    public List<Person> getAssociatedPeopleBySpecialInterestGroup(UUID id) throws NotFoundException {
+        SpecialInterestGroup sig = getSpecialInterestGroupById(id);
+        List<Person> people = new ArrayList<>(sig.getOrganizers());
+        people.add(sig.getManager());
+
+        return people;
+    }
+
     public SpecialInterestGroup createSpecialInterestGroup(SpecialInterestGroupRequest sigRequest) throws NotFoundException {
         Person manager = this.PERSON_SERVICE.getPerson(sigRequest.managerId);
         List<Person> organizers = getOrganizersWithIds(sigRequest.organizerIds);
@@ -39,7 +47,7 @@ public class SpecialInterestGroupService {
         return SIG_REPOSITORY.save(specialInterestGroup);
     }
 
-    private List<Person> getOrganizersWithIds (List<UUID> organizerIds) throws NotFoundException {
+    private List<Person> getOrganizersWithIds(List<UUID> organizerIds) throws NotFoundException {
         List<Person> organizers = new ArrayList<>();
         for (UUID id : organizerIds) {
             organizers.add(PERSON_SERVICE.getPerson(id));
@@ -54,8 +62,9 @@ public class SpecialInterestGroupService {
     }
 
     public void deleteSpecialInterestGroup(UUID id) throws NotFoundException {
-        if (!this.SIG_REPOSITORY.existsById(id)){
+        if (!this.SIG_REPOSITORY.existsById(id)) {
             throw new NotFoundException("No special interest group found with given id");
         }
         this.SIG_REPOSITORY.deleteById(id);
-    }}
+    }
+}

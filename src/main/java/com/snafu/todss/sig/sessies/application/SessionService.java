@@ -3,6 +3,7 @@ package com.snafu.todss.sig.sessies.application;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
@@ -19,10 +20,12 @@ import java.util.UUID;
 public class SessionService {
     private final SessionRepository SESSION_REPOSITORY;
     private final SpecialInterestGroupService SIG_SERVICE;
+    private final PersonService personService;
 
-    public SessionService(SessionRepository sessionRepository, SpecialInterestGroupService sigService) {
+    public SessionService(SessionRepository sessionRepository, SpecialInterestGroupService sigService, PersonService personService) {
         this.SESSION_REPOSITORY = sessionRepository;
         this.SIG_SERVICE = sigService;
+        this.personService = personService;
     }
 
     public List<Session> getAllSessions() {
@@ -36,14 +39,24 @@ public class SessionService {
 
     public Session createSession(SessionRequest sessionRequest) throws NotFoundException {
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
-        Session session = SessionDirector.build(sessionRequest, sig);
+        Person person = null;
+        if (sessionRequest.contactPerson != null) {
+            person = personService
+                    .getPerson(sessionRequest.contactPerson);
+        }
+        Session session = SessionDirector.build(sessionRequest, sig, person);
         return this.SESSION_REPOSITORY.save(session);
     }
 
     public Session updateSession(UUID sessionId, SessionRequest sessionRequest) throws NotFoundException {
         Session session = getSessionById(sessionId);
+        Person person = null;
+        if (sessionRequest.contactPerson != null) {
+            person = personService
+                    .getPerson(sessionRequest.contactPerson);
+        }
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
-        session = SessionDirector.update(session, sessionRequest, sig);
+        session = SessionDirector.update(session, sessionRequest, sig, person);
         return this.SESSION_REPOSITORY.save(session);
     }
 

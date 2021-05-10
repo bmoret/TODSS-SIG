@@ -20,13 +20,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @Transactional
 @Import(CiTestConfiguration.class)
@@ -43,7 +42,10 @@ class SpecialInterestGroupServiceIntegrationTest {
 
     private SpecialInterestGroup specialInterestGroup;
 
+    private static Person supervisor;
+
     private static Person person;
+
 
     @BeforeEach
     void setup() throws NotFoundException {
@@ -56,7 +58,7 @@ class SpecialInterestGroupServiceIntegrationTest {
         dtoSupervisor.role = "EMPLOYEE";
         dtoSupervisor.employedSince = "01/01/2021";
         dtoSupervisor.supervisorId = null;
-        Person supervisor = personService.createPerson(dtoSupervisor);
+        supervisor = personService.createPerson(dtoSupervisor);
 
         PersonRequest dtoPerson = new PersonRequest();
         dtoPerson.email = "andereemail@email.com";
@@ -75,6 +77,7 @@ class SpecialInterestGroupServiceIntegrationTest {
                     new ArrayList<>(),
                     new ArrayList<>()
         ));
+
     }
 
     @AfterEach
@@ -129,6 +132,17 @@ class SpecialInterestGroupServiceIntegrationTest {
     void getSpecialInterestGroupById_ReturnsSpecialInterestGroup() throws NotFoundException {
         SpecialInterestGroup sig = service.getSpecialInterestGroupById(specialInterestGroup.getId());
         assertEquals(sig, specialInterestGroup);
+    }
+
+    @Test
+    @DisplayName("Get associated employees by SIG id returns list of people")
+    void getAssociatedEmployeesById_ReturnsListOfPeople() throws NotFoundException {
+        specialInterestGroup.addOrganizer(supervisor);
+        List<Person> people = service.getAssociatedPeopleBySpecialInterestGroup(specialInterestGroup.getId());
+
+        assertEquals(2, people.size());
+        assertTrue(people.contains(person));
+        assertTrue(people.contains(supervisor));
     }
 
     @Test

@@ -44,7 +44,8 @@ class SessionTest {
                                 SessionState.DRAFT,
                                 new SpecialInterestGroup(),
                                 new ArrayList<>(),
-                                new ArrayList<>()
+                                new ArrayList<>(),
+                                null
 
                         )
                         .defaultAnswer(CALLS_REAL_METHODS));
@@ -89,7 +90,8 @@ class SessionTest {
                                 state,
                                 new SpecialInterestGroup(),
                                 new ArrayList<>(),
-                                new ArrayList<>()
+                                new ArrayList<>(),
+                                null
                         )
                         .defaultAnswer(CALLS_REAL_METHODS)
         );
@@ -261,7 +263,8 @@ class SessionTest {
                                 SessionState.DRAFT,
                                 new SpecialInterestGroup(),
                                 new ArrayList<>(),
-                                new ArrayList<>()
+                                new ArrayList<>(),
+                                null
                         )
                         .defaultAnswer(CALLS_REAL_METHODS)
         );
@@ -299,7 +302,8 @@ class SessionTest {
                                 state,
                                 new SpecialInterestGroup(),
                                 new ArrayList<>(),
-                                new ArrayList<>()
+                                new ArrayList<>(),
+                                null
                         )
                         .defaultAnswer(CALLS_REAL_METHODS)
         );
@@ -335,7 +339,8 @@ class SessionTest {
                                 SessionState.DRAFT,
                                 new SpecialInterestGroup(),
                                 new ArrayList<>(),
-                                new ArrayList<>()
+                                new ArrayList<>(),
+                                null
                         )
                         .defaultAnswer(CALLS_REAL_METHODS)
         );
