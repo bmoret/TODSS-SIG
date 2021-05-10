@@ -81,7 +81,12 @@ public class SessionResponse {
     }
 
     public void setContactPerson(Person contactPerson) {
-        this.contactPerson = new PersonCompactResponse(contactPerson.getId(), contactPerson.getDetails().getFirstname()); }
+        if(contactPerson != null) {
+            this.contactPerson = new PersonCompactResponse(contactPerson.getId(), contactPerson.getDetails().getFirstname());
+        } else {
+            this.contactPerson = null;
+        }
+    }
 
     public PersonCompactResponse getContactPerson() { return contactPerson; }
 }

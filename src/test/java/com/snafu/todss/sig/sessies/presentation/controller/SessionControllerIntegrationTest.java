@@ -263,6 +263,7 @@ class SessionControllerIntegrationTest {
         json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
         json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
         json.put("@type", "PHYSICAL_SESSION_REQUEST");
+        json.put("contactPerson", null);
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sessions/" + session.getId())
                 .contentType("application/json")

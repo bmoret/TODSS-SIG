@@ -48,6 +48,7 @@ public abstract class SessionRequest {
         this.subject = subject;
         this.description = description;
         this.sigId = sigId;
-        this.contactPerson = UUID.fromString(contactPerson);
+        if (contactPerson != null) {this.contactPerson = UUID.fromString(contactPerson);}
+        else {this.contactPerson = null;}
     }
 }

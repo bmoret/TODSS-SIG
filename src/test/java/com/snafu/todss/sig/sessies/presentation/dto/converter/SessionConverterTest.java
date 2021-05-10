@@ -53,7 +53,7 @@ class SessionConverterTest {
                                 new SpecialInterestGroup(),
                                 new ArrayList<>(),
                                 new ArrayList<>(),
-                                person
+                                null
                         )
                         .defaultAnswer(CALLS_REAL_METHODS)
         );
@@ -69,7 +69,7 @@ class SessionConverterTest {
                 new ArrayList<>(),
                 new ArrayList<>(),
                 address,
-                person
+                null
         );
         physicalSessionResponse = new SessionResponse();
         physicalSessionResponse.setType("PHYSICAL");
@@ -85,7 +85,7 @@ class SessionConverterTest {
                 new ArrayList<>(),
                 joinUrl,
                 platform,
-                person
+                null
         );
         onlineSessionResponse = new SessionResponse();
         onlineSessionResponse.setType("ONLINE");
@@ -101,7 +101,7 @@ class SessionConverterTest {
                 new ArrayList<>(),
                 new ArrayList<>(),
                 joinUrl,
-                person
+                null
         );
         teamsOnlineSessionResponse = new SessionResponse();
         teamsOnlineSessionResponse.setType("TEAMS");
