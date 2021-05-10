@@ -4,10 +4,14 @@ import java.util.List;
 import java.util.UUID;
 
 public class SpecialInterestGroupResponse {
-    public final UUID id;
-    public final String subject;
-    public final PersonCompactResponse manager;
-    public final List<PersonCompactResponse> organizers;
+    private UUID id;
+    private String subject;
+    private PersonCompactResponse manager;
+    private List<PersonCompactResponse> organizers;
+
+    public SpecialInterestGroupResponse() {
+        //For Modelmapper to map domain class to this DTO
+    }
 
     public SpecialInterestGroupResponse(UUID id, String subject, PersonCompactResponse manager, List<PersonCompactResponse> organizers) {
         this.id = id;
@@ -20,15 +24,31 @@ public class SpecialInterestGroupResponse {
         return id;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getSubject() {
         return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public PersonCompactResponse getManager() {
         return manager;
     }
 
+    public void setManager(PersonCompactResponse manager) {
+        this.manager = manager;
+    }
+
     public List<PersonCompactResponse> getOrganizers() {
         return organizers;
+    }
+
+    public void setOrganizers(List<PersonCompactResponse> organizers) {
+        this.organizers = organizers;
     }
 }

@@ -6,13 +6,13 @@ import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionReque
 import com.snafu.todss.sig.sessies.presentation.dto.response.SessionResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SpecialInterestGroupResponse;
 import javassist.NotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
