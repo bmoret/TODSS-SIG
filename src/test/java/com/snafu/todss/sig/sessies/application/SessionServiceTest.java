@@ -261,7 +261,12 @@ class SessionServiceTest {
                 Arguments.of(LocalDateTime.now().minusHours(2), LocalDateTime.now().minusHours(1)),
                 Arguments.of(LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(1)),
                 Arguments.of(LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1)),
-                Arguments.of(LocalDateTime.now().plusHours(1), LocalDateTime.now().minusHours(1))
-                );
+                Arguments.of(LocalDateTime.now().plusHours(1), LocalDateTime.now().minusHours(1)),
+                Arguments.of(LocalDateTime.now().plusHours(1), null),
+                Arguments.of(null, LocalDateTime.now().minusHours(1)),
+                Arguments.of(null, null),
+                Arguments.of(LocalDateTime.now().plusHours(1), LocalDateTime.now().plusYears(1)),
+                Arguments.of(LocalDateTime.now().minusYears(1), LocalDateTime.now().plusHours(1))
+        );
     }
 }

@@ -2,8 +2,8 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
-import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
@@ -73,42 +73,45 @@ public class SessionService {
         if (session.getState() != SessionState.TO_BE_PLANNED) {
             throw new IllegalStateException("Session can only be planned if session state is TO_BE_PLANNED");
         }
-        if (startDate.isBefore(LocalDateTime.now()) || endDate.isBefore(LocalDateTime.now()) ) {
-            throw new IllegalArgumentException("Dates must be after now");
-        }
-        checkForSessionStartBeforeEnd(startDate, endDate);
-        checkForSessionDuration(startDate, endDate);
-
+        checkDates(startDate, endDate);
         session.getDetails().setStartDate(startDate);
         session.getDetails().setEndDate(endDate);
         session.nextState();
         return SESSION_REPOSITORY.save(session);
     }
 
+    private void checkDates(LocalDateTime startDate, LocalDateTime endDate) {
+        checkDatesNotNull(startDate, endDate);
+        checkDatesBeforeNow(startDate, endDate);
+        checkForSessionStartBeforeEnd(startDate, endDate);
+        checkForSessionDuration(startDate, endDate);
+    }
+
+    private void checkDatesNotNull(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate == null || endDate == null ) {
+            throw new IllegalArgumentException("Dates cannot be empty");
+        }
+    }
+
     private void checkForSessionStartBeforeEnd(LocalDateTime startDate, LocalDateTime endDate) {
-        if (startDate != null &&
-                endDate != null &&
-                startDate.isAfter(endDate)
-        ) {
+        if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("Start date must come before the end date");
         }
     }
 
     private void checkForSessionDuration(LocalDateTime startDate, LocalDateTime endDate) {
         final int MAXIMUM_SESSION_LENGTH_IN_MS = 604800000;
-        if ( endDate != null &&
-                startDate != null &&
-                Math.abs(Duration.between(endDate, startDate).toMillis()) > MAXIMUM_SESSION_LENGTH_IN_MS
-        ) {
-            throw new IllegalArgumentException(String.format("Session duration cannot be longer than %s milliseconds", MAXIMUM_SESSION_LENGTH_IN_MS));
+        if (Math.abs(Duration.between(endDate, startDate).toMillis()) > MAXIMUM_SESSION_LENGTH_IN_MS) {
+            throw new IllegalArgumentException(
+                    String.format("Session duration cannot be longer than %s milliseconds", MAXIMUM_SESSION_LENGTH_IN_MS));
         }
     }
 
-
-
-
-
-
+    private void checkDatesBeforeNow (LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate.isBefore(LocalDateTime.now()) || endDate.isBefore(LocalDateTime.now()) ) {
+            throw new IllegalArgumentException("Dates must be after now");
+        }
+    }
 
     public Session requestSessionToBePlanned(UUID sessionId) throws NotFoundException {
         Session session = getSessionById(sessionId);
