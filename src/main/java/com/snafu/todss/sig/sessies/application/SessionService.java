@@ -67,4 +67,13 @@ public class SessionService {
         session.nextState();
         return SESSION_REPOSITORY.save(session);
     }
+
+    public Session requestSessionToBePlanned(UUID sessionId) throws NotFoundException {
+        Session session = getSessionById(sessionId);
+        if (session.getState() != SessionState.DRAFT) {
+            throw new IllegalStateException("Session can only be requested for planning as a draft");
+        }
+        session.nextState();
+        return session;
+    }
 }

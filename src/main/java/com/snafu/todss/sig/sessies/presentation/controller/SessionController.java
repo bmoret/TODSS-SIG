@@ -4,6 +4,7 @@ import com.snafu.todss.sig.sessies.application.SessionService;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SessionResponse;
+import com.snafu.todss.sig.sessies.presentation.dto.response.SpecialInterestGroupResponse;
 import javassist.NotFoundException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +28,13 @@ SessionController {
 
     public SessionController(SessionService sessionService) {
         this.SERVICE = sessionService;
+    }
+
+    private SessionResponse convertToSessionResponse(Session session) {
+        SessionResponse response = convertSessionToResponse(session);
+        SpecialInterestGroupResponse sigResponse = new ModelMapper().map(session.getSig(), SpecialInterestGroupResponse.class);
+        response.setSpecialInterestGroup(sigResponse);
+        return response;
     }
 
     @GetMapping
@@ -76,5 +85,13 @@ SessionController {
         Session session = this.SERVICE.planSession(sessionId, startDate, endDate);
 
         return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "http://localhost:8081")
+    @PutMapping("/{sessionId}/request")
+    public ResponseEntity<SessionResponse> requestSessionToBePlanned(@PathVariable UUID sessionId) throws NotFoundException {
+        Session session = this.SERVICE.requestSessionToBePlanned(sessionId);
+
+        return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 }

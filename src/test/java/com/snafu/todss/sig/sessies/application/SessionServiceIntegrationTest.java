@@ -249,7 +249,34 @@ class SessionServiceIntegrationTest {
         assertDoesNotThrow(() -> sessionService.deleteSession(testSession.getId()));
     }
 
+    @Test
+    @DisplayName("Request Not existing session to be planned throws not found")
+    void requestNotExistingSessionToBePlanned_ThrowsNotFound() throws NotFoundException {
+        assertThrows(
+                NotFoundException.class,
+                () -> sessionService.requestSessionToBePlanned(UUID.randomUUID())
+        );
+    }
 
+    @Test
+    @DisplayName("Request Not existing session to be planned throws not found")
+    void requestSessionToBePlannedWithWrongState_ThrowsIAE() {
+        testSession.nextState();
+        repository.save(testSession);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> sessionService.requestSessionToBePlanned(testSession.getId())
+        );
+    }
+
+    @Test
+    @DisplayName("Request session to be planned requests planning")
+    void requestSessionToBePlanned_RequestsPlanning() throws NotFoundException {
+        Session session = sessionService.requestSessionToBePlanned(testSession.getId());
+
+        assertEquals(SessionState.TO_BE_PLANNED, session.getState());
+    }
 
     @Test
     @DisplayName("Plan session that doesnt exist throws not found")
