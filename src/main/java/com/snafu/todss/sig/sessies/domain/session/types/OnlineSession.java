@@ -3,6 +3,7 @@ package com.snafu.todss.sig.sessies.domain.session.types;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.Feedback;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
@@ -27,9 +28,10 @@ public class OnlineSession extends Session {
             List<Attendance> attendanceList,
             List<Feedback> feedbackList,
             String platform,
-            String joinUrl
+            String joinUrl,
+            Person contactPerson
     ) {
-        super(details, state, sig, attendanceList, feedbackList);
+        super(details, state, sig, attendanceList, feedbackList, contactPerson);
         this.platform = platform;
         this.joinUrl = joinUrl;
     }

@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.domain.session.builder;
 
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
@@ -13,13 +14,14 @@ public class PhysicalSessionBuilder implements SessionBuilder {
     private SessionState state;
     private SpecialInterestGroup sig;
     private String address;
-
+    private Person contactPerson;
 
     public PhysicalSessionBuilder() {
         this.details = new SessionDetails();
         this.state = SessionState.DRAFT;
         this.sig = null;
         this.address = "";
+        this.contactPerson = null;
     }
 
     @Override
@@ -57,6 +59,12 @@ public class PhysicalSessionBuilder implements SessionBuilder {
         return this;
     }
 
+    public PhysicalSessionBuilder setContactPerson(Person person) {
+        this.contactPerson = person;
+
+        return this;
+    }
+
     @Override
     public PhysicalSession build() {
         return new PhysicalSession(
@@ -65,7 +73,8 @@ public class PhysicalSessionBuilder implements SessionBuilder {
                 sig,
                 new ArrayList<>(),
                 new ArrayList<>(),
-                address
+                address,
+                contactPerson
         );
     }
 }

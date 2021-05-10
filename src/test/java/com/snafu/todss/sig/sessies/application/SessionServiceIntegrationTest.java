@@ -3,12 +3,14 @@ package com.snafu.todss.sig.sessies.application;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.domain.session.types.TeamsOnlineSession;
+import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.OnlineSessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.PhysicalSessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
@@ -40,6 +42,9 @@ class SessionServiceIntegrationTest {
     private SpecialInterestGroupService sigService;
 
     @Autowired
+    private PersonService personService;
+
+    @Autowired
     private SessionService sessionService;
 
     @Autowired
@@ -50,8 +55,21 @@ class SessionServiceIntegrationTest {
 
     private Session testSession;
 
+    private Person supervisor;
+
     @BeforeEach
-    void setup() {
+    void setup() throws NotFoundException {
+        PersonRequest dtoSupervisor = new PersonRequest();
+        dtoSupervisor.email = "email@email.com";
+        dtoSupervisor.firstname = "fourth";
+        dtoSupervisor.lastname = "last";
+        dtoSupervisor.expertise = "none";
+        dtoSupervisor.branch = "VIANEN";
+        dtoSupervisor.role = "EMPLOYEE";
+        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.supervisorId = null;
+        supervisor = personService.createPerson(dtoSupervisor);
+
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
         String subject = "Subject";
@@ -65,7 +83,8 @@ class SessionServiceIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        address
+                        address,
+                        supervisor
                 )
         );
     }
@@ -123,6 +142,7 @@ class SessionServiceIntegrationTest {
 
         assertTrue(expectedClass.isInstance(session));
     }
+
     private static Stream<Arguments> provideCreateSessionArgs() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
@@ -134,7 +154,8 @@ class SessionServiceIntegrationTest {
                                 "Subject",
                                 "Description",
                                 UUID.randomUUID(),
-                                "Address"
+                                "Address",
+                                null
                         ),
                         PhysicalSession.class
                 ),
@@ -146,7 +167,8 @@ class SessionServiceIntegrationTest {
                                 "Description",
                                 UUID.randomUUID(),
                                 "Random Platform",
-                                "link"
+                                "link",
+                                null
                         ),
                         OnlineSession.class
                 ),
@@ -157,7 +179,8 @@ class SessionServiceIntegrationTest {
                                 "Description",
                                 UUID.randomUUID(),
                                 "Teams",
-                                "link"
+                                "link",
+                                null
                         ),
                         TeamsOnlineSession.class
                 )
@@ -183,7 +206,8 @@ class SessionServiceIntegrationTest {
                 "Subject",
                 "Description",
                 UUID.randomUUID(),
-                "Address"
+                "Address",
+                null
         );
 
         assertThrows(
@@ -200,6 +224,7 @@ class SessionServiceIntegrationTest {
         request.sigId = sig.getId();
         Session session = sessionService.createSession(request);
         request.subject = "New Subject";
+        request.contactPerson = supervisor.getId();
 
         assertDoesNotThrow(() -> sessionService.updateSession(session.getId(), request));
     }
@@ -212,10 +237,12 @@ class SessionServiceIntegrationTest {
         request.sigId = sig.getId();
         Session session = sessionService.createSession(request);
         request.subject = "New Subject";
+        request.contactPerson = supervisor.getId();
 
         session = sessionService.updateSession(session.getId(), request);
 
         assertEquals(request.subject, session.getDetails().getSubject());
+        assertEquals(supervisor, session.getContactPerson());
     }
 
     @Test
@@ -227,7 +254,8 @@ class SessionServiceIntegrationTest {
                 "Subject",
                 "Description",
                 UUID.randomUUID(),
-                "Address"
+                "Address",
+                supervisor.getId().toString()
         );
 
         assertThrows(
@@ -310,7 +338,8 @@ class SessionServiceIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        "Address"
+                        "Address",
+                        null
                 )
         );
         LocalDateTime now = LocalDateTime.now().plusHours(1);
@@ -334,7 +363,8 @@ class SessionServiceIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        "Address"
+                        "Address",
+                        null
                 )
         );
         assertThrows(

@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 
@@ -16,6 +17,8 @@ public class SessionResponse {
     private String address;
     private String platform;
     private String joinUrl;
+
+    private PersonCompactResponse contactPerson;
 
     public SessionResponse() {
         //For Modelmapper to map domain class to this DTO
@@ -76,6 +79,16 @@ public class SessionResponse {
     public void setJoinUrl(String joinUrl) {
         this.joinUrl = joinUrl;
     }
+
+    public void setContactPerson(Person contactPerson) {
+        if(contactPerson != null) {
+            this.contactPerson = new PersonCompactResponse(contactPerson.getId(), contactPerson.getDetails().getFirstname());
+        } else {
+            this.contactPerson = null;
+        }
+    }
+
+    public PersonCompactResponse getContactPerson() { return contactPerson; }
 
     public SpecialInterestGroupResponse getSpecialInterestGroup() {
         return specialInterestGroup;

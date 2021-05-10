@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.domain.session.builder;
 
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 class PhysicalSessionBuilderTest {
     private PhysicalSessionBuilder builder;
@@ -48,12 +50,14 @@ class PhysicalSessionBuilderTest {
         String description = "Description";
         String address = "Address";
         SessionState state = SessionState.DRAFT;
+        Person person = mock(Person.class);
         builder.setStartDate(now);
         builder.setEndDate(nowPlusOneHour);
         builder.setSubject(subject);
         builder.setDescription(description);
         builder.setSig(new SpecialInterestGroup());
         builder.setAddress(address);
+        builder.setContactPerson(person);
 
         PhysicalSession session = builder.build();
 
@@ -64,5 +68,6 @@ class PhysicalSessionBuilderTest {
         assertEquals(description, details.getDescription());
         assertEquals(state, session.getState());
         assertEquals(address, session.getAddress());
+        assertEquals(person, session.getContactPerson());
     }
 }

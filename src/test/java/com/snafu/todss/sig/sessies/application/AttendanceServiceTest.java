@@ -57,7 +57,8 @@ class AttendanceServiceTest {
                 sig,
                 new ArrayList<>(),
                 new ArrayList<>(),
-                address
+                address,
+                null
         );
 
         SessionRequest request = new PhysicalSessionRequest();

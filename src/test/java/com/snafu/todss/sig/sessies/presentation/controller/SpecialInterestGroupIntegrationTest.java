@@ -3,12 +3,9 @@ package com.snafu.todss.sig.sessies.presentation.controller;
 import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.application.SpecialInterestGroupService;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
-import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.person.PersonDetails;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.response.PersonCompactResponse;
 import javassist.NotFoundException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -18,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.parameters.P;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -27,8 +23,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -119,6 +113,26 @@ class SpecialInterestGroupIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    @DisplayName("Get associated employees by SIG id returns list of people")
+    void getAssociatedEmployeesById_ReturnsListOfPeople() throws Exception {
+        SpecialInterestGroup sig = repository.save(new SpecialInterestGroup(
+                "any",
+                person,
+                new ArrayList<>(),
+                new ArrayList<>()
+        ));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sig/" + sig.getId() + "/people");
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$").isArray());
     }
 
     @Test

@@ -36,6 +36,9 @@ public abstract class Session {
     @OneToMany(orphanRemoval = true)
     private List<Feedback> feedbackList;
 
+    @OneToOne
+    private Person contactPerson;
+
     protected Session() {
     }
 
@@ -44,13 +47,15 @@ public abstract class Session {
             SessionState state,
             SpecialInterestGroup sig,
             List<Attendance> attendanceList,
-            List<Feedback> feedbackList
+            List<Feedback> feedbackList,
+            Person contactPerson
     ) {
         this.details = details;
         this.state = state;
         this.sig = sig;
         this.attendanceList = attendanceList;
         this.feedbackList = feedbackList;
+        this.contactPerson = contactPerson;
     }
 
     public SessionDetails getDetails() {
@@ -107,6 +112,14 @@ public abstract class Session {
 
     public void setSig(SpecialInterestGroup sig) {
         this.sig = sig;
+    }
+
+    public Person getContactPerson() {
+        return contactPerson;
+    }
+
+    public void setContactPerson(Person contactPerson) {
+        this.contactPerson = contactPerson;
     }
 
     @Override

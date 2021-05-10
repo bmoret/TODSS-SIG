@@ -2,6 +2,7 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
@@ -29,13 +30,16 @@ import static org.mockito.Mockito.*;
 class SessionServiceTest {
     private static final SessionRepository repository = mock(SessionRepository.class);
     private static final SpecialInterestGroupService sigService = mock(SpecialInterestGroupService.class);
+    private static final PersonService personService = mock(PersonService.class);
     private static SessionService service;
     private static Session session;
     private static PhysicalSessionRequest physicalSessionRequest;
+    private static Person supervisor = mock(Person.class);
 
     @BeforeAll
-    static void init() {
+    static void init() throws NotFoundException {
         physicalSessionRequest = new PhysicalSessionRequest();
+        when(personService.getPerson(any())).thenReturn((supervisor));
     }
 
     @BeforeEach
@@ -45,13 +49,14 @@ class SessionServiceTest {
         String subject = "Subject";
         String description = "Description";
         String address = "Address";
-        service = new SessionService(repository, sigService);
+        service = new SessionService(repository, sigService, personService);
         physicalSessionRequest.startDate = now;
         physicalSessionRequest.endDate = nowPlusOneHour;
         physicalSessionRequest.subject = subject;
         physicalSessionRequest.description = description;
         physicalSessionRequest.sigId = UUID.randomUUID();
         physicalSessionRequest.address = address;
+        physicalSessionRequest.contactPerson = UUID.randomUUID();
 
         session = new PhysicalSession(
                 new SessionDetails(now, nowPlusOneHour, subject, description),
@@ -59,7 +64,8 @@ class SessionServiceTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                address
+                address,
+                supervisor
         );
     }
 
@@ -214,7 +220,8 @@ class SessionServiceTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                "Address"
+                "Address",
+                null
         );
         when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
 
@@ -237,7 +244,8 @@ class SessionServiceTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                "Address"
+                "Address",
+                null
         );
         when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
         assertThrows(
