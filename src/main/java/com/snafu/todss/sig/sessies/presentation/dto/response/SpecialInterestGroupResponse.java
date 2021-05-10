@@ -4,13 +4,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class SpecialInterestGroupResponse {
-    public UUID id;
-    public String subject;
-    public PersonCompactResponse manager;
-    public List<PersonCompactResponse> organizers;
-
-    public SpecialInterestGroupResponse() {
-    }
+    public final UUID id;
+    public final String subject;
+    public final PersonCompactResponse manager;
+    public final List<PersonCompactResponse> organizers;
 
     public SpecialInterestGroupResponse(UUID id, String subject, PersonCompactResponse manager, List<PersonCompactResponse> organizers) {
         this.id = id;
@@ -33,21 +30,5 @@ public class SpecialInterestGroupResponse {
 
     public List<PersonCompactResponse> getOrganizers() {
         return organizers;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public void setManager(PersonCompactResponse manager) {
-        this.manager = manager;
-    }
-
-    public void setOrganizers(List<PersonCompactResponse> organizers) {
-        this.organizers = organizers;
     }
 }

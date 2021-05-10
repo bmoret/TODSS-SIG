@@ -9,6 +9,7 @@ public class OnlineSessionRequest extends SessionRequest{
     @NotBlank
     public String platform;
 
+    @NotBlank
     public String joinUrl;
 
     public OnlineSessionRequest() {
@@ -21,7 +22,7 @@ public class OnlineSessionRequest extends SessionRequest{
             @NotBlank String description,
             @NotNull UUID sigId,
             @NotBlank String platform,
-            String joinUrl
+            @NotBlank String joinUrl
     ) {
         super(startDate, endDate, subject, description, sigId);
         this.platform = platform;

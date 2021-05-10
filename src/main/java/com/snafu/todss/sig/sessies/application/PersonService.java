@@ -1,14 +1,11 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
-import com.snafu.todss.sig.sessies.domain.Attendance;
-import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
-import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +35,6 @@ public class PersonService {
     }
 
     public Person createPerson(PersonRequest dto) throws NotFoundException {
-        PERSON_REPOSITORY.findByDetails_Email(dto.email).ifPresent(error -> {
-            throw new DuplicateRequestException(String.format("Person with email '%s' already exists", dto.email));
-        });
         Branch branch = getBranchOfString(dto.branch);
         Role role = getRoleOfString(dto.role);
         LocalDate employedSince = LocalDate.parse(dto.employedSince, DATE_TIME_FORMATTER);

@@ -48,7 +48,7 @@ class SpecialInterestGroupServiceIntegrationTest {
     @BeforeEach
     void setup() throws NotFoundException {
         PersonRequest dtoSupervisor = new PersonRequest();
-        dtoSupervisor.email = "eenemail@email.com";
+        dtoSupervisor.email = "email@email.com";
         dtoSupervisor.firstname = "fourth";
         dtoSupervisor.lastname = "last";
         dtoSupervisor.expertise = "none";
