@@ -220,7 +220,8 @@ class SessionServiceTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                "Address"
+                "Address",
+                null
         );
         when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
 
@@ -243,7 +244,8 @@ class SessionServiceTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                "Address"
+                "Address",
+                null
         );
         when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
         assertThrows(

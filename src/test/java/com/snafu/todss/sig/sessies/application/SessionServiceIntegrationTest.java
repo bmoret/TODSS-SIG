@@ -338,7 +338,8 @@ class SessionServiceIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        "Address"
+                        "Address",
+                        null
                 )
         );
         LocalDateTime now = LocalDateTime.now().plusHours(1);
@@ -362,7 +363,8 @@ class SessionServiceIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        "Address"
+                        "Address",
+                        null
                 )
         );
         assertThrows(
