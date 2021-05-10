@@ -44,11 +44,12 @@ SessionController {
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/{sessionId}")
     public ResponseEntity<SessionResponse> getSession(@PathVariable UUID sessionId) throws NotFoundException {
         Session session = this.SERVICE.getSessionById(sessionId);
 
-        return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
+        return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
     @CrossOrigin(origins = "http://localhost:8081")
@@ -56,7 +57,7 @@ SessionController {
     public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest) throws NotFoundException {
         Session session = this.SERVICE.createSession(sessionRequest);
 
-        return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
+        return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
     @PutMapping("/{sessionId}")
@@ -66,7 +67,7 @@ SessionController {
     ) throws NotFoundException {
         Session session = this.SERVICE.updateSession(sessionId, sessionRequest);
 
-        return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
+        return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
     @DeleteMapping("/{sessionId}")
@@ -76,6 +77,7 @@ SessionController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @PutMapping("/{sessionId}/plan")
     public ResponseEntity<SessionResponse> planSession(
             @PathVariable UUID sessionId,
@@ -84,7 +86,7 @@ SessionController {
     ) throws NotFoundException {
         Session session = this.SERVICE.planSession(sessionId, startDate, endDate);
 
-        return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
+        return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
     @CrossOrigin(origins = "http://localhost:8081")
