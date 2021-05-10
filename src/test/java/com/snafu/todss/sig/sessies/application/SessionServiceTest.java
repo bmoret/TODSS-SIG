@@ -86,6 +86,7 @@ class SessionServiceTest {
         assertEquals(expectedResult, sessions);
         verify(repository, times(1)).findAll();
     }
+
     private static Stream<Arguments> provideAllSessionsList() {
         return Stream.of(
                 Arguments.of(List.of()),
@@ -171,7 +172,7 @@ class SessionServiceTest {
 
     @Test
     @DisplayName("Delete session with not existing id throws not found")
-    void deleteNotExistingSession_ThrowsNotFound() {
+    void deleteNotExistingSession_ThrowsNotFOund() {
         when(repository.existsById(session.getId())).thenReturn(false);
 
         assertThrows(
@@ -183,38 +184,82 @@ class SessionServiceTest {
     }
 
     @Test
-    @DisplayName("Request Not existing session to be planned throws not found")
-    void requestNotExistingSessionToBePlanned_ThrowsNotFound() {
+    @DisplayName("Plan session that doesnt exist throws not found")
+    void planSessionThatDoesNotExist_ThrowsNotFound() {
         when(repository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
         assertThrows(
                 NotFoundException.class,
-                () -> service.requestSessionToBePlanned(UUID.randomUUID())
+                () -> service.planSession(UUID.randomUUID(), null, null)
         );
 
         verify(repository, times(1)).findById(any(UUID.class));
     }
 
     @Test
-    @DisplayName("Request Not existing session to be planned throws not found")
-    void requestSessionToBePlannedWithWrongState_ThrowsIAE() {
-        session.nextState();
+    @DisplayName("Plan session that is in the wrong state throws illegalStateException")
+    void planSessionThatInWrongState_ThrowsIllegalState() {
         when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusHour = LocalDateTime.now().plusHours(1);
 
         assertThrows(
                 IllegalStateException.class,
-                () -> service.requestSessionToBePlanned(UUID.randomUUID())
+                () -> service.planSession(UUID.randomUUID(), now, nowPlusHour)
         );
+
         verify(repository, times(1)).findById(any(UUID.class));
     }
 
     @Test
-    @DisplayName("Request session to be planned requests planning")
-    void requestSessionToBePlanned_RequestsPlanning() throws NotFoundException {
+    @DisplayName("Plan session plans session")
+    void planSession_PlansSession() throws NotFoundException {
+        session = new PhysicalSession(
+                new SessionDetails(null, null, "Subject", "Description"),
+                SessionState.TO_BE_PLANNED,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                "Address"
+        );
         when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
 
-        service.requestSessionToBePlanned(UUID.randomUUID());
+        LocalDateTime now = LocalDateTime.now().plusHours(1);
+        LocalDateTime nowPlusHour = LocalDateTime.now().plusHours(2);
+
+        service.planSession(UUID.randomUUID(), now, nowPlusHour);
 
         verify(repository, times(1)).findById(any(UUID.class));
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("provideWrongDates")
+    @DisplayName("Plan session with wrong dates throw Illegal Argument Exception")
+    void planSessionWithWrongDates_ThrowsIAE(LocalDateTime now, LocalDateTime nowPlusHour) {
+        session = new PhysicalSession(
+                new SessionDetails(null, null, "Subject", "Description"),
+                SessionState.TO_BE_PLANNED,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                "Address"
+        );
+        when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.planSession(UUID.randomUUID(), now, nowPlusHour)
+        );
+
+        verify(repository, times(1)).findById(any(UUID.class));
+    }
+    private static Stream<Arguments> provideWrongDates() {
+        return Stream.of(
+                Arguments.of(LocalDateTime.now().minusHours(1), LocalDateTime.now().minusHours(2)),
+                Arguments.of(LocalDateTime.now().minusHours(2), LocalDateTime.now().minusHours(1)),
+                Arguments.of(LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(1)),
+                Arguments.of(LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1)),
+                Arguments.of(LocalDateTime.now().plusHours(1), LocalDateTime.now().minusHours(1))
+                );
     }
 }

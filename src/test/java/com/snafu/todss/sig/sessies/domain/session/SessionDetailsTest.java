@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
@@ -106,7 +105,7 @@ class SessionDetailsTest {
     @DisplayName("Throw when set end date with date before the start date")
     void throwWhenEndDateIsBeforeStartDate(LocalDateTime endDate) {
         assertThrows(
-                DateTimeException.class,
+                IllegalArgumentException.class,
                 () -> details.setEndDate(endDate)
         );
     }
@@ -124,7 +123,7 @@ class SessionDetailsTest {
     @DisplayName("Throw when set end date and duration between it and start is bigger than 1 week")
     void throwWhenDurationFromStartDateIsTooBig(LocalDateTime endDate) {
         assertThrows(
-                DateTimeException.class,
+                IllegalArgumentException.class,
                 () -> details.setEndDate(endDate)
         );
     }
@@ -207,7 +206,7 @@ class SessionDetailsTest {
     @DisplayName("Throw when set start date with invalid value")
     void throwWhenStartDateIsInvalid(LocalDateTime startDate) {
         assertThrows(
-                DateTimeException.class,
+                IllegalArgumentException.class,
                 () -> details.setStartDate(startDate)
         );
     }

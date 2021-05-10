@@ -13,7 +13,7 @@ public class SessionResponse {
     private SessionState state;
     private SessionDetails details;
     private String type;
-
+    private SpecialInterestGroupResponse specialInterestGroup;
     private String address;
     private String platform;
     private String joinUrl;
@@ -89,4 +89,12 @@ public class SessionResponse {
     }
 
     public PersonCompactResponse getContactPerson() { return contactPerson; }
+
+    public SpecialInterestGroupResponse getSpecialInterestGroup() {
+        return specialInterestGroup;
+    }
+
+    public void setSpecialInterestGroup(SpecialInterestGroupResponse specialInterestGroup) {
+        this.specialInterestGroup = specialInterestGroup;
+    }
 }

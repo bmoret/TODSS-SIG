@@ -2,7 +2,6 @@ package com.snafu.todss.sig.sessies.domain.session;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -47,7 +46,7 @@ public class SessionDetails {
                 endDate != null &&
                 startDate.isAfter(endDate)
         ) {
-            throw new DateTimeException("Start date must come before the end date");
+            throw new IllegalArgumentException("Start date must come before the end date");
         }
     }
 
@@ -56,7 +55,7 @@ public class SessionDetails {
                 startDate != null &&
                 Math.abs(Duration.between(endDate, startDate).toMillis()) > MAXIMUM_SESSION_LENGTH_IN_MS
         ) {
-            throw new DateTimeException(String.format("Session duration cannot be longer than %s milliseconds", MAXIMUM_SESSION_LENGTH_IN_MS));
+            throw new IllegalArgumentException(String.format("Session duration cannot be longer than %s milliseconds", MAXIMUM_SESSION_LENGTH_IN_MS));
         }
     }
 
