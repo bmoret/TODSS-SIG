@@ -166,7 +166,7 @@ class SessionServiceTest {
 
     @Test
     @DisplayName("Delete session with not existing id throws not found")
-    void deleteNotExistingSession_ThrowsNotFOund() {
+    void deleteNotExistingSession_ThrowsNotFound() {
         when(repository.existsById(session.getId())).thenReturn(false);
 
         assertThrows(
@@ -189,6 +189,18 @@ class SessionServiceTest {
 
         verify(repository, times(1)).findById(any(UUID.class));
     }
+  @Test
+  @DisplayName("Request Not existing session to be planned throws not found")
+    void requestNotExistingSessionToBePlanned_ThrowsNotFound() {
+       when(repository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+        assertThrows(
+                NotFoundException.class,
+                () -> service.requestSessionToBePlanned(UUID.randomUUID())
+        );
+
+        verify(repository, times(1)).findById(any(UUID.class));
+    }
 
     @Test
     @DisplayName("Plan session that is in the wrong state throws illegalStateException")
@@ -202,6 +214,16 @@ class SessionServiceTest {
                 () -> service.planSession(UUID.randomUUID(), now, nowPlusHour)
         );
 
+    @Test
+    @DisplayName("Request Not existing session to be planned throws not found")
+    void requestSessionToBePlannedWithWrongState_ThrowsIAE() {
+        session.nextState();
+        when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> service.requestSessionToBePlanned(UUID.randomUUID())
+        );
         verify(repository, times(1)).findById(any(UUID.class));
     }
 
@@ -255,5 +277,15 @@ class SessionServiceTest {
                 Arguments.of(LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1)),
                 Arguments.of(LocalDateTime.now().plusHours(1), LocalDateTime.now().minusHours(1))
                 );
+    }
+  
+    @Test
+    @DisplayName("Request session to be planned requests planning")
+    void requestSessionToBePlanned_RequestsPlanning() throws NotFoundException {
+        when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
+
+        service.requestSessionToBePlanned(UUID.randomUUID());
+
+        verify(repository, times(1)).findById(any(UUID.class));
     }
 }

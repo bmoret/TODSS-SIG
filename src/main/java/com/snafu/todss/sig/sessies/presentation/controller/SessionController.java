@@ -4,8 +4,10 @@ import com.snafu.todss.sig.sessies.application.SessionService;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SessionResponse;
+import com.snafu.todss.sig.sessies.presentation.dto.response.SpecialInterestGroupResponse;
 import javassist.NotFoundException;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,13 @@ SessionController {
         this.SERVICE = sessionService;
     }
 
+    private SessionResponse convertToSessionResponse(Session session) {
+        SessionResponse response = convertSessionToResponse(session);
+        SpecialInterestGroupResponse sigResponse = new ModelMapper().map(session.getSig(), SpecialInterestGroupResponse.class);
+        response.setSpecialInterestGroup(sigResponse);
+        return response;
+    }
+
     @GetMapping
     public ResponseEntity<List<SessionResponse>> getAllSessions() {
         List<Session> sessions = this.SERVICE.getAllSessions();
@@ -35,11 +44,12 @@ SessionController {
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/{sessionId}")
     public ResponseEntity<SessionResponse> getSession(@PathVariable UUID sessionId) throws NotFoundException {
         Session session = this.SERVICE.getSessionById(sessionId);
 
-        return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
+        return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
     @CrossOrigin(origins = "http://localhost:8081")
@@ -47,7 +57,7 @@ SessionController {
     public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest) throws NotFoundException {
         Session session = this.SERVICE.createSession(sessionRequest);
 
-        return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
+        return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
     @PutMapping("/{sessionId}")
@@ -57,7 +67,7 @@ SessionController {
     ) throws NotFoundException {
         Session session = this.SERVICE.updateSession(sessionId, sessionRequest);
 
-        return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
+        return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
     @DeleteMapping("/{sessionId}")
@@ -76,5 +86,13 @@ SessionController {
         Session session = this.SERVICE.planSession(sessionId, startDate, endDate);
 
         return new ResponseEntity<>(convertSessionToResponse(session), HttpStatus.OK);
+
+    @CrossOrigin(origins = "http://localhost:8081")
+    @PutMapping("/{sessionId}/request")
+    public ResponseEntity<Void> requestSessionToBePlanned(@PathVariable UUID sessionId) throws NotFoundException {
+        this.SERVICE.requestSessionToBePlanned(sessionId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 }

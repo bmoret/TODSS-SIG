@@ -54,6 +54,7 @@ public class SessionService {
         this.SESSION_REPOSITORY.deleteById(sessionId);
     }
 
+
     public Session planSession(UUID sessionId, LocalDateTime startDate, LocalDateTime endDate) throws NotFoundException {
         Session session = getSessionById(sessionId);
         if (session.getState() != SessionState.TO_BE_PLANNED) {
@@ -66,5 +67,13 @@ public class SessionService {
         session.getDetails().setEndDate(endDate);
         session.nextState();
         return SESSION_REPOSITORY.save(session);
+
+    public void requestSessionToBePlanned(UUID sessionId) throws NotFoundException {
+        Session session = getSessionById(sessionId);
+        if (session.getState() != SessionState.DRAFT) {
+            throw new IllegalStateException("Session can only be requested for planning as a draft");
+        }
+        session.nextState();
+
     }
 }

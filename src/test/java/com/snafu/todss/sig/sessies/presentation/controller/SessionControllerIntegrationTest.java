@@ -332,7 +332,7 @@ class SessionControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deleting a session that does not exis throws not found")
+    @DisplayName("Deleting a session that does not exist throws not found")
     void deleteNotExistingSession_ThrowsNotFound() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
                 .delete("/sessions/" + UUID.randomUUID());
@@ -348,6 +348,23 @@ class SessionControllerIntegrationTest {
         Session session = this.repository.save(
                 new PhysicalSession(
                         new SessionDetails(null, null, "Subject", "Description"),
+    @Test
+    @DisplayName("Requesting planning for a session that does not exist throws not found")
+    void requestPlanningForNotExistingSession_ThrowsNotFound() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + UUID.randomUUID() + "/request");
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Requesting planning for a session that when in wrong state throws IAE")
+    void requestPlanningForSession_WhenWrongState() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        PhysicalSession session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Subject", "Description"),
                         SessionState.TO_BE_PLANNED,
                         sig,
                         new ArrayList<>(),
@@ -375,6 +392,23 @@ class SessionControllerIntegrationTest {
                 new PhysicalSession(
                         new SessionDetails(null, null, "Subject", "Description"),
                         SessionState.TO_BE_PLANNED,
+
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + session.getId() + "/request");
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("Requesting planning for a session UpdatesState to TO_BE_PLANNED")
+    void requestPlanningForSession_UpdatesState() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        PhysicalSession session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Subject", "Description"),
+                        SessionState.DRAFT,
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
@@ -397,5 +431,11 @@ class SessionControllerIntegrationTest {
                 Arguments.of(LocalDateTime.now().minusHours(1).toString(), ""),
                 Arguments.of("", "")
         );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + session.getId() + "/request");
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
     }
 }
