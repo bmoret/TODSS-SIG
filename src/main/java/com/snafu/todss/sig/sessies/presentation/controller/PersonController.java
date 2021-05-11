@@ -58,7 +58,7 @@ public class PersonController {
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
-    @PutMapping(path = "/{id}")
+    @PutMapping(path = "/{id}/edit")
     public ResponseEntity<PersonResponse> updatePerson(
             @PathVariable UUID id,
             @Valid @RequestBody PersonRequest dto

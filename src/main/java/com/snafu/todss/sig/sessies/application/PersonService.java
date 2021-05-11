@@ -8,6 +8,7 @@ import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.SearchRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
