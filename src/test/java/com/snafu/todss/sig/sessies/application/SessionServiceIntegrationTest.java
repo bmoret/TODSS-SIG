@@ -2,6 +2,7 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
+import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
@@ -53,6 +54,9 @@ class SessionServiceIntegrationTest {
     @Autowired
     private SpecialInterestGroupRepository sigRepository;
 
+    @Autowired
+    private SpringPersonRepository personRepository;
+
     private Session testSession;
 
     private Person supervisor;
@@ -60,7 +64,7 @@ class SessionServiceIntegrationTest {
     @BeforeEach
     void setup() throws NotFoundException {
         PersonRequest dtoSupervisor = new PersonRequest();
-        dtoSupervisor.email = "email@email.com";
+        dtoSupervisor.email = "test3@email.com";
         dtoSupervisor.firstname = "fourth";
         dtoSupervisor.lastname = "last";
         dtoSupervisor.expertise = "none";
@@ -92,6 +96,7 @@ class SessionServiceIntegrationTest {
     @AfterEach
     void tearDown() {
         this.repository.deleteAll();
+        this.personRepository.deleteAll();
     }
 
     @ParameterizedTest
@@ -279,7 +284,7 @@ class SessionServiceIntegrationTest {
 
     @Test
     @DisplayName("Request Not existing session to be planned throws not found")
-    void requestNotExistingSessionToBePlanned_ThrowsNotFound() throws NotFoundException {
+    void requestNotExistingSessionToBePlanned_ThrowsNotFound() {
         assertThrows(
                 NotFoundException.class,
                 () -> sessionService.requestSessionToBePlanned(UUID.randomUUID())

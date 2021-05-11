@@ -40,6 +40,9 @@ class SpecialInterestGroupServiceIntegrationTest {
     @Autowired
     private SpecialInterestGroupRepository repository;
 
+    @Autowired
+    private SpringPersonRepository personRepository;
+
     private SpecialInterestGroup specialInterestGroup;
 
     private static Person supervisor;
@@ -50,7 +53,7 @@ class SpecialInterestGroupServiceIntegrationTest {
     @BeforeEach
     void setup() throws NotFoundException {
         PersonRequest dtoSupervisor = new PersonRequest();
-        dtoSupervisor.email = "email@email.com";
+        dtoSupervisor.email = "test2@email.com";
         dtoSupervisor.firstname = "fourth";
         dtoSupervisor.lastname = "last";
         dtoSupervisor.expertise = "none";
@@ -81,12 +84,10 @@ class SpecialInterestGroupServiceIntegrationTest {
     }
 
     @AfterEach
-    void afterEachTest() throws NotFoundException {
+    void afterEachTest() {
         this.repository.deleteAll();
-        this.personService.removePerson(person.getId());
+        this.personRepository.deleteAll();
     }
-    @Autowired
-    private SpringPersonRepository personRepository;
 
     @ParameterizedTest
     @MethodSource("provideSpecialInterestGroupExamples")

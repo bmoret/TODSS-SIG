@@ -4,6 +4,7 @@ import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.application.SessionService;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
+import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
@@ -56,12 +57,15 @@ class SessionControllerIntegrationTest {
     @Autowired
     private SpecialInterestGroupRepository sigRepository;
 
+    @Autowired
+    private SpringPersonRepository personRepository;
+
     private Person supervisor;
 
     @BeforeEach
     void beforeEach() throws NotFoundException {
         PersonRequest dtoSupervisor = new PersonRequest();
-        dtoSupervisor.email = "email@email.com";
+        dtoSupervisor.email = "test2@email.com";
         dtoSupervisor.firstname = "fourth";
         dtoSupervisor.lastname = "last";
         dtoSupervisor.expertise = "none";
@@ -76,6 +80,7 @@ class SessionControllerIntegrationTest {
     void tearDown() {
         this.repository.deleteAll();
         this.sigRepository.deleteAll();
+        this.personRepository.deleteAll();
     }
 
     @Test
@@ -88,7 +93,7 @@ class SessionControllerIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$[0]").doesNotExist())
+                .andExpect(jsonPath("$[0]").exists())
                 .andExpect(jsonPath("$[1]").doesNotExist());
     }
 
