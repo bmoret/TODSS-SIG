@@ -30,6 +30,7 @@ SessionController {
         this.SERVICE = sessionService;
     }
 
+    @CrossOrigin("http://localhost:8081")
     private SessionResponse convertToSessionResponse(Session session) {
         SessionResponse response = convertSessionToResponse(session);
         SpecialInterestGroupResponse sigResponse = new ModelMapper().map(session.getSig(), SpecialInterestGroupResponse.class);

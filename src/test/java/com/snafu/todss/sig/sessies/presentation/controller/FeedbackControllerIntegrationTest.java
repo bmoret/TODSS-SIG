@@ -3,6 +3,7 @@ package com.snafu.todss.sig.sessies.presentation.controller;
 import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.data.FeedbackRepository;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
+import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.Feedback;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
@@ -10,10 +11,7 @@ import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import javassist.NotFoundException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +35,10 @@ class FeedbackControllerIntegrationTest {
     @Autowired
     private FeedbackRepository feedbackRepository;
 
+
+    @Autowired
+    private SpringPersonRepository personRepository;
+
     @Autowired
     private PersonService personService;
 
@@ -50,7 +52,7 @@ class FeedbackControllerIntegrationTest {
     @BeforeEach
     void setup() throws NotFoundException {
         PersonRequest dtoSupervisor = new PersonRequest();
-        dtoSupervisor.email = "email@email.com";
+        dtoSupervisor.email = "test2@email.com";
         dtoSupervisor.firstname = "fourth";
         dtoSupervisor.lastname = "last";
         dtoSupervisor.expertise = "none";
@@ -85,6 +87,7 @@ class FeedbackControllerIntegrationTest {
         this.feedbackRepository.deleteAll();
         this.personService.removePerson(person.getId());
         this.sessionRepository.deleteAll();
+        this.personRepository.deleteAll();
     }
 
     @Test

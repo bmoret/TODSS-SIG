@@ -2,16 +2,20 @@ package com.snafu.todss.sig.sessies.presentation.controller;
 
 import com.snafu.todss.sig.sessies.application.AttendanceService;
 import com.snafu.todss.sig.sessies.domain.Attendance;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.AttendanceResponse;
+import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/attendances")
@@ -33,6 +37,10 @@ public class AttendanceController {
         );
     }
 
+    private List<AttendanceResponse> convertAttendanceToListResponse(List<Attendance> attendances) {
+        return attendances.stream().map(this::convertAttendanceToResponse).collect(Collectors.toList());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AttendanceResponse> getAttendance(
             @PathVariable UUID id
@@ -40,6 +48,31 @@ public class AttendanceController {
         Attendance attendance= this.SERVICE.getAttendanceById(id);
 
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
+    }
+
+    //todo: verplaats maybe
+    private List<PersonResponse> convertPersonToListResponse(List<Person> attendances) {
+        return attendances.stream().map(this::convertPersonToResponse).collect(Collectors.toList());
+    }
+
+    private PersonResponse convertPersonToResponse(Person person) {
+        return new PersonResponse(
+                person.getId(),
+                person.getSupervisor(),
+                person.getDetails()
+        );
+    }
+
+    @CrossOrigin("http://localhost:8081")
+    @GetMapping ("/{id}/speaker")
+    public ResponseEntity<List<PersonResponse>> getSpeakerAttendance(
+            @PathVariable UUID id
+    ) throws NotFoundException {
+        System.out.println(id);
+        List<Person> speakers = this.SERVICE.getSpeakersFromAttendanceSession(id);
+        System.out.println(speakers);
+
+        return new ResponseEntity<>(convertPersonToListResponse(speakers), HttpStatus.OK);
     }
 
     @PutMapping("/{id}/speaker")

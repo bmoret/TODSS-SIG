@@ -27,9 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.snafu.todss.sig.sessies.domain.AttendanceState.NO_SHOW;
@@ -276,4 +274,36 @@ class AttendanceServiceIntegrationTest {
         assertDoesNotThrow(() -> ATTENDANCE_SERVICE.deleteAttendance(attendance.getId()));
         assertEquals(Collections.emptyList(), ATTENDANCE_REPOSITORY.findAll());
     }
+
+    @Test
+    @DisplayName("get speakers from a session")
+    void getSpeakers() {
+        PersonBuilder pb = new PersonBuilder();
+        pb.setEmail("t_a");
+        pb.setFirstname("a");
+        pb.setLastname("t");
+        pb.setExpertise("none");
+        pb.setEmployedSince(LocalDate.of(2021,1,1));
+        pb.setBranch(VIANEN);
+        pb.setRole(MANAGER);
+        Person person = PERSON_REPOSITORY.save(pb.build());
+        Person person1 = PERSON_REPOSITORY.save(pb.build());
+
+        ATTENDANCE_REPOSITORY.save(
+                new Attendance(PRESENT, true, person, attendance.getSession()
+                ));
+        ATTENDANCE_REPOSITORY.save(
+                new Attendance(PRESENT, true, person1, attendance.getSession()
+                ));
+
+        List<Person> speakers = assertDoesNotThrow(
+                () -> ATTENDANCE_SERVICE.getSpeakersFromAttendanceSession(attendance.getSession().getId())
+        );
+
+        assertEquals(2, speakers.size());
+    }
+
+
+
+
 }
