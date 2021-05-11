@@ -13,7 +13,7 @@ public class Attendance {
     @GeneratedValue
     private UUID id;
 
-    private StateAttendance state;
+    private AttendanceState state;
 
     private boolean isSpeaker;
 
@@ -23,13 +23,13 @@ public class Attendance {
     @ManyToOne(optional = false)
     private Session session;
 
-    public static Attendance of(StateAttendance state, boolean isSpeaker, Person person, Session session) {
-        return new Attendance(state, isSpeaker, person, session);
+    public static Attendance of(Person person, Session session) {
+        return new Attendance(AttendanceState.NO_SHOW, false, person, session);
     }
 
     public Attendance() {}
 
-    public Attendance(StateAttendance state, boolean isSpeaker, Person person, Session session) {
+    public Attendance(AttendanceState state, boolean isSpeaker, Person person, Session session) {
         this.state = state;
         this.isSpeaker = isSpeaker;
         this.person = person;
@@ -40,11 +40,11 @@ public class Attendance {
         return id;
     }
 
-    public StateAttendance getState() {
+    public AttendanceState getState() {
         return state;
     }
 
-    public void setState(StateAttendance state) {
+    public void setState(AttendanceState state) {
         this.state = state;
     }
 
@@ -70,16 +70,5 @@ public class Attendance {
 
     public void setSession(Session session) {
         this.session = session;
-    }
-
-    @Override
-    public String toString() {
-        return "Attendance{" +
-                "id=" + id +
-                ", state=" + state +
-                ", isSpeaker=" + isSpeaker +
-                ", person=" + person +
-                ", session=" + session +
-                '}';
     }
 }

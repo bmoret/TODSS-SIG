@@ -5,8 +5,8 @@ import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
 import com.snafu.todss.sig.sessies.data.SpringAttendanceRepository;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
+import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
-import com.snafu.todss.sig.sessies.domain.StateAttendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
@@ -15,6 +15,7 @@ import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
+import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,32 +24,39 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.snafu.todss.sig.sessies.domain.StateAttendance.*;
-import static com.snafu.todss.sig.sessies.domain.person.enums.Branch.*;
-import static com.snafu.todss.sig.sessies.domain.person.enums.Role.*;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.NO_SHOW;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
+import static com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN;
+import static com.snafu.todss.sig.sessies.domain.person.enums.Role.MANAGER;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-
-class AttendanceIntergrationServiceTest {
+@Transactional
+class AttendanceServiceIntegrationTest {
     @Autowired
     private AttendanceService ATTENDANCE_SERVICE;
+
     @Autowired
     private SpringPersonRepository PERSON_REPOSITORY;
+
     @Autowired
     private SessionRepository SESSION_REPOSITORY;
+
     @Autowired
     private SpecialInterestGroupRepository SIG_REPOSITORY;
+
     @Autowired
     private SpringAttendanceRepository ATTENDANCE_REPOSITORY;
 
     private Attendance attendance;
+    private Person person;
+    private Session session;
 
     @BeforeAll
     static void init() {
@@ -56,38 +64,32 @@ class AttendanceIntergrationServiceTest {
 
     @BeforeEach
     void setup() {
-        ATTENDANCE_REPOSITORY.deleteAll();
-        SESSION_REPOSITORY.deleteAll();
-        SIG_REPOSITORY.deleteAll();
-        PERSON_REPOSITORY.deleteAll();
 
-        PersonBuilder pb = new PersonBuilder();
-        pb.setEmail("t_a");
-        pb.setFirstname("t");
-        pb.setLastname("a");
-        pb.setExpertise("none");
-        pb.setEmployedSince(LocalDate.of(2021,1,1));
-        pb.setBranch(VIANEN);
-        pb.setRole(MANAGER);
-        Person person = PERSON_REPOSITORY.save(pb.build());
+        person = PERSON_REPOSITORY.save( new PersonBuilder()
+                .setEmail("t_a")
+                .setFirstname("ttt")
+                .setLastname("a")
+                .setExpertise("none")
+                .setEmployedSince(LocalDate.of(2021,1,1))
+                .setBranch(VIANEN)
+                .setRole(MANAGER)
+                .build());
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
-        String subject = "Subject";
+        String subject = "Subjectttt";
         String description = "Description";
         String address = "Address";
-        SpecialInterestGroup sig = SIG_REPOSITORY.save(new SpecialInterestGroup());
+        SpecialInterestGroup sig = SIG_REPOSITORY.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
+        session = SESSION_REPOSITORY.save(new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                sig,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address
+        ));
 
-        Session session = this.SESSION_REPOSITORY.save(
-                new PhysicalSession(
-                        new SessionDetails(now, nowPlusOneHour, subject, description),
-                        SessionState.DRAFT,
-                        sig,
-                        new ArrayList<>(),
-                        new ArrayList<>(),
-                        address
-                )
-        );
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session));
     }
 
@@ -106,8 +108,8 @@ class AttendanceIntergrationServiceTest {
 
         assertEquals(PRESENT, testAttendance.getState());
         assertFalse(testAttendance.isSpeaker());
-        assertEquals("t", testAttendance.getPerson().getDetails().getFirstname());
-        assertEquals("Subject", testAttendance.getSession().getDetails().getSubject());
+        assertEquals("ttt", testAttendance.getPerson().getDetails().getFirstname());
+        assertEquals("Subjectttt", testAttendance.getSession().getDetails().getSubject());
     }
 
     @Test
@@ -133,21 +135,21 @@ class AttendanceIntergrationServiceTest {
     @DisplayName("create attendance with info of already existing attendance")
     void createAttendanceThrowsWhenAlreadyExists() {
         assertThrows(
-                Exception.class,
+                DuplicateRequestException.class,
                 () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getPerson().getId(), attendance.getSession().getId())
         );
     }
 
     private static Stream<Arguments> createIncorrectAttendanceExamples() {
-        PersonBuilder pb = new PersonBuilder();
-        pb.setEmail("t_a");
-        pb.setFirstname("t");
-        pb.setLastname("a");
-        pb.setExpertise("none");
-        pb.setEmployedSince(LocalDate.of(2021,1,1));
-        pb.setBranch(VIANEN);
-        pb.setRole(MANAGER);
-        Person person = pb.build();
+        Person person = new PersonBuilder()
+                .setEmail("t_a")
+                .setFirstname("t")
+                .setLastname("a")
+                .setExpertise("none")
+                .setEmployedSince(LocalDate.of(2021,1,1))
+                .setBranch(VIANEN)
+                .setRole(MANAGER)
+                .build();
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
@@ -163,37 +165,21 @@ class AttendanceIntergrationServiceTest {
                 new ArrayList<>(),
                 address
         );
+        SpecialInterestGroup sig = new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>());
+
 
         return Stream.of(
                 Arguments.of(
+                        PRESENT,
                         null,
-                        false,
-                        person.getId(),
-                        session.getId()
+                        session,
+                        sig
                 ),
                 Arguments.of(
                         PRESENT,
-                        false,
+                        person,
                         null,
-                        session.getId()
-                ),
-                Arguments.of(
-                        PRESENT,
-                        false,
-                        person.getId(),
-                        null
-                ),
-                Arguments.of(
-                        PRESENT,
-                        false,
-                        person.getId(),
-                        UUID.randomUUID()
-                ),
-                Arguments.of(
-                        PRESENT,
-                        false,
-                        UUID.randomUUID(),
-                        session.getId()
+                        sig
                 )
         );
     }
@@ -201,13 +187,40 @@ class AttendanceIntergrationServiceTest {
     @ParameterizedTest
     @MethodSource("createIncorrectAttendanceExamples")
     @DisplayName("create attendance throws when info is incorrect")
-    void createAttendanceThrowsWhenIncorrectInfo(StateAttendance stateAttendance,
-                                                 boolean speaker,
-                                                 UUID personId,
-                                                 UUID sessionId) {
+    void createAttendanceThrowsWhenIncorrectInfo(AttendanceState attendanceState,
+                                                 Person person,
+                                                 Session session,
+                                                 SpecialInterestGroup sig) {
+        UUID personId = UUID.randomUUID();
+        UUID sessionId = UUID.randomUUID();
+        sig = SIG_REPOSITORY.save(sig);
+
+
+        if (person != null) {
+            personId = PERSON_REPOSITORY.save(person).getId();
+        }
+        if (session != null) {
+            session.setSig(sig);
+            sessionId = SESSION_REPOSITORY.save(session).getId();
+        }
+        UUID finalPersonId = personId;
+        UUID finalSessionId = sessionId;
         assertThrows(
-                Exception.class,
-                () -> ATTENDANCE_SERVICE.createAttendance(stateAttendance, speaker, personId, sessionId)
+                NotFoundException.class,
+                () -> ATTENDANCE_SERVICE.createAttendance(attendanceState, false, finalPersonId, finalSessionId)
+        );
+    }
+
+    @Test
+    @DisplayName("Create existing attendance")
+    void createExistingAttendance_ThrowsDuplicateRequestException() throws NotFoundException {
+        this.ATTENDANCE_REPOSITORY.deleteAll();
+
+        ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, person.getId(), session.getId());
+
+        assertThrows(
+                DuplicateRequestException.class,
+                () ->ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, person.getId(), session.getId())
         );
     }
 
@@ -227,7 +240,8 @@ class AttendanceIntergrationServiceTest {
     void updateSpeakerAttendanceThrows() {
         AttendanceSpeakerRequest request = new AttendanceSpeakerRequest();
         request.speaker = true;
-        assertThrows(NotFoundException.class,
+        assertThrows(
+                NotFoundException.class,
                 () -> ATTENDANCE_SERVICE.updateSpeakerAttendance(UUID.randomUUID(), request));
     }
 
@@ -247,7 +261,8 @@ class AttendanceIntergrationServiceTest {
     void updateAttendanceThrows() {
         AttendanceStateRequest request = new AttendanceStateRequest();
         request.state = NO_SHOW;
-        assertThrows(NotFoundException.class,
+        assertThrows(
+                NotFoundException.class,
                 () -> ATTENDANCE_SERVICE.updateStateAttendance(UUID.randomUUID(), request));
     }
 

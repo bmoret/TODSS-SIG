@@ -2,11 +2,12 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SpringAttendanceRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
-import com.snafu.todss.sig.sessies.domain.StateAttendance;
+import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
+import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -33,16 +34,16 @@ public class AttendanceService {
                 .orElseThrow(() -> new NotFoundException(String.format("Aanwezigheid met id '%s' bestaat niet.", id)));
     }
 
-    public Attendance createAttendance(StateAttendance state,
+    public Attendance createAttendance(AttendanceState state,
                                        boolean isSpeaker,
                                        UUID personId,
-                                       UUID sessionId) throws Exception {
+                                       UUID sessionId) throws DuplicateRequestException, NotFoundException {
         Person person = this.PERSON_SERVICE.getPerson(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
         if( ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndPersonAndSession(person, session).isPresent() ) {
-            throw new Exception("bestaat al");
+            throw new DuplicateRequestException("bestaat al");
         }
-        Attendance attendance = Attendance.of(state, isSpeaker, person, session);
+        Attendance attendance = new Attendance(state, isSpeaker, person, session);
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);
     }

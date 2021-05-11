@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.CANCELED;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static com.snafu.todss.sig.sessies.domain.StateAttendance.*;
 
 @Transactional
 @SpringBootTest
@@ -120,8 +121,10 @@ class AttendanceServiceTest {
         UUID personId = UUID.randomUUID();
         UUID sessionId = UUID.randomUUID();
 
-        when(SESSION_SERVICE.getSessionById(sessionId)).thenReturn(session);
-        when(ATTENDANCE_REPOSITORY.save(any(Attendance.class))).thenReturn(Attendance.of(PRESENT, true, person, session));
+        when(SESSION_SERVICE.getSessionById(sessionId))
+                .thenReturn(session);
+        when(ATTENDANCE_REPOSITORY.save(any(Attendance.class)))
+                .thenReturn(new Attendance(PRESENT, true, person, session));
 
         Attendance createdAttendance = SERVICE.createAttendance(PRESENT, true, personId, sessionId);
 

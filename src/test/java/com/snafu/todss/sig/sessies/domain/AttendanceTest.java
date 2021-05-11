@@ -1,12 +1,8 @@
-package com.snafu.todss.sig.sessies.domain.session;
+package com.snafu.todss.sig.sessies.domain;
 
-import com.snafu.todss.sig.sessies.domain.Attendance;
-import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
-import com.snafu.todss.sig.sessies.domain.StateAttendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
-import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-import static com.snafu.todss.sig.sessies.domain.StateAttendance.*;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Attendance tests")
@@ -28,7 +24,7 @@ class AttendanceTest {
     private Attendance attendance;
 
     @BeforeEach
-    void createUseableAttendance() {
+    void createUsableAttendance() {
         attendance = new Attendance();
     }
 
@@ -42,16 +38,26 @@ class AttendanceTest {
                 Arguments.of(PRESENT, false)
         );
     }
-
     @ParameterizedTest
     @MethodSource("attendanceFillExamples")
     @DisplayName("create all possible attendances")
-    void createAttendance(StateAttendance state, boolean isSpeaker) {
+    void createAttendance(AttendanceState state, boolean isSpeaker) {
         Attendance constAttendance = new Attendance(state, isSpeaker, null, null);
-        Attendance attendanceOf = Attendance.of(state, isSpeaker, null, null);
-        assertEquals(constAttendance.getState(), attendanceOf.getState());
-        assertEquals(constAttendance.isSpeaker(), attendanceOf.isSpeaker());
-        assertEquals(constAttendance.toString(), attendanceOf.toString());
+        assertEquals(state, constAttendance.getState());
+        assertEquals(isSpeaker, constAttendance.isSpeaker());
+    }
+
+    @Test
+    @DisplayName("Attendance.of() returns new attendance with all false")
+    void attendanceOf_ReturnsNewAttendance() {
+        Person person = new Person();
+        Session session = new PhysicalSession();
+        Attendance attendance = Attendance.of(person, session);
+
+        assertEquals(person, attendance.getPerson());
+        assertEquals(session, attendance.getSession());
+        assertEquals(NO_SHOW, attendance.getState());
+        assertFalse(attendance.isSpeaker());
     }
 
     @Test
@@ -113,10 +119,4 @@ class AttendanceTest {
         assertNotNull(attendance.getSession());
     }
 
-
-    @Test
-    @DisplayName("toString test")
-    void attendanceString() {
-        assertEquals(attendance.toString(), new Attendance().toString());
-    }
 }
