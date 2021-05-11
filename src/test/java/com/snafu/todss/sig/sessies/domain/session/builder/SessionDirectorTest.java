@@ -1,5 +1,6 @@
 package com.snafu.todss.sig.sessies.domain.session.builder;
 
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
@@ -21,13 +22,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 class SessionDirectorTest {
+    private static Person person = mock(Person.class);
+
     @Test
     @DisplayName("When input request not of specified class throw exception")
     void whenRequestNotOfSubClass_ThrowIllegalArgumentException() {
         SessionRequest request = new PhysicalSessionRequest();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SessionDirector.build(request, null)
+                () -> SessionDirector.build(request, null, null)
         );
     }
 
@@ -36,7 +39,7 @@ class SessionDirectorTest {
     void whenRequestIsNull_ThrowIllegalArgumentException() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SessionDirector.build(null, null)
+                () -> SessionDirector.build(null, null, null)
         );
     }
 
@@ -44,7 +47,7 @@ class SessionDirectorTest {
     @MethodSource("provideSessionArgs")
     @DisplayName("Build sessions from input and create instances of correct sub class")
     void buildSessions_CreatesInstances(SessionRequest request, Class<Session> expectedClass) {
-        Session session = SessionDirector.build(request, null);
+        Session session = SessionDirector.build(request, null, null);
 
         assertTrue(expectedClass.isInstance(session));
     }
@@ -58,7 +61,8 @@ class SessionDirectorTest {
                 "Subject",
                 "Description",
                 UUID.randomUUID(),
-               "Address"
+               "Address",
+                UUID.randomUUID().toString()
         );
         OnlineSessionRequest onlineSessionRequest = new OnlineSessionRequest(
                 now,
@@ -67,7 +71,8 @@ class SessionDirectorTest {
                 "Description",
                 UUID.randomUUID(),
                 "Random Platform",
-                "link"
+                "link",
+                UUID.randomUUID().toString()
         );
         OnlineSessionRequest teamsOnlineSessionRequest = new OnlineSessionRequest(
                 now,
@@ -76,7 +81,8 @@ class SessionDirectorTest {
                 "Description",
                 UUID.randomUUID(),
                 "Teams",
-                "link"
+                "link",
+                UUID.randomUUID().toString()
         );
         return Stream.of(
                 Arguments.of(physicalSessionRequest, PhysicalSession.class),
@@ -94,10 +100,11 @@ class SessionDirectorTest {
         request.startDate = LocalDateTime.now();
         request.endDate = LocalDateTime.now().plusHours(1);
         request.sigId = UUID.randomUUID();
+        request.contactPerson = UUID.randomUUID();
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SessionDirector.build(request, null)
+                () -> SessionDirector.build(request, null, null)
         );
     }
 
@@ -105,11 +112,11 @@ class SessionDirectorTest {
     @MethodSource("provideSessionArgs")
     @DisplayName("Update sessions from input and updated instances has correct new value")
     void updateSessions_UpdatedInstanceHasUpdatedValue(SessionRequest request, Class<Session> expectedClass) {
-        Session session = SessionDirector.build(request, null);
+        Session session = SessionDirector.build(request, null, null);
         String newSubject = "New Subject name";
         request.subject = newSubject;
 
-        session = SessionDirector.update(session, request, null);
+        session = SessionDirector.update(session, request, null, null);
 
         assertEquals(newSubject, session.getDetails().getSubject());
     }
@@ -118,10 +125,10 @@ class SessionDirectorTest {
     @MethodSource("provideSessionArgs")
     @DisplayName("Update sessions from input and updated instances is still the correct sub class")
     void updateSessions_UpdatedInstanceOfSameSubClass(SessionRequest request, Class<Session> expectedClass) {
-        Session session = SessionDirector.build(request, null);
+        Session session = SessionDirector.build(request, null, null);
         request.subject = "New Subject name";
 
-        session = SessionDirector.update(session, request, null);
+        session = SessionDirector.update(session, request, null, null);
 
         assertTrue(expectedClass.isInstance(session));
     }
@@ -135,10 +142,11 @@ class SessionDirectorTest {
         request.startDate = LocalDateTime.now();
         request.endDate = LocalDateTime.now().plusHours(1);
         request.sigId = UUID.randomUUID();
+        request.contactPerson = UUID.randomUUID();
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SessionDirector.update( new PhysicalSession(), request, null)
+                () -> SessionDirector.update( new PhysicalSession(), request, null, null)
         );
     }
 }

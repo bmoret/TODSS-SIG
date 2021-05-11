@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.domain.session.builder;
 
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
@@ -14,17 +15,17 @@ public class SessionDirector {
     private SessionDirector() {
     }
 
-    public static Session build(SessionRequest request, SpecialInterestGroup sig) {
+    public static Session build(SessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
         inputNotNull(request);
         if (PhysicalSessionRequest.class.isAssignableFrom(request.getClass())) {
-            return buildPhysicalSession((PhysicalSessionRequest) request, sig);
+            return buildPhysicalSession((PhysicalSessionRequest) request, sig, contactPerson);
         } else if (OnlineSessionRequest.class.isAssignableFrom(request.getClass())) {
-            return buildOnlineSession((OnlineSessionRequest) request, sig);
+            return buildOnlineSession((OnlineSessionRequest) request, sig, contactPerson);
         }
         throw new IllegalArgumentException("Cannot create session");
     }
 
-    private static PhysicalSession buildPhysicalSession(PhysicalSessionRequest request, SpecialInterestGroup sig) {
+    private static PhysicalSession buildPhysicalSession(PhysicalSessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
         return new PhysicalSessionBuilder()
                 .setEndDate(request.endDate)
                 .setStartDate(request.startDate)
@@ -32,10 +33,11 @@ public class SessionDirector {
                 .setDescription(request.description)
                 .setAddress(request.address)
                 .setSig(sig)
+                .setContactPerson(contactPerson)
                 .build();
     }
 
-    private static OnlineSession buildOnlineSession(OnlineSessionRequest request, SpecialInterestGroup sig) {
+    private static OnlineSession buildOnlineSession(OnlineSessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
         return new OnlineSessionBuilder()
                 .setEndDate(request.endDate)
                 .setStartDate(request.startDate)
@@ -44,19 +46,20 @@ public class SessionDirector {
                 .setPlatform(request.platform)
                 .setJoinUrl(request.joinUrl)
                 .setSig(sig)
+                .setContactPerson(contactPerson)
                 .build();
     }
 
-    public static Session update(Session session, SessionRequest request, SpecialInterestGroup sig) {
+    public static Session update(Session session, SessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
         if (PhysicalSessionRequest.class.isAssignableFrom(request.getClass())) {
-            return updatePhysicalSession((PhysicalSession) session, (PhysicalSessionRequest) request, sig);
+            return updatePhysicalSession((PhysicalSession) session, (PhysicalSessionRequest) request, sig, contactPerson);
         } else if (OnlineSessionRequest.class.isAssignableFrom(request.getClass())) {
-            return updateOnlineSession((OnlineSession) session, (OnlineSessionRequest) request, sig);
+            return updateOnlineSession((OnlineSession) session, (OnlineSessionRequest) request, sig, contactPerson);
         }
         throw new IllegalArgumentException("Cannot update session");
     }
 
-    private static Session updatePhysicalSession(PhysicalSession session, PhysicalSessionRequest request, SpecialInterestGroup sig) {
+    private static Session updatePhysicalSession(PhysicalSession session, PhysicalSessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
         SessionDetails details = session.getDetails();
         details.setStartDate(request.startDate);
         details.setEndDate(request.endDate);
@@ -64,10 +67,11 @@ public class SessionDirector {
         details.setDescription(request.description);
         session.setSig(sig);
         session.setAddress(request.address);
+        session.setContactPerson(contactPerson);
         return session;
     }
 
-    private static Session updateOnlineSession(OnlineSession session, OnlineSessionRequest request, SpecialInterestGroup sig) {
+    private static Session updateOnlineSession(OnlineSession session, OnlineSessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
         SessionDetails details = session.getDetails();
         details.setStartDate(request.startDate);
         details.setEndDate(request.endDate);
@@ -78,6 +82,7 @@ public class SessionDirector {
         if (!session.getPlatform().equalsIgnoreCase("Teams")) {
             session.setPlatform(request.platform);
         }
+        session.setContactPerson(contactPerson);
         return session;
     }
 }

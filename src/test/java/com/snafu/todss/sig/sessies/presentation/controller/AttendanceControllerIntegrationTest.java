@@ -84,7 +84,8 @@ class AttendanceControllerIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        address
+                        address,
+                        null
                 )
         );
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, true, person, session));

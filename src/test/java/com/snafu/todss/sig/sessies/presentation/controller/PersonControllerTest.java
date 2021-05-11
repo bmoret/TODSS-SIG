@@ -1,7 +1,6 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
-import com.snafu.todss.sig.*;
-import javassist.NotFoundException;
+import com.snafu.todss.sig.CiTestConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,9 +17,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Arrays;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @Import(CiTestConfiguration.class)
@@ -36,7 +35,8 @@ class PersonControllerTest {
     @BeforeEach
     void setup() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/person/email/email@email.com")
+                .get("/person")
+                .content("email@email.com")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         MvcResult ra = mockMvc.perform(request)
@@ -46,7 +46,8 @@ class PersonControllerTest {
         supervisorId = Arrays.asList(dubbelepunt.split("\"")).get(1);
 
         RequestBuilder request2 = MockMvcRequestBuilders
-                .get("/person/email/email2@email.com")
+                .get("/person")
+                .content("email2@email.com")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         MvcResult ra2 = mockMvc.perform(request2)
@@ -73,7 +74,8 @@ class PersonControllerTest {
     @DisplayName("Get person by email")
     void getPersonByEmail() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/person/email/email@email.com")
+                .get("/person")
+                .content("email@email.com")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -136,7 +138,8 @@ class PersonControllerTest {
     @Test
     void removePerson() throws Exception {
         RequestBuilder request2 = MockMvcRequestBuilders
-                .get("/person/email/email3@email.com")
+                .get("/person")
+                .content("email3@email.com")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         MvcResult ra2 = mockMvc.perform(request2)

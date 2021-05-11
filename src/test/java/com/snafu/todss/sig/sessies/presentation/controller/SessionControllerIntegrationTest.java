@@ -1,17 +1,22 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.application.SessionService;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.domain.session.types.TeamsOnlineSession;
+import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
+import javassist.NotFoundException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,10 +48,29 @@ class SessionControllerIntegrationTest {
     private SessionService service;
 
     @Autowired
+    private PersonService personService;
+
+    @Autowired
     private SessionRepository repository;
 
     @Autowired
     private SpecialInterestGroupRepository sigRepository;
+
+    private Person supervisor;
+
+    @BeforeEach
+    void beforeEach() throws NotFoundException {
+        PersonRequest dtoSupervisor = new PersonRequest();
+        dtoSupervisor.email = "email@email.com";
+        dtoSupervisor.firstname = "fourth";
+        dtoSupervisor.lastname = "last";
+        dtoSupervisor.expertise = "none";
+        dtoSupervisor.branch = "VIANEN";
+        dtoSupervisor.role = "EMPLOYEE";
+        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.supervisorId = null;
+        supervisor = personService.createPerson(dtoSupervisor);
+    }
 
     @AfterEach
     void tearDown() {
@@ -107,7 +131,9 @@ class SessionControllerIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        address
+                        address,
+                        supervisor
+
                 )
         );
         RequestBuilder request = MockMvcRequestBuilders
@@ -123,7 +149,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.endDate").exists())
                 .andExpect(jsonPath("$.details.subject").value(session.getDetails().getSubject()))
                 .andExpect(jsonPath("$.details.description").value(session.getDetails().getDescription()))
-                .andExpect(jsonPath("$.address").value(session.getAddress()));
+                .andExpect(jsonPath("$.address").value(session.getAddress()))
+                .andExpect(jsonPath("$.contactPerson").exists());
     }
 
     @Test
@@ -144,6 +171,7 @@ class SessionControllerIntegrationTest {
         json.put("sigId", sig.getId().toString());
         json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
         json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("contactPerson", supervisor.getId().toString());
         json.put("@type", "PHYSICAL_SESSION_REQUEST");
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/sessions")
@@ -160,7 +188,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.subject").value(subject))
                 .andExpect(jsonPath("$.details.description").value(description))
                 .andExpect(jsonPath("$.address").value(address))
-                .andExpect(jsonPath("$.type").value("PHYSICAL"));
+                .andExpect(jsonPath("$.type").value("PHYSICAL"))
+                .andExpect(jsonPath("$.contactPerson").exists());
     }
 
     @ParameterizedTest
@@ -180,6 +209,7 @@ class SessionControllerIntegrationTest {
         json.put("sigId", sig.getId().toString());
         json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
         json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("contactPerson", supervisor.getId().toString());
         json.put("@type", "ONLINE_SESSION_REQUEST");
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/sessions")
@@ -197,7 +227,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.description").value(description))
                 .andExpect(jsonPath("$.platform").value(expectedPlatform))
                 .andExpect(jsonPath("$.joinUrl").value(joinUrl))
-                .andExpect(jsonPath("$.type").value(expectedType));
+                .andExpect(jsonPath("$.type").value(expectedType))
+                .andExpect(jsonPath("$.contactPerson").exists());
     }
 
     static Stream<Arguments> provideOnlineRequests() {
@@ -223,7 +254,8 @@ class SessionControllerIntegrationTest {
                         sig,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        "address"
+                        "address",
+                        supervisor
                 )
         );
 
@@ -235,6 +267,7 @@ class SessionControllerIntegrationTest {
         json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
         json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
         json.put("@type", "PHYSICAL_SESSION_REQUEST");
+        json.put("contactPerson", null);
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sessions/" + session.getId())
                 .contentType("application/json")
@@ -266,6 +299,7 @@ class SessionControllerIntegrationTest {
         json.put("sigId", sig.getId().toString());
         json.put("startDate", session.getDetails().getStartDate().format(DateTimeFormatter.ISO_DATE_TIME));
         json.put("endDate", session.getDetails().getEndDate().format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("contactPerson", supervisor.getId().toString());
         json.put("@type", "ONLINE_SESSION_REQUEST");
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sessions/" + session.getId())
@@ -302,7 +336,8 @@ class SessionControllerIntegrationTest {
                                 new ArrayList<>(),
                                 new ArrayList<>(),
                                 "Platform",
-                                joinUrl
+                                joinUrl,
+                                null
                         )
                 ),
                 Arguments.of(
@@ -315,7 +350,8 @@ class SessionControllerIntegrationTest {
                                 null,
                                 new ArrayList<>(),
                                 new ArrayList<>(),
-                                joinUrl
+                                joinUrl,
+                                null
                         )
                 )
         );
@@ -341,5 +377,122 @@ class SessionControllerIntegrationTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Requesting planning for a session that does not exist throws not found")
+    void requestPlanningForNotExistingSession_ThrowsNotFound() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + UUID.randomUUID() + "/request");
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Requesting planning for a session that when in wrong state throws IAE")
+    void requestPlanningForSession_WhenWrongState() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        PhysicalSession session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Subject", "Description"),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address",
+                        null
+                )
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + session.getId() + "/request");
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("Requesting planning for a session UpdatesState to TO_BE_PLANNED")
+    void requestPlanningForSession_UpdatesState() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        PhysicalSession session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Subject", "Description"),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address",
+                        null
+                )
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + session.getId() + "/request");
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("TO_BE_PLANNED"));
+    }
+
+    @Test
+    @DisplayName("Plan session returns OK with body")
+    void planSession_ReturnsOkWithBody() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(null, null, "Subject", "Description"),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address",
+                        null
+                )
+        );
+        RequestBuilder request = MockMvcRequestBuilders
+                .put(String.format("/sessions/%s/plan?startDate=%s&endDate=%s",
+                        session.getId(),
+                        LocalDateTime.now().plusHours(1),
+                        LocalDateTime.now().plusHours(2))
+                );
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @ParameterizedTest
+    @MethodSource("ProvideInvalidDateCombinations")
+    @DisplayName("Plan session with missing date time arguments is conflict")
+    void planSessionWithMissingArgs_IsConflict(String startDate, String endDate) throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(null, null, "Subject", "Description"),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address",
+                        null
+                )
+        );
+        RequestBuilder request = MockMvcRequestBuilders
+                .put(String.format("/sessions/%s/plan?startdDate=%s&endDate=%s",
+                        session.getId(),
+                        startDate,
+                        endDate)
+                );
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+    private static Stream<Arguments> ProvideInvalidDateCombinations() {
+        return Stream.of(
+                Arguments.of("", LocalDateTime.now().minusHours(2).toString()),
+                Arguments.of(LocalDateTime.now().minusHours(1).toString(), ""),
+                Arguments.of("", "")
+        );
     }
 }

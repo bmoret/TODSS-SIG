@@ -34,7 +34,8 @@ class TeamsOnlineSessionTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                joinUrl
+                joinUrl,
+                null
         );
     }
 
@@ -59,7 +60,8 @@ class TeamsOnlineSessionTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                joinUrl
+                joinUrl,
+                null
         );
 
         SessionDetails details = session.getDetails();
@@ -87,7 +89,8 @@ class TeamsOnlineSessionTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                joinUrl
+                joinUrl,
+                null
         );
 
         session.nextState();
@@ -134,7 +137,8 @@ class TeamsOnlineSessionTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                joinUrl
+                joinUrl,
+                null
         );
         return Stream.of(
                 Arguments.of(session, session, true),

@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.presentation.dto.converter;
 
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
@@ -43,7 +44,7 @@ class SessionConverterTest {
         String address = "Address";
         String platform = "Platform";
         String joinUrl = "JoinUrl";
-
+        Person person = mock(Person.class);
         mockSession = mock(Session.class,
                 Mockito.withSettings()
                         .useConstructor(
@@ -51,7 +52,8 @@ class SessionConverterTest {
                                 SessionState.DRAFT,
                                 new SpecialInterestGroup(),
                                 new ArrayList<>(),
-                                new ArrayList<>()
+                                new ArrayList<>(),
+                                null
                         )
                         .defaultAnswer(CALLS_REAL_METHODS)
         );
@@ -66,8 +68,8 @@ class SessionConverterTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                address
-
+                address,
+                null
         );
         physicalSessionResponse = new SessionResponse();
         physicalSessionResponse.setType("PHYSICAL");
@@ -82,7 +84,8 @@ class SessionConverterTest {
                 new ArrayList<>(),
                 new ArrayList<>(),
                 joinUrl,
-                platform
+                platform,
+                null
         );
         onlineSessionResponse = new SessionResponse();
         onlineSessionResponse.setType("ONLINE");
@@ -97,7 +100,8 @@ class SessionConverterTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                joinUrl
+                joinUrl,
+                null
         );
         teamsOnlineSessionResponse = new SessionResponse();
         teamsOnlineSessionResponse.setType("TEAMS");
@@ -105,7 +109,6 @@ class SessionConverterTest {
         teamsOnlineSessionResponse.setState(teamsOnlineSession.getState());
         teamsOnlineSessionResponse.setPlatform(teamsOnlineSession.getPlatform());
         teamsOnlineSessionResponse.setJoinUrl(teamsOnlineSession.getJoinURL());
-
     }
 
     @ParameterizedTest

@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
@@ -102,45 +101,6 @@ class SessionDetailsTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideBeforeStartDateEndDateValues")
-    @DisplayName("Throw when set end date with date before the start date")
-    void throwWhenEndDateIsBeforeStartDate(LocalDateTime endDate) {
-        assertThrows(
-                DateTimeException.class,
-                () -> details.setEndDate(endDate)
-        );
-    }
-    static Stream<Arguments> provideBeforeStartDateEndDateValues() {
-        return Stream.of(
-                Arguments.of(LocalDateTime.now().minusHours(1)),
-                Arguments.of(LocalDateTime.now().minusDays(1)),
-                Arguments.of(LocalDateTime.now().minusYears(1)),
-                Arguments.of(LocalDateTime.MIN)
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideInvalidEndDateValues")
-    @DisplayName("Throw when set end date and duration between it and start is bigger than 1 week")
-    void throwWhenDurationFromStartDateIsTooBig(LocalDateTime endDate) {
-        assertThrows(
-                DateTimeException.class,
-                () -> details.setEndDate(endDate)
-        );
-    }
-    static Stream<Arguments> provideInvalidEndDateValues() {
-        return Stream.of(
-                Arguments.of(LocalDateTime.now().plusDays(7).plusSeconds(5)),
-                Arguments.of(LocalDateTime.now().plusDays(8)),
-                Arguments.of(LocalDateTime.now().plusWeeks(1).plusSeconds(5)),
-                Arguments.of(LocalDateTime.now().plusYears(1)),
-                Arguments.of(LocalDateTime.now().plusYears(99)),
-                Arguments.of(LocalDateTime.now().minusYears(LocalDateTime.now().getYear()))
-
-        );
-    }
-
-    @ParameterizedTest
     @MethodSource("provideValidStartDateValues")
     @DisplayName("Set correct start dates")
     void sessionDetailsSetStartDate(LocalDateTime startDate) {
@@ -199,26 +159,6 @@ class SessionDetailsTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> details.setStartDate(null)
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideInvalidStartDateValues")
-    @DisplayName("Throw when set start date with invalid value")
-    void throwWhenStartDateIsInvalid(LocalDateTime startDate) {
-        assertThrows(
-                DateTimeException.class,
-                () -> details.setStartDate(startDate)
-        );
-    }
-    static Stream<Arguments> provideInvalidStartDateValues() {
-        return Stream.of(
-                Arguments.of(LocalDateTime.now().plusHours(1).plusSeconds(1)),
-                Arguments.of(LocalDateTime.now().plusDays(1)),
-                Arguments.of(LocalDateTime.now().plusYears(1)),
-                Arguments.of(LocalDateTime.now().minusYears(1)),
-                Arguments.of(LocalDateTime.now().minusYears(LocalDateTime.now().getYear())),
-                Arguments.of(LocalDateTime.MAX)
         );
     }
 }

@@ -42,7 +42,8 @@ class OnlineSessionTest {
                 new ArrayList<>(),
                 new ArrayList<>(),
                 platform,
-                joinUrl
+                joinUrl,
+                null
         );
 
         SessionDetails details = session.getDetails();
@@ -72,7 +73,8 @@ class OnlineSessionTest {
                 new ArrayList<>(),
                 new ArrayList<>(),
                 platform,
-                joinUrl
+                joinUrl,
+                null
         );
 
         session.nextState();
@@ -112,7 +114,8 @@ class OnlineSessionTest {
                 new ArrayList<>(),
                 new ArrayList<>(),
                 platform,
-                joinUrl
+                joinUrl,
+                null
         );
         return Stream.of(
                 Arguments.of(session, session, true),

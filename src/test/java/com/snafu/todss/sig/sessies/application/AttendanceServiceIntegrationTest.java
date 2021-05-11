@@ -87,7 +87,8 @@ class AttendanceServiceIntegrationTest {
                 sig,
                 new ArrayList<>(),
                 new ArrayList<>(),
-                address
+                address,
+                null
         ));
 
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session));
@@ -163,7 +164,8 @@ class AttendanceServiceIntegrationTest {
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                address
+                address,
+                null
         );
         SpecialInterestGroup sig = new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>());
 

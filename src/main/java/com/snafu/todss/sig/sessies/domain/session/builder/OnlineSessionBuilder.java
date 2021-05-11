@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.domain.session.builder;
 
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
@@ -17,6 +18,7 @@ public class OnlineSessionBuilder implements SessionBuilder {
     private SpecialInterestGroup sig;
     private String platform;
     private String joinUrl;
+    private Person contactPerson;
 
 
     public OnlineSessionBuilder() {
@@ -25,6 +27,7 @@ public class OnlineSessionBuilder implements SessionBuilder {
         this.sig = null;
         this.platform = "";
         this.joinUrl = "";
+        this.contactPerson = null;
     }
 
     @Override
@@ -57,6 +60,12 @@ public class OnlineSessionBuilder implements SessionBuilder {
         return this;
     }
 
+    @Override
+    public OnlineSessionBuilder setContactPerson(Person contactPerson) {
+        this.contactPerson = contactPerson;
+        return this;
+    }
+
     public OnlineSessionBuilder setPlatform(String platform) {
         this.platform = platform;
         return this;
@@ -76,7 +85,8 @@ public class OnlineSessionBuilder implements SessionBuilder {
                     sig,
                     new ArrayList<>(),
                     new ArrayList<>(),
-                    joinUrl
+                    joinUrl,
+                    contactPerson
             );
         } else {
             return new OnlineSession(
@@ -86,7 +96,8 @@ public class OnlineSessionBuilder implements SessionBuilder {
                     new ArrayList<>(),
                     new ArrayList<>(),
                     platform,
-                    joinUrl
+                    joinUrl,
+                    contactPerson
             );
         }
     }
