@@ -18,8 +18,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @Import(CiTestConfiguration.class)
@@ -172,8 +171,8 @@ class PersonControllerTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-                .andExpect(content().contentType("application/json"))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$[0]").exists())
                 .andExpect(jsonPath("$[1]").doesNotExist());
     }
