@@ -20,10 +20,14 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
     public User(){}
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+        this.role = UserRole.EMPLOYEE;
     }
 
     public UUID getId() {
@@ -39,6 +43,13 @@ public class User implements UserDetails {
         return password;
     }
 
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
 
     @Override
     public boolean isAccountNonExpired() {

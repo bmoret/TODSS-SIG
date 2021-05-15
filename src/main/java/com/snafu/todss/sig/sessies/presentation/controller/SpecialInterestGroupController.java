@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +52,8 @@ public class SpecialInterestGroupController {
         return null;
     }
 
-    @CrossOrigin
     @GetMapping
+    @RolesAllowed("MANAGER")
     public ResponseEntity<List<SpecialInterestGroupResponse>> getAllSpecialInterestGroups() {
         List<SpecialInterestGroup> specialInterestGroups = this.SERVICE.getAllSpecialInterestGroups();
         List<SpecialInterestGroupResponse> responses = new ArrayList<>();
