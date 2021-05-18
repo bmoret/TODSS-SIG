@@ -27,7 +27,7 @@ public class User implements UserDetails {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.role = UserRole.EMPLOYEE;
+        this.role = UserRole.ROLE_EMPLOYEE;
     }
 
     public UUID getId() {
@@ -73,6 +73,6 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority(this.role.toString()));
     }
 }

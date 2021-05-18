@@ -15,7 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true)
+@EnableGlobalMethodSecurity(securedEnabled = true,
+                            jsr250Enabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public final static String LOGIN_PATH = "/login";
     public final static String REGISTER_PATH = "/registration";
@@ -54,5 +55,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }
 

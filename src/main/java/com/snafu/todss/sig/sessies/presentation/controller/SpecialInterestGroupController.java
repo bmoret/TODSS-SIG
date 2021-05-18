@@ -8,10 +8,13 @@ import com.snafu.todss.sig.sessies.presentation.dto.response.PersonCompactRespon
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SpecialInterestGroupResponse;
 import javassist.NotFoundException;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@RolesAllowed("ROLE_ADMINISTRATOR")
 @RestController
 @RequestMapping("/sig")
 public class SpecialInterestGroupController {
@@ -52,8 +56,8 @@ public class SpecialInterestGroupController {
         return null;
     }
 
+    @PermitAll
     @GetMapping
-    @RolesAllowed("MANAGER")
     public ResponseEntity<List<SpecialInterestGroupResponse>> getAllSpecialInterestGroups() {
         List<SpecialInterestGroup> specialInterestGroups = this.SERVICE.getAllSpecialInterestGroups();
         List<SpecialInterestGroupResponse> responses = new ArrayList<>();
@@ -64,7 +68,7 @@ public class SpecialInterestGroupController {
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
-    @CrossOrigin("http://localhost:8081")
+    @PermitAll
     @GetMapping("/{id}")
     public ResponseEntity<SpecialInterestGroupResponse> getSpecialInterestGroup(@PathVariable UUID id) throws NotFoundException {
         SpecialInterestGroup specialInterestGroup = this.SERVICE.getSpecialInterestGroupById(id);
@@ -72,7 +76,7 @@ public class SpecialInterestGroupController {
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
     }
 
-    @CrossOrigin("http://localhost:8081")
+    @PermitAll
     @GetMapping("/{id}/people")
     public ResponseEntity<List<PersonResponse>> getAssociatedPeopleBySpecialInterestGroup(@PathVariable String id)
     throws NotFoundException {
@@ -87,7 +91,7 @@ public class SpecialInterestGroupController {
         return new ResponseEntity<>(personResponses, HttpStatus.OK);
     }
 
-    @PostMapping
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY"})
     public ResponseEntity<SpecialInterestGroupResponse> createSpecialInterestGroup(
             @Valid @RequestBody SpecialInterestGroupRequest specialInterestGroupRequest
     ) throws NotFoundException {
@@ -96,6 +100,7 @@ public class SpecialInterestGroupController {
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY"})
     @PutMapping("/{id}")
     public ResponseEntity<SpecialInterestGroupResponse> updateSpecialInterestGroup(
             @PathVariable UUID id,
@@ -109,6 +114,7 @@ public class SpecialInterestGroupController {
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY"})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSpecialInterestGroup(@PathVariable UUID id) throws NotFoundException {
         this.SERVICE.deleteSpecialInterestGroup(id);

@@ -12,11 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@RolesAllowed("ROLE_ADMINISTRATOR")
 @RestController
 @RequestMapping("/attendances")
 //todo  /sessions/{sessionId} Kan mogelijk beter zijn i.v.m. structuur en logica van REST pathing -jona
@@ -41,6 +43,7 @@ public class AttendanceController {
         return attendances.stream().map(this::convertAttendanceToResponse).collect(Collectors.toList());
     }
 
+    @RolesAllowed({"ROLE_MANAGER"})
     @GetMapping("/{id}")
     public ResponseEntity<AttendanceResponse> getAttendance(
             @PathVariable UUID id
@@ -63,7 +66,7 @@ public class AttendanceController {
         );
     }
 
-    @CrossOrigin("http://localhost:8081")
+    @RolesAllowed({"ROLE_MANAGER"})
     @GetMapping ("/{id}/speaker")
     public ResponseEntity<List<PersonResponse>> getSpeakerAttendance(
             @PathVariable UUID id
@@ -75,6 +78,7 @@ public class AttendanceController {
         return new ResponseEntity<>(convertPersonToListResponse(speakers), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER"})
     @PutMapping("/{id}/speaker")
     public ResponseEntity<AttendanceResponse> updateSpeakerAttendance(
             @PathVariable UUID id,
@@ -85,6 +89,7 @@ public class AttendanceController {
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER"})
     @PutMapping("/{id}/state")
     public ResponseEntity<AttendanceResponse> updateStateAttendance(
             @PathVariable UUID id,
@@ -95,6 +100,7 @@ public class AttendanceController {
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER"})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAttendance(@PathVariable UUID id){
         this.SERVICE.deleteAttendance(id);
