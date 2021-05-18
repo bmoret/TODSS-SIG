@@ -91,7 +91,7 @@ public class AttendanceController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("{sessionId}/{personId}")
+    @GetMapping("{sessionId}/{personId}")
     public ResponseEntity<Boolean> checkIfAttendanceExists(
             @PathVariable UUID sessionId, @PathVariable UUID personId
     ) throws NotFoundException {

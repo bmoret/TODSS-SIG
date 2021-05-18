@@ -207,7 +207,7 @@ class AttendanceControllerIntegrationTest {
     @Test
     @DisplayName("update state of attendance throws when attendance not found")
     void checkIfAttendanceExists() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/attendances/{sessionId}/{personId}", attendance.getSession().getId(), attendance.getPerson().getId())
+        RequestBuilder request = MockMvcRequestBuilders.get("/attendances/{sessionId}/{personId}", attendance.getSession().getId(), attendance.getPerson().getId())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
