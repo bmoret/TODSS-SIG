@@ -13,8 +13,7 @@ import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
@@ -197,7 +196,6 @@ class AttendanceServiceIntegrationTest {
         UUID sessionId = UUID.randomUUID();
         sig = SIG_REPOSITORY.save(sig);
 
-
         if (person != null) {
             personId = PERSON_REPOSITORY.save(person).getId();
         }
@@ -229,10 +227,10 @@ class AttendanceServiceIntegrationTest {
     @Test
     @DisplayName("update speaker of attendance")
     void updateSpeakerAttendance() {
-        AttendanceSpeakerRequest request = new AttendanceSpeakerRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.speaker = true;
 
-        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateSpeakerAttendance(this.attendance.getId(), request));
+        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request));
 
         assertTrue(attendance.isSpeaker());
     }
@@ -240,20 +238,20 @@ class AttendanceServiceIntegrationTest {
     @Test
     @DisplayName("update attendance throws when attendance not found")
     void updateSpeakerAttendanceThrows() {
-        AttendanceSpeakerRequest request = new AttendanceSpeakerRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.speaker = true;
         assertThrows(
                 NotFoundException.class,
-                () -> ATTENDANCE_SERVICE.updateSpeakerAttendance(UUID.randomUUID(), request));
+                () -> ATTENDANCE_SERVICE.updateAttendance(UUID.randomUUID(), request));
     }
 
     @Test
     @DisplayName("update state of attendance")
     void updateAttendance() {
-        AttendanceStateRequest request = new AttendanceStateRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.state = NO_SHOW;
 
-        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateStateAttendance(this.attendance.getId(), request));
+        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request));
 
         assertEquals(NO_SHOW, attendance.getState());
     }
@@ -261,11 +259,11 @@ class AttendanceServiceIntegrationTest {
     @Test
     @DisplayName("update attendance throws when attendance not found")
     void updateAttendanceThrows() {
-        AttendanceStateRequest request = new AttendanceStateRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.state = NO_SHOW;
         assertThrows(
                 NotFoundException.class,
-                () -> ATTENDANCE_SERVICE.updateStateAttendance(UUID.randomUUID(), request));
+                () -> ATTENDANCE_SERVICE.updateAttendance(UUID.randomUUID(), request));
     }
 
     @Test
@@ -303,7 +301,31 @@ class AttendanceServiceIntegrationTest {
         assertEquals(2, speakers.size());
     }
 
+    @Test
+    @DisplayName("check if attendance exists for person / session combination and returns true")
+    void checkIfAttendanceExists() {
+        assertTrue(
+                assertDoesNotThrow(() -> ATTENDANCE_SERVICE.checkIfAttendanceExists(
+                        attendance.getSession().getId(), attendance.getPerson().getId()))
+        );
+    }
 
+    @Test
+    @DisplayName("check if attendance exists for person / session combination and returns false when it does not")
+    void checkIfAttendanceExistsReturnsFalse() throws NotFoundException {
+        PersonBuilder pb = new PersonBuilder();
+        pb.setEmail("t_a");
+        pb.setFirstname("a");
+        pb.setLastname("t");
+        pb.setExpertise("none");
+        pb.setEmployedSince(LocalDate.of(2021,1,1));
+        pb.setBranch(VIANEN);
+        pb.setRole(MANAGER);
+        Person person = PERSON_REPOSITORY.save(pb.build());
 
-
+        assertFalse(
+                ATTENDANCE_SERVICE.checkIfAttendanceExists(
+                        attendance.getSession().getId(), person.getId())
+        );
+    }
 }

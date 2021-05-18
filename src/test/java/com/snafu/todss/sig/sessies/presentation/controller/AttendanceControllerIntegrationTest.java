@@ -204,4 +204,14 @@ class AttendanceControllerIntegrationTest {
                 .andExpect(jsonPath("$[1]").doesNotExist());
     }
 
+    @Test
+    @DisplayName("update state of attendance throws when attendance not found")
+    void checkIfAttendanceExists() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders.post("/attendances/{sessionId}/{personId}", attendance.getSession().getId(), attendance.getPerson().getId())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(content().contentType("application/json"))
+                .andExpect(status().isOk());
+    }
 }

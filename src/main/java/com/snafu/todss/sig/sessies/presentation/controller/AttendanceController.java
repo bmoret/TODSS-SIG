@@ -3,8 +3,7 @@ package com.snafu.todss.sig.sessies.presentation.controller;
 import com.snafu.todss.sig.sessies.application.AttendanceService;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.AttendanceResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import javassist.NotFoundException;
@@ -75,22 +74,12 @@ public class AttendanceController {
         return new ResponseEntity<>(convertPersonToListResponse(speakers), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/speaker")
-    public ResponseEntity<AttendanceResponse> updateSpeakerAttendance(
+    @PutMapping("/{id}/update")
+    public ResponseEntity<AttendanceResponse> updateAttendance(
             @PathVariable UUID id,
-            @Valid @RequestBody AttendanceSpeakerRequest request
+            @Valid @RequestBody AttendanceRequest request
     ) throws NotFoundException {
-        Attendance attendance = this.SERVICE.updateSpeakerAttendance(id, request);
-
-        return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
-    }
-
-    @PutMapping("/{id}/state")
-    public ResponseEntity<AttendanceResponse> updateStateAttendance(
-            @PathVariable UUID id,
-            @Valid @RequestBody AttendanceStateRequest request
-    ) throws NotFoundException {
-        Attendance attendance = this.SERVICE.updateStateAttendance(id, request);
+        Attendance attendance = this.SERVICE.updateAttendance(id, request);
 
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
@@ -102,4 +91,12 @@ public class AttendanceController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PostMapping("{sessionId}/{personId}")
+    public ResponseEntity<Boolean> checkIfAttendanceExists(
+            @PathVariable UUID sessionId, @PathVariable UUID personId
+    ) throws NotFoundException {
+        Boolean present = this.SERVICE.checkIfAttendanceExists(sessionId, personId);
+
+        return new ResponseEntity<>(present, HttpStatus.OK);
+    }
 }

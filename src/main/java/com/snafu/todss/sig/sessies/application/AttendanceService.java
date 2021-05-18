@@ -5,8 +5,7 @@ import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -34,30 +33,28 @@ public class AttendanceService {
                 .orElseThrow(() -> new NotFoundException(String.format("Aanwezigheid met id '%s' bestaat niet.", id)));
     }
 
+    public boolean checkAttendanceBySessionAndPerson(Person person, Session session) {
+        return ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndPersonAndSession(person, session).isPresent();
+    }
+
     public Attendance createAttendance(AttendanceState state,
                                        boolean isSpeaker,
                                        UUID personId,
                                        UUID sessionId) throws DuplicateRequestException, NotFoundException {
         Person person = this.PERSON_SERVICE.getPerson(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
-        if( ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndPersonAndSession(person, session).isPresent() ) {
-            throw new DuplicateRequestException("bestaat al");
+        if( checkAttendanceBySessionAndPerson(person, session) ) {
+            throw new DuplicateRequestException("Je bent al aangemeld voor deze sessie.");
         }
         Attendance attendance = new Attendance(state, isSpeaker, person, session);
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);
     }
 
-    public Attendance updateSpeakerAttendance(UUID id, AttendanceSpeakerRequest attendanceSpeakerRequest) throws NotFoundException {
+    public Attendance updateAttendance(UUID id, AttendanceRequest attendanceRequest) throws NotFoundException {
         Attendance attendance = getAttendanceById(id);
-        attendance.setSpeaker(attendanceSpeakerRequest.speaker);
-
-        return this.ATTENDANCE_REPOSITORY.save(attendance);
-    }
-
-    public Attendance updateStateAttendance(UUID id, AttendanceStateRequest attendanceStateRequest) throws NotFoundException {
-        Attendance attendance = getAttendanceById(id);
-        attendance.setState(attendanceStateRequest.state);
+        attendance.setState(attendanceRequest.state);
+        attendance.setSpeaker(attendanceRequest.speaker);
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);
     }
@@ -78,5 +75,12 @@ public class AttendanceService {
                 }
         );
         return speakers;
+    }
+
+    public Boolean checkIfAttendanceExists(UUID sessionId, UUID personId) throws NotFoundException {
+        Session session = SESSION_SERVICE.getSessionById(sessionId);
+        Person person = PERSON_SERVICE.getPerson(personId);
+
+        return checkAttendanceBySessionAndPerson(person, session);
     }
 }
