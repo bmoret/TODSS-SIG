@@ -146,7 +146,7 @@ class AttendanceServiceTest {
 
         assertThrows(
                 NotFoundException.class,
-                () -> SERVICE.createAttendance(PRESENT, true, personId, sessionId)
+                () -> SERVICE.createAttendance(PRESENT, true, sessionId, personId)
         );
 
         verify(PERSON_SERVICE, times(1)).getPerson(personId);
@@ -164,7 +164,7 @@ class AttendanceServiceTest {
 
         assertThrows(
                 NotFoundException.class,
-                () -> SERVICE.createAttendance(PRESENT, true, personId, sessionId)
+                () -> SERVICE.createAttendance(PRESENT, true, sessionId, personId)
         );
 
         verify(PERSON_SERVICE, times(1)).getPerson(personId);
@@ -182,7 +182,7 @@ class AttendanceServiceTest {
 
         assertThrows(
                 NotFoundException.class,
-                () -> SERVICE.createAttendance(PRESENT, true, personId, sessionId)
+                () -> SERVICE.createAttendance(PRESENT, true, sessionId, personId)
         );
 
         verify(PERSON_SERVICE, times(1)).getPerson(any());
@@ -281,9 +281,21 @@ class AttendanceServiceTest {
     }
 
     @Test
-    @DisplayName("get speakers from session")
+    @DisplayName("check if attendance exists by looking for attendance containing session and person")
+    void checkAttendanceBySessionAndPerson() {
+        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
+
+        assertDoesNotThrow(
+                () -> SERVICE.checkIfAttendanceExists(person.getId(), session.getId())
+        );
+
+        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(Session.class), any(Person.class));
+    }
+
+    @Test
+    @DisplayName("check if attendance exists by looking for attendance containing session and person")
     void checkIfAttendanceExists() throws NotFoundException {
-        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndPersonAndSession(person, session)).thenReturn(Optional.of(attendance));
+        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
         when(SESSION_SERVICE.getSessionById(session.getId())).thenReturn(session);
         when(PERSON_SERVICE.getPerson(person.getId())).thenReturn(person);
 
@@ -291,6 +303,6 @@ class AttendanceServiceTest {
                 () -> SERVICE.checkIfAttendanceExists(person.getId(), session.getId())
         );
 
-        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndPersonAndSession(any(Person.class), any(Session.class));
+        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(Session.class), any(Person.class));
     }
 }

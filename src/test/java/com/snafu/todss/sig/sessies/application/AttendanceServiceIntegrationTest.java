@@ -127,7 +127,7 @@ class AttendanceServiceIntegrationTest {
         ATTENDANCE_REPOSITORY.deleteAll();
 
         assertDoesNotThrow(
-                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getPerson().getId(), attendance.getSession().getId())
+                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getSession().getId(), attendance.getPerson().getId())
         );
     }
 
@@ -136,7 +136,7 @@ class AttendanceServiceIntegrationTest {
     void createAttendanceThrowsWhenAlreadyExists() {
         assertThrows(
                 DuplicateRequestException.class,
-                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getPerson().getId(), attendance.getSession().getId())
+                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getSession().getId(), attendance.getPerson().getId())
         );
     }
 
@@ -207,20 +207,16 @@ class AttendanceServiceIntegrationTest {
         UUID finalSessionId = sessionId;
         assertThrows(
                 NotFoundException.class,
-                () -> ATTENDANCE_SERVICE.createAttendance(attendanceState, false, finalPersonId, finalSessionId)
+                () -> ATTENDANCE_SERVICE.createAttendance(attendanceState, false, finalSessionId, finalPersonId)
         );
     }
 
     @Test
     @DisplayName("Create existing attendance")
-    void createExistingAttendance_ThrowsDuplicateRequestException() throws NotFoundException {
-        this.ATTENDANCE_REPOSITORY.deleteAll();
-
-        ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, person.getId(), session.getId());
-
+    void createExistingAttendance_ThrowsDuplicateRequestException() {
         assertThrows(
                 DuplicateRequestException.class,
-                () ->ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, person.getId(), session.getId())
+                () ->ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, session.getId(), person.getId())
         );
     }
 
@@ -302,8 +298,37 @@ class AttendanceServiceIntegrationTest {
     }
 
     @Test
+    @DisplayName("check if attendance exists for person / session combination and returns true when it does")
+    void checkAttendanceBySessionPersonTrue() {
+        assertTrue(
+                ATTENDANCE_SERVICE.checkAttendanceBySessionAndPerson(
+                        attendance.getSession(), person)
+        );
+    }
+
+    @Test
+    @DisplayName("check if attendance exists for person / session combination and returns false when it does not")
+    void checkAttendanceBySessionPersonFalse() {
+        PersonBuilder pb = new PersonBuilder();
+        pb.setEmail("t_a");
+        pb.setFirstname("a");
+        pb.setLastname("t");
+        pb.setExpertise("none");
+        pb.setEmployedSince(LocalDate.of(2021,1,1));
+        pb.setBranch(VIANEN);
+        pb.setRole(MANAGER);
+        Person person1 = PERSON_REPOSITORY.save(pb.build());
+
+        assertFalse(
+                ATTENDANCE_SERVICE.checkAttendanceBySessionAndPerson(
+                        attendance.getSession(), person1)
+        );
+    }
+
+    @Test
     @DisplayName("check if attendance exists for person / session combination and returns true")
     void checkIfAttendanceExists() {
+        System.out.println(attendance.toString());
         assertTrue(
                 assertDoesNotThrow(() -> ATTENDANCE_SERVICE.checkIfAttendanceExists(
                         attendance.getSession().getId(), attendance.getPerson().getId()))

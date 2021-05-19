@@ -33,17 +33,18 @@ public class AttendanceService {
                 .orElseThrow(() -> new NotFoundException(String.format("Aanwezigheid met id '%s' bestaat niet.", id)));
     }
 
-    public boolean checkAttendanceBySessionAndPerson(Person person, Session session) {
-        return ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndPersonAndSession(person, session).isPresent();
+    public boolean checkAttendanceBySessionAndPerson(Session session, Person person) {
+        return ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person).isPresent();
     }
 
     public Attendance createAttendance(AttendanceState state,
                                        boolean isSpeaker,
-                                       UUID personId,
-                                       UUID sessionId) throws DuplicateRequestException, NotFoundException {
+                                       UUID sessionId,
+                                       UUID personId
+                                       ) throws DuplicateRequestException, NotFoundException {
         Person person = this.PERSON_SERVICE.getPerson(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
-        if( checkAttendanceBySessionAndPerson(person, session) ) {
+        if(checkAttendanceBySessionAndPerson(session, person)) {
             throw new DuplicateRequestException("Je bent al aangemeld voor deze sessie.");
         }
         Attendance attendance = new Attendance(state, isSpeaker, person, session);
@@ -81,6 +82,6 @@ public class AttendanceService {
         Session session = SESSION_SERVICE.getSessionById(sessionId);
         Person person = PERSON_SERVICE.getPerson(personId);
 
-        return checkAttendanceBySessionAndPerson(person, session);
+        return checkAttendanceBySessionAndPerson(session, person);
     }
 }
