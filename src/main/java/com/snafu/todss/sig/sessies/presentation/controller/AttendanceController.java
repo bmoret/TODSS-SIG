@@ -2,11 +2,13 @@ package com.snafu.todss.sig.sessies.presentation.controller;
 
 import com.snafu.todss.sig.sessies.application.AttendanceService;
 import com.snafu.todss.sig.sessies.domain.Attendance;
+import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.AttendanceResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import javassist.NotFoundException;
+import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -67,9 +69,7 @@ public class AttendanceController {
     public ResponseEntity<List<PersonResponse>> getSpeakerAttendance(
             @PathVariable UUID id
     ) throws NotFoundException {
-        System.out.println(id);
         List<Person> speakers = this.SERVICE.getSpeakersFromAttendanceSession(id);
-        System.out.println(speakers);
 
         return new ResponseEntity<>(convertPersonToListResponse(speakers), HttpStatus.OK);
     }
@@ -98,5 +98,14 @@ public class AttendanceController {
         Boolean present = this.SERVICE.checkIfAttendanceExists(sessionId, personId);
 
         return new ResponseEntity<>(present, HttpStatus.OK);
+    }
+
+    @PostMapping("{sessionId}/{personId}")
+    public ResponseEntity<AttendanceResponse> createAttendance(
+            @PathVariable UUID sessionId, @PathVariable UUID personId, @Valid @RequestBody AttendanceRequest request
+    ) throws NotFoundException {
+        Attendance attendance = SERVICE.createAttendance(AttendanceState.PRESENT, request.speaker, sessionId, personId);
+
+        return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 }

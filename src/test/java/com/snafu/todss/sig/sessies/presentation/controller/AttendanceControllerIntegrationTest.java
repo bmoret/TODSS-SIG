@@ -123,9 +123,9 @@ class AttendanceControllerIntegrationTest {
 
     @Test
     @DisplayName("update speaker of attendance")
-    void updateSpeakerAttendance() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", attendance.getId())
-                .content("{\"speaker\":\"true\"}")
+    void updateAttendance() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", attendance.getId())
+                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -140,41 +140,10 @@ class AttendanceControllerIntegrationTest {
 
     @Test
     @DisplayName("update attendance throws when attendance not found")
-    void updateSpeakerAttendanceThrowsNotFound() throws Exception{
+    void updateAttendanceThrowsNotFound() throws Exception{
         UUID id = UUID.randomUUID();
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", id)
-                .content("{\"speaker\":\"true\"}")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(content().contentType("application/json"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.Error").value("Aanwezigheid met id '"+id+"' bestaat niet."));
-    }
-
-    @Test
-    @DisplayName("update state of attendance")
-    void updateStateAttendance() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/state", attendance.getId())
-                .content("{\"state\":\"NO_SHOW\"}")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(content().contentType("application/json"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.state").value(NO_SHOW.toString()))
-                .andExpect(jsonPath("$.person").exists())
-                .andExpect(jsonPath("$.speaker").exists())
-                .andExpect(jsonPath("$.session").exists());
-    }
-
-    @Test
-    @DisplayName("update state of attendance throws when attendance not found")
-    void updateStateAttendanceThrowsNotFound() throws Exception{
-        UUID id = UUID.randomUUID();
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/state", id)
-                .content("{\"state\":\"NO_SHOW\"}")
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", id)
+                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
