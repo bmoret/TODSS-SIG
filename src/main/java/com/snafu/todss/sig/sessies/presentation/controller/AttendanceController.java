@@ -104,7 +104,16 @@ public class AttendanceController {
     public ResponseEntity<AttendanceResponse> createAttendance(
             @PathVariable UUID sessionId, @PathVariable UUID personId, @Valid @RequestBody AttendanceRequest request
     ) throws NotFoundException {
-        Attendance attendance = SERVICE.createAttendance(AttendanceState.PRESENT, request.speaker, sessionId, personId);
+        Attendance attendance = SERVICE.createAttendance(request.state, request.speaker, sessionId, personId);
+
+        return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
+    }
+
+    @PutMapping("{sessionId}/{personId}")
+    public ResponseEntity<AttendanceResponse> signUpForAttendance(
+            @PathVariable UUID sessionId, @PathVariable UUID personId, @Valid @RequestBody AttendanceRequest request
+    ) throws NotFoundException {
+        Attendance attendance = SERVICE.signUpForSession(sessionId, personId, request);
 
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }

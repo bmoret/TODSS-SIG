@@ -30,8 +30,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.NO_SHOW;
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.*;
 import static com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN;
 import static com.snafu.todss.sig.sessies.domain.person.enums.Role.MANAGER;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -218,5 +217,40 @@ class AttendanceControllerIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(content().contentType("application/json"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("create attendance when attendance not found with signUpForSession")
+    void signUpForSessionWithNoAttendance() throws Exception {
+        ATTENDANCE_REPOSITORY.deleteAll();
+
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{sessionId}/{personId}",
+                attendance.getSession().getId(), attendance.getPerson().getId())
+                .content("{\"speaker\":\"false\", \"state\":\"PRESENT\"}")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(content().contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").exists())
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.speaker").value(false))
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @DisplayName("signUpForSession throws when attendance is found with state PRESENT")
+    void signUpForSessionThrows() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{sessionId}/{personId}",
+                attendance.getSession().getId(), attendance.getPerson().getId())
+                .content("{\"speaker\":\"false\", \"state\":\"PRESENT\"}")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(content().contentType("application/json"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.Error").value("Je bent al aangemeld voor deze sessie."));
+
     }
 }

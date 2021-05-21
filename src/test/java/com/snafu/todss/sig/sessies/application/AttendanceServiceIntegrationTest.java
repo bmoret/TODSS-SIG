@@ -29,8 +29,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.NO_SHOW;
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.*;
 import static com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN;
 import static com.snafu.todss.sig.sessies.domain.person.enums.Role.MANAGER;
 import static org.junit.jupiter.api.Assertions.*;
@@ -301,13 +300,49 @@ class AttendanceServiceIntegrationTest {
     @DisplayName("check if attendance exists for person / session combination and returns true when it does")
     void checkAttendanceBySessionPersonTrue() {
         assertTrue(
-                ATTENDANCE_SERVICE.checkAttendanceBySessionAndPerson(
-                        attendance.getSession(), person)
+                assertDoesNotThrow(
+                        () -> ATTENDANCE_SERVICE.checkIfAttendanceExists(
+                                attendance.getSession().getId(), person.getId())
+                )
+        );
+    }
+
+
+
+    @Test
+    @DisplayName("check if attendance exists for person / session combination and returns false when it does not")
+    void checkIfAttendanceExistsReturnsFalse() {
+        PersonBuilder pb = new PersonBuilder();
+        pb.setEmail("t_a");
+        pb.setFirstname("a");
+        pb.setLastname("t");
+        pb.setExpertise("none");
+        pb.setEmployedSince(LocalDate.of(2021,1,1));
+        pb.setBranch(VIANEN);
+        pb.setRole(MANAGER);
+        Person person = PERSON_REPOSITORY.save(pb.build());
+
+        assertFalse(
+                assertDoesNotThrow(
+                        () -> ATTENDANCE_SERVICE.checkIfAttendanceExists(
+                                attendance.getSession().getId(), person.getId())
+                )
         );
     }
 
     @Test
-    @DisplayName("check if attendance exists for person / session combination and returns false when it does not")
+    @DisplayName("check if attendance exists for person / session combination")
+    void checkIfAttendanceExists() {
+        assertTrue(
+                assertDoesNotThrow(
+                        () -> ATTENDANCE_SERVICE.getAttendanceBySessionAndPerson(
+                                attendance.getSession(), attendance.getPerson()).isPresent()
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("check if attendance exists for person / session combination")
     void checkAttendanceBySessionPersonFalse() {
         PersonBuilder pb = new PersonBuilder();
         pb.setEmail("t_a");
@@ -320,37 +355,52 @@ class AttendanceServiceIntegrationTest {
         Person person1 = PERSON_REPOSITORY.save(pb.build());
 
         assertFalse(
-                ATTENDANCE_SERVICE.checkAttendanceBySessionAndPerson(
-                        attendance.getSession(), person1)
+                assertDoesNotThrow(
+                        () -> ATTENDANCE_SERVICE.getAttendanceBySessionAndPerson(
+                                attendance.getSession(), person1).isPresent()
+                )
         );
     }
 
     @Test
-    @DisplayName("check if attendance exists for person / session combination and returns true")
-    void checkIfAttendanceExists() {
-        System.out.println(attendance.toString());
-        assertTrue(
-                assertDoesNotThrow(() -> ATTENDANCE_SERVICE.checkIfAttendanceExists(
-                        attendance.getSession().getId(), attendance.getPerson().getId()))
+    @DisplayName("create attendance by useing signUpForSession")
+    void singUpForSessionsWithNoAttendance() {
+        ATTENDANCE_REPOSITORY.deleteAll();
+        AttendanceRequest request = new AttendanceRequest();
+        request.state = PRESENT;
+        request.speaker= false;
+
+                assertDoesNotThrow(
+                () -> ATTENDANCE_SERVICE.signUpForSession(attendance.getSession().getId(), attendance.getPerson().getId(), request)
         );
     }
 
     @Test
-    @DisplayName("check if attendance exists for person / session combination and returns false when it does not")
-    void checkIfAttendanceExistsReturnsFalse() throws NotFoundException {
-        PersonBuilder pb = new PersonBuilder();
-        pb.setEmail("t_a");
-        pb.setFirstname("a");
-        pb.setLastname("t");
-        pb.setExpertise("none");
-        pb.setEmployedSince(LocalDate.of(2021,1,1));
-        pb.setBranch(VIANEN);
-        pb.setRole(MANAGER);
-        Person person = PERSON_REPOSITORY.save(pb.build());
+    @DisplayName("update attendance by useing signUpForSession")
+    void singUpForSessionWithAttendanceAndStateNotPresent() {
+        AttendanceRequest request = new AttendanceRequest();
+        request.state = PRESENT;
+        request.speaker= false;
+        attendance.setState(CANCELED);
+        ATTENDANCE_REPOSITORY.save(attendance);
 
-        assertFalse(
-                ATTENDANCE_SERVICE.checkIfAttendanceExists(
-                        attendance.getSession().getId(), person.getId())
+        assertDoesNotThrow(
+                () -> ATTENDANCE_SERVICE.signUpForSession(attendance.getSession().getId(), attendance.getPerson().getId(), request)
+        );
+        assertEquals(PRESENT,
+                assertDoesNotThrow(
+                    () -> ATTENDANCE_SERVICE.getAttendanceById(attendance.getId()).getState()
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("update attendance by useing signUpForSession throws when attendance exists and state is present")
+    void singUpForSessionWithNoAttendance() {
+        AttendanceRequest request = new AttendanceRequest();
+
+        assertThrows(DuplicateRequestException.class,
+                () -> ATTENDANCE_SERVICE.signUpForSession(attendance.getSession().getId(), attendance.getPerson().getId(), request)
         );
     }
 }

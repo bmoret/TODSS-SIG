@@ -2,6 +2,7 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SpringAttendanceRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
+import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
@@ -130,8 +131,8 @@ class AttendanceServiceTest {
 
         assertSame(PRESENT, createdAttendance.getState());
         assertTrue(createdAttendance.isSpeaker());
-        verify(PERSON_SERVICE, times(1)).getPerson(any());
-        verify(SESSION_SERVICE, times(1)).getSessionById(any());
+        verify(PERSON_SERVICE, times(2)).getPerson(any());
+        verify(SESSION_SERVICE, times(2)).getSessionById(any());
         verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));
     }
 
@@ -286,23 +287,42 @@ class AttendanceServiceTest {
         when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
 
         assertDoesNotThrow(
-                () -> SERVICE.checkIfAttendanceExists(person.getId(), session.getId())
+                () -> SERVICE.getAttendanceBySessionAndPerson(session, person)
         );
 
         verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(Session.class), any(Person.class));
     }
 
     @Test
-    @DisplayName("check if attendance exists by looking for attendance containing session and person")
-    void checkIfAttendanceExists() throws NotFoundException {
-        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
-        when(SESSION_SERVICE.getSessionById(session.getId())).thenReturn(session);
-        when(PERSON_SERVICE.getPerson(person.getId())).thenReturn(person);
+    @DisplayName("sign up for session with existing attendance and state not PRESENT goes into update")
+    void singUpWithCorrectUserAndStatePresent() throws NotFoundException {
+        AttendanceRequest request = new AttendanceRequest();
+        request.state = PRESENT;
+        request.speaker = false;
+        when(SERVICE.getAttendanceBySessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
+        when(ATTENDANCE_REPOSITORY.findById(attendance.getId())).thenReturn(Optional.of(attendance));
+        when(SERVICE.createAttendance(request.state, request.speaker, session.getId(), person.getId())).thenReturn(attendance);
 
         assertDoesNotThrow(
-                () -> SERVICE.checkIfAttendanceExists(person.getId(), session.getId())
+                () -> SERVICE.signUpForSession(person.getId(), session.getId(), request)
         );
 
-        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(Session.class), any(Person.class));
+        verify(ATTENDANCE_REPOSITORY, times(3)).findAttendanceByIdContainingAndSessionAndPerson(any(), any());
+    }
+
+    @Test
+    @DisplayName("sign up for session with existing attendance and state not PRESENT goes into update")
+    void singUpWithCorrectUserAndState() throws NotFoundException {
+        AttendanceRequest request = new AttendanceRequest();
+        attendance.setState(PRESENT);
+        when(SERVICE.getAttendanceBySessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
+        when(ATTENDANCE_REPOSITORY.findById(attendance.getId())).thenReturn(Optional.of(attendance));
+        when(SERVICE.updateAttendance(attendance.getId(), request)).thenReturn(attendance);
+
+        assertDoesNotThrow(
+                () -> SERVICE.signUpForSession(person.getId(), session.getId(), request)
+        );
+
+        verify(ATTENDANCE_REPOSITORY, times(1)).findById(any());
     }
 }
