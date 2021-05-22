@@ -2,7 +2,7 @@ package com.snafu.todss.sig.security.presentation.controller;
 
 import com.snafu.todss.sig.security.application.UserService;
 import com.snafu.todss.sig.security.domain.User;
-import com.snafu.todss.sig.security.presentation.dto.request.UserDTOResponse;
+import com.snafu.todss.sig.security.presentation.dto.response.UserDTOResponse;
 import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

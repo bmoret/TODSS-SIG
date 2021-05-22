@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-                                            FilterChain filterChain, Authentication authentication) {
+                                            FilterChain filterChain, Authentication authentication) throws IOException, ServletException {
         User user = (User) authentication.getPrincipal();
 
         List<String> roles = user.getAuthorities()
@@ -75,5 +76,8 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
                 .compact();
 
         response.addHeader("Authorization", "Bearer " + token);
+        response.addHeader("User-Username", user.getUsername());
+        response.addHeader("User-Role", user.getRole().toString());
+        response.addHeader("User-Id", user.getId().toString());
     }
 }

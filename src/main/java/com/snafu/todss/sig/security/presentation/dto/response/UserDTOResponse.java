@@ -1,4 +1,4 @@
-package com.snafu.todss.sig.security.presentation.dto.request;
+package com.snafu.todss.sig.security.presentation.dto.response;
 
 import com.snafu.todss.sig.security.domain.User;
 import org.springframework.hateoas.RepresentationModel;
