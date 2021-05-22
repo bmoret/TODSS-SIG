@@ -3,6 +3,7 @@ package com.snafu.todss.sig.security.application;
 import com.snafu.todss.sig.security.data.SpringUserRepository;
 import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.security.domain.UserRole;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,12 +33,12 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void register(String username, String password) {
+    public void register(String username, String password, Person person) {
         checkIfUserAlreadyExists(username);
 
         String encodedPassword = this.PASSSWORD_ENCODER.encode(password);
 
-        User user = new User(username, encodedPassword);
+        User user = new User(username, encodedPassword, person);
 
         this.USER_REPOSITORY.save(user);
     }
