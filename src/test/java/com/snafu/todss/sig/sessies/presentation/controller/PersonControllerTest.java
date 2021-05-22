@@ -164,16 +164,27 @@ class PersonControllerTest {
     }
 
     @Test
-    @DisplayName("update state of attendance throws when attendance not found")
+    @DisplayName("search provides closest results")
     void search() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"second\"}")
+                .content("{\"searchTerm\":\"ali\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    @DisplayName("update state of attendance throws when attendance not found")
+    void searchThrows() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
+                .content("{\"searchTerm\":\"\"}")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$[0]").exists())
-                .andExpect(jsonPath("$[1]").doesNotExist());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.Error").value("vul de zoekbalk"));
     }
 }

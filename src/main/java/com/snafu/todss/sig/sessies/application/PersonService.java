@@ -1,8 +1,6 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
-import com.snafu.todss.sig.sessies.domain.Attendance;
-import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
@@ -11,22 +9,23 @@ import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.SearchRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.math.NumberUtils.min;
 
 @Service
 @Transactional
 public class PersonService {
     private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final SpringPersonRepository PERSON_REPOSITORY;
+    private LevenshteinDistance distance;
 
     public PersonService(SpringPersonRepository repository) {
         PERSON_REPOSITORY = repository;
@@ -111,162 +110,81 @@ public class PersonService {
         PERSON_REPOSITORY.delete(getPerson(id));
     }
 
-    public List<Person> searchPerson(SearchRequest request) throws NotFoundException {
-        List<Person> results = new ArrayList<>();
-        String firstname = request.firstname;
-        String lastname = request.lastname;
-        if (firstname != null && lastname != null && !firstname.isEmpty() && !lastname.isEmpty()) {
-            searchCorrectByFirstnameLastname(firstname, lastname).forEach(person -> results.add(person));
-            if (results.isEmpty()) {
-                compareLists(searchByLastname(lastname), searchByFirstname(firstname))
-                        .forEach(person -> results.add(person));
-                if (results.isEmpty()) {
-                    searchPersonByPartial(firstname, lastname)
-                            .forEach(person -> results.add(person));
+    public int calculateLevenshteinDistance(String val1, String val2) {
+        if (val1.isBlank() || val2.isBlank()) {
+            throw new RuntimeException("deze waarde mag niet leeg zijn");
+        }
+        char[] str1 = val1.toLowerCase(Locale.ROOT).toCharArray();
+        char[] str2 = val2.toLowerCase(Locale.ROOT).toCharArray();
+        int temp[][] = new int[str1.length+1][str2.length+1];
+
+        for(int i=0; i < temp[0].length; i++) {
+            temp[0][i] = i;
+        }
+
+        for(int i=0; i < temp.length; i++) {
+            temp[i][0] = i;
+        }
+
+        for(int i=1;i <=str1.length; i++) {
+            for(int j=1; j <= str2.length; j++) {
+                if(str1[i-1] == str2[j-1]) {
+                    temp[i][j] = temp[i-1][j-1];
+                } else {
+                    temp[i][j] = 1 + min(temp[i-1][j-1], temp[i-1][j], temp[i][j-1]);
                 }
-                if (results.isEmpty()) {
-                    throw new NotFoundException(
-                            String.format(
-                                "Er zijn geen medewerkers met voornaam \"%s\" en achternaam \"%s\" gevonden.",
-                                firstname,
-                                lastname)
+            }
+        }
+
+        return temp[str1.length][str2.length];
+    }
+
+    public List<Person> getBestlevenshteinDistanceValue(List<Person> allPersons, SearchRequest request) {
+        Map<Person, Integer> map = new HashMap<>();
+
+        allPersons.forEach(
+                person -> {
+                    int value = calculateLevenshteinDistance(
+                            request.searchTerm,
+                            person.getDetails().getFirstname()+" "+ person.getDetails().getLastname()
+                    );
+                    int firstnameValue= calculateLevenshteinDistance(
+                            request.searchTerm,
+                            person.getDetails().getFirstname()
+                    );
+                    int lastnameValue= calculateLevenshteinDistance(
+                            request.searchTerm,
+                            person.getDetails().getLastname()
+                    );
+                    if(value > firstnameValue) {
+                        value = firstnameValue;
+                    }
+                    if (value > lastnameValue) {
+                        value= lastnameValue;
+                    }
+                    map.put(
+                            person,
+                            value
                     );
                 }
-            }
-        }
-        else if (firstname != null && !firstname.isEmpty()) {
-            searchByFirstname(firstname).forEach(person -> results.add(person));
-            if (results.isEmpty()) {
-                searchPersonByPartial(firstname, lastname).forEach(person -> results.add(person));
-            }
-            if (results.isEmpty()) {
-                throw new NotFoundException(
-                        String.format(
-                                "Er zijn geen medewerkers met voornaam \"%s\" gevonden.",
-                                firstname)
-                );
-            }
-        }
-        else if (lastname != null && !lastname.isEmpty()) {
-            searchByLastname(lastname).forEach(person -> results.add(person));
-            if (results.isEmpty()) {
-                searchPersonByPartial(firstname, lastname).forEach(person -> results.add(person));
-            }
-            if (results.isEmpty()) {
-                throw new NotFoundException(
-                        String.format(
-                                "Er zijn geen medewerkers met achternaam \"%s\"",
-                                lastname)
-                );
-            }
-        }
-        else {
-            throw new NotFoundException("fillout form");
-        }
-        return results;
+        );
+
+        return new ArrayList<>(map.entrySet().stream()
+                .sorted(Comparator.comparingInt(e -> e.getValue()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> { throw new AssertionError(); },
+                        LinkedHashMap::new
+                )).keySet());
     }
 
-    public List<Person> searchCorrectByFirstnameLastname(String firstname, String lastname) {
-        List<Person> results = new ArrayList<>();
-        PERSON_REPOSITORY.findByDetails_FirstnameAndDetails_Lastname(firstname, lastname)
-                .forEach(person -> results.add(person));
-        return results;
-    }
-
-    public List<Person> compareLists(List<Person> results, List<Person> toAdd) {
-        toAdd.stream().filter(person -> !results.contains(person)).forEach(person -> results.add(person));
-        return results;
-    }
-
-    public List<Person> searchByFirstname(String firstname) {
-        List<Person> results = new ArrayList<>();
-        PERSON_REPOSITORY.findByDetails_Firstname(firstname).forEach(person -> results.add(person));
-        return results;
-    }
-
-    public List<Person> searchByLastname(String lastname) {
-        List<Person> results = new ArrayList<>();
-        PERSON_REPOSITORY.findByDetails_Lastname(lastname).forEach(person -> results.add(person));
-        return results;
-    }
-
-    public List<Person> searchPersonByPartial(String firstname, String lastname) {
-        List<Person> results = new ArrayList<>();
-        String first; String middle; String last;
-        int aThird; int half; int twoThirds; int min = 0; int max;
-        if (firstname != null && !firstname.isEmpty()) {
-            List<Person> firstnameResults = new ArrayList<>();
-            aThird = firstname.length()/3;
-            half = firstname.length()/2;
-            twoThirds = firstname.length()/3*2;
-            if (firstname.length() > 2) {
-                min = firstname.length()-2;
-            }
-            max = firstname.length()+2;
-
-            if (firstname.length() < 5) {
-                if (firstname.length() == 1) {
-                    PERSON_REPOSITORY.findPersonByFirstPartialFirstname(firstname, min, max)
-                            .forEach(person -> firstnameResults.add(person));
-                } else {
-                    first = firstname.substring(0, half);
-                    last = firstname.substring(half);
-                    compareLists(
-                            PERSON_REPOSITORY.findPersonByFirstPartialFirstname(first, min, max),
-                            PERSON_REPOSITORY.findPersonByLastPartialFirstname(last, min, max)
-                    ).forEach(person -> firstnameResults.add(person));
-                }
-            } else {
-                first = firstname.substring(0, aThird);
-                middle = firstname.substring(aThird, twoThirds);
-                last = firstname.substring(twoThirds);
-                compareLists(
-                        compareLists(
-                                PERSON_REPOSITORY.findPersonByFirstPartialFirstname(first, min, max),
-                                PERSON_REPOSITORY.findPersonByMiddlePartialFirstname(middle, min, max)
-                        ),
-                        PERSON_REPOSITORY.findPersonByLastPartialFirstname(last, min, max)
-                ).forEach(person -> firstnameResults.add(person));
-            }
-            compareLists(results, firstnameResults);
+    public List<Person> searchPerson(SearchRequest request) {
+        if (request.searchTerm.isBlank() || request.searchTerm.isBlank()) {
+            throw new RuntimeException("vul de zoekbalk");
         }
-        if (lastname != null && !lastname.isEmpty())  {
-            List<Person> lastnameResults = new ArrayList<>();
-            aThird = lastname.length()/3;
-            half = lastname.length()/2;
-            twoThirds = lastname.length()/3*2;
-            if (lastname.length() > 2) {
-                min = lastname.length()-2;
-            }
-            max = lastname.length()+2;
+        List<Person> allPersons = this.PERSON_REPOSITORY.findAll();
 
-            if (lastname.length() < 5) {
-                if (lastname.length() == 1) {
-                    PERSON_REPOSITORY.findPersonByFirstPartialLastname(lastname, min, max).forEach(person -> lastnameResults.add(person));
-                } else {
-                    first = lastname.substring(0, half);
-                    last = lastname.substring(half);
-                    compareLists(
-                            PERSON_REPOSITORY.findPersonByFirstPartialLastname(first, min, max),
-                            PERSON_REPOSITORY.findPersonByLastPartialLastname(last, min, max)
-                    ).forEach(person -> lastnameResults.add(person));
-                }
-            } else {
-                first = lastname.substring(0, aThird);
-                middle = lastname.substring(aThird, twoThirds);
-                last = lastname.substring(twoThirds);
-
-                compareLists(
-                        compareLists(
-                                PERSON_REPOSITORY.findPersonByFirstPartialLastname(first, min, max),
-                                PERSON_REPOSITORY.findPersonByMiddlePartialLastname(middle, min, max)
-                        ),
-                        PERSON_REPOSITORY.findPersonByLastPartialLastname(last, min, max)
-                ).forEach(person -> lastnameResults.add(person));
-            }
-            compareLists(results, lastnameResults);
-        }
-        return results;
+        return getBestlevenshteinDistanceValue(allPersons, request);
     }
-
 }
