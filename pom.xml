@@ -96,6 +96,7 @@
 			<scope>runtime</scope>
 		</dependency>
 
+
 		<!-- Swagger dependency for swagger API annotations -->
 		<dependency>
 			<groupId>io.springfox</groupId>

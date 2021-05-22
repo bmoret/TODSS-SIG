@@ -1,5 +1,6 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.security.config.SecurityConfig;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
 import com.snafu.todss.sig.sessies.data.SpringAttendanceRepository;
@@ -19,11 +20,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,6 +43,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Import(SecurityConfig.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 class AttendanceControllerIntegrationTest {
@@ -97,11 +103,14 @@ class AttendanceControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("get attendance by id")
-    void getAttendanceById() throws Exception {
-        mockMvc.perform(
-                get("/attendances/{id}", attendance.getId()))
-                .andExpect(content().contentType("application/json"))
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("get attendance by id as manager")
+    void getAttendanceByIdAsManager() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/attendances/{id}", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.state").value(PRESENT.toString()))
@@ -111,17 +120,31 @@ class AttendanceControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("get attendance by id throws when game is not found")
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("get attendance by id as employee is forbidden")
+    void getAttendanceByIdAsEmployee() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/attendances/{id}", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("get attendance by id throws when attendance is not found")
     void getAttendanceByIdThrow() throws Exception {
         UUID id = UUID.randomUUID();
         mockMvc.perform(
-                get("/attendances/{id}", id))
-                .andExpect(content().contentType("application/json"))
+                get("/attendances/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.Error").value("Aanwezigheid met id '"+id+"' bestaat niet."));
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("update speaker of attendance")
     void updateSpeakerAttendance() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", attendance.getId())
@@ -129,7 +152,6 @@ class AttendanceControllerIntegrationTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-                .andExpect(content().contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.state").exists())

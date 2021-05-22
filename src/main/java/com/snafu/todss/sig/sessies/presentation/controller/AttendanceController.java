@@ -43,7 +43,7 @@ public class AttendanceController {
         return attendances.stream().map(this::convertAttendanceToResponse).collect(Collectors.toList());
     }
 
-    @RolesAllowed({"ROLE_MANAGER"})
+    @RolesAllowed({"MANAGER"})
     @GetMapping("/{id}")
     public ResponseEntity<AttendanceResponse> getAttendance(
             @PathVariable UUID id
