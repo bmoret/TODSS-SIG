@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @GetMapping
-    @RolesAllowed("ROLE_EMPLOYEE")
+    @RolesAllowed({"ROLE_MANAGER","ROLE_ADMINISTRATOR"})
     public ResponseEntity<List<UserDTOResponse>> getUsers() throws NotFoundException {
         List<User> users = this.USER_SERVICE.getAllUsers();
         List<UserDTOResponse> userDTOResponses = new ArrayList<>();
@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping(path = "/{username}")
-    @RolesAllowed("ROLE_EMPLOYEE")
+    @RolesAllowed({"ROLE_MANAGER","ROLE_ADMINISTRATOR"})
     public ResponseEntity<UserDTOResponse> getUser(@PathVariable("username") String username) throws NotFoundException {
         User user = this.USER_SERVICE.getUserByUsername(username);
 
@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{username}")
-    @RolesAllowed("ROLE_EMPLOYEE")
+    @RolesAllowed({"ROLE_MANAGER","ROLE_ADMINISTRATOR"})
     public ResponseEntity<HttpStatus> removeUser(@PathVariable String username) throws NotFoundException {
         USER_SERVICE.removeUser(username);
 

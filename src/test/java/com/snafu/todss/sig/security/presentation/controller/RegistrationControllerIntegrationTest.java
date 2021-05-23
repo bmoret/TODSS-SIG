@@ -1,7 +1,6 @@
 package com.snafu.todss.sig.security.presentation.controller;
 
 import com.snafu.todss.sig.security.data.SpringUserRepository;
-import javassist.NotFoundException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +23,7 @@ class RegistrationIntegrationControllerTest {
     private SpringUserRepository userRepository;
 
     @AfterEach
-    void tearDown() throws NotFoundException {
+    void tearDown() {
         this.userRepository.deleteAll();
     }
 
@@ -75,7 +74,5 @@ class RegistrationIntegrationControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isCreated());
     }
-
-
 
 }
