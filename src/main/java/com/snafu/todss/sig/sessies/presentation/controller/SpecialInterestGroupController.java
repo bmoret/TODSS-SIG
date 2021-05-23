@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@RolesAllowed("ROLE_ADMINISTRATOR")
 @RestController
 @RequestMapping("/sig")
 public class SpecialInterestGroupController {
@@ -91,16 +90,17 @@ public class SpecialInterestGroupController {
         return new ResponseEntity<>(personResponses, HttpStatus.OK);
     }
 
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY"})
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
+    @PostMapping
     public ResponseEntity<SpecialInterestGroupResponse> createSpecialInterestGroup(
             @Valid @RequestBody SpecialInterestGroupRequest specialInterestGroupRequest
     ) throws NotFoundException {
         SpecialInterestGroup specialInterestGroup = this.SERVICE.createSpecialInterestGroup(specialInterestGroupRequest);
 
-        return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
+        return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.CREATED);
     }
 
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY"})
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
     @PutMapping("/{id}")
     public ResponseEntity<SpecialInterestGroupResponse> updateSpecialInterestGroup(
             @PathVariable UUID id,
@@ -114,7 +114,7 @@ public class SpecialInterestGroupController {
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
     }
 
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY"})
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSpecialInterestGroup(@PathVariable UUID id) throws NotFoundException {
         this.SERVICE.deleteSpecialInterestGroup(id);

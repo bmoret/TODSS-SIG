@@ -22,7 +22,6 @@ import java.util.UUID;
 import static com.snafu.todss.sig.sessies.presentation.dto.converter.SessionConverter.convertSessionListToResponse;
 import static com.snafu.todss.sig.sessies.presentation.dto.converter.SessionConverter.convertSessionToResponse;
 
-@RolesAllowed("ROLE_ADMINISTRATOR")
 @RestController
 @RequestMapping("/sessions")
 public class
@@ -56,7 +55,7 @@ SessionController {
         return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
-    @RolesAllowed({"ROLE_MANAGER","ROLE_SECRETARY", "ROLE_ORGANIZER"})
+    @RolesAllowed({"ROLE_MANAGER","ROLE_SECRETARY", "ROLE_ORGANIZER", "ROLE_ADMINISTRATOR"})
     @PostMapping
     public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest) throws NotFoundException {
         Session session = this.SERVICE.createSession(sessionRequest);
@@ -64,7 +63,7 @@ SessionController {
         return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ORGANIZER"})
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ORGANIZER", "ROLE_ADMINISTRATOR"})
     @PutMapping("/{sessionId}")
     public ResponseEntity<SessionResponse> updateSession(
             @PathVariable UUID sessionId,
@@ -75,7 +74,7 @@ SessionController {
         return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ORGANIZER"})
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ORGANIZER", "ROLE_ADMINISTRATOR"})
     @DeleteMapping("/{sessionId}")
     public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId) throws NotFoundException {
         this.SERVICE.deleteSession(sessionId);
@@ -83,7 +82,7 @@ SessionController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY"})
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
     @PutMapping("/{sessionId}/plan")
     public ResponseEntity<SessionResponse> planSession(
             @PathVariable UUID sessionId,
@@ -95,7 +94,7 @@ SessionController {
         return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
-    @RolesAllowed({"ROLE_MANAGER"})
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @PutMapping("/{sessionId}/request")
     public ResponseEntity<SessionResponse> requestSessionToBePlanned(@PathVariable UUID sessionId) throws NotFoundException {
         Session session = this.SERVICE.requestSessionToBePlanned(sessionId);
