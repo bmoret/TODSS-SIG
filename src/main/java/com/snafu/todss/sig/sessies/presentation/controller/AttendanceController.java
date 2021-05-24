@@ -79,19 +79,6 @@ public class AttendanceController {
     }
 
     @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
-    @PutMapping("/{id}/speaker")
-    public ResponseEntity<AttendanceResponse> updateSpeakerAttendance(
-            @PathVariable UUID id,
-            @Valid @RequestBody AttendanceSpeakerRequest request
-    ) throws NotFoundException {
-        Attendance attendance = this.SERVICE.updateSpeakerAttendance(id, request);
-
-        return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
-    }
-
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
-    @PutMapping("/{id}/state")
-    public ResponseEntity<AttendanceResponse> updateStateAttendance(
     @PutMapping("/{id}/update")
     public ResponseEntity<AttendanceResponse> updateAttendance(
             @PathVariable UUID id,

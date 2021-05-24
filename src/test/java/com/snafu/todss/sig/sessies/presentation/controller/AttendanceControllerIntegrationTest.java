@@ -35,7 +35,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.*;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.NO_SHOW;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
 import static com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN;
 import static com.snafu.todss.sig.sessies.domain.person.enums.Role.MANAGER;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -160,20 +161,11 @@ class AttendanceControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("create attendance by using session and person")
-    void createAttendance() throws Exception {
-        UUID sessionId = attendance.getSession().getId();
-        UUID personId = attendance.getPerson().getId();
-        ATTENDANCE_REPOSITORY.deleteById(attendance.getId());
-
-        RequestBuilder request = MockMvcRequestBuilders.post("/attendances/{sessionId}/{personId}",
-                sessionId, personId)
-                .content("{\"speaker\":\"false\", \"state\":\"PRESENT\"}")
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("update speaker of attendance as manager")
     void updateSpeakerAttendanceAsManager() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", attendance.getId())
-                .content("{\"speaker\":\"true\"}")
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", attendance.getId())
+                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -189,26 +181,20 @@ class AttendanceControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
     @DisplayName("update speaker of attendance as administrator")
     void updateSpeakerAttendanceAsAdministrator() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", attendance.getId())
-                .content("{\"speaker\":\"true\"}")
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", attendance.getId())
+                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-                .andExpect(content().contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.state").exists())
                 .andExpect(jsonPath("$.person").exists())
-                .andExpect(jsonPath("$.speaker").value(false))
+                .andExpect(jsonPath("$.speaker").value(true))
                 .andExpect(jsonPath("$.session").exists());
     }
 
     @Test
-    @DisplayName("create attendance by using session and person throws when already exists")
-    void createAttendanceThrows() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/attendances/{sessionId}/{personId}",
-                attendance.getSession().getId(), attendance.getPerson().getId())
-                .content("{\"speaker\":\"false\", \"state\":\"PRESENT\"}")
     @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
     @DisplayName("update speaker of attendance as employee is not allowed")
     void updateSpeakerAttendanceAsEmployee() throws Exception {
@@ -225,47 +211,39 @@ class AttendanceControllerIntegrationTest {
     @DisplayName("update attendance as manager throws when attendance not found")
     void updateSpeakerOfUnknownAttendanceAsManager_ThrowsNotFound() throws Exception{
         UUID id = UUID.randomUUID();
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", id)
-                .content("{\"speaker\":\"true\"}")
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", id)
+                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-                .andExpect(content().contentType("application/json"))
-                .andExpect(status().isConflict());
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.Error").value("Aanwezigheid met id '"+id+"' bestaat niet."));
     }
 
     @Test
-    @DisplayName("update speaker of attendance")
-    void updateAttendance() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", attendance.getId())
-                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("update state of attendance as manager")
     void updateStateAttendanceAsManager() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/state", attendance.getId())
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", attendance.getId())
                 .content("{\"state\":\"NO_SHOW\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.state").exists())
+                .andExpect(jsonPath("$.state").value(NO_SHOW.toString()))
                 .andExpect(jsonPath("$.person").exists())
-                .andExpect(jsonPath("$.speaker").value(true))
+                .andExpect(jsonPath("$.speaker").exists())
                 .andExpect(jsonPath("$.session").exists());
     }
 
     @Test
-    @DisplayName("update attendance throws when attendance not found")
-    void updateAttendanceThrowsNotFound() throws Exception{
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("update state of attendance as manager throws when attendance not found")
     void updateStateOfUnknownAttendanceAsManagerThrowsNotFound() throws Exception{
         UUID id = UUID.randomUUID();
         RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", id)
-                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
+                .content("{\"state\":\"NO_SHOW\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -314,17 +292,6 @@ class AttendanceControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("update state of attendance throws when attendance not found")
-    void checkIfAttendanceExists() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get("/attendances/{sessionId}/{personId}",
-                attendance.getSession().getId(), attendance.getPerson().getId())
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(content().contentType("application/json"))
-                .andExpect(status().isOk());
-    }
-    @Test
     @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
     @DisplayName("get speakers of attendance as administrator")
     void getSpeakersAsAdministrator() throws Exception {
@@ -348,40 +315,4 @@ class AttendanceControllerIntegrationTest {
                 .andExpect(status().isConflict());
     }
 
-}
-
-    @Test
-    @DisplayName("create attendance when attendance not found with signUpForSession")
-    void signUpForSessionWithNoAttendance() throws Exception {
-        ATTENDANCE_REPOSITORY.deleteAll();
-
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{sessionId}/{personId}",
-                attendance.getSession().getId(), attendance.getPerson().getId())
-                .content("{\"speaker\":\"false\", \"state\":\"PRESENT\"}")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(content().contentType("application/json"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.state").exists())
-                .andExpect(jsonPath("$.person").exists())
-                .andExpect(jsonPath("$.speaker").value(false))
-                .andExpect(jsonPath("$.session").exists());
-    }
-
-    @Test
-    @DisplayName("signUpForSession throws when attendance is found with state PRESENT")
-    void signUpForSessionThrows() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{sessionId}/{personId}",
-                attendance.getSession().getId(), attendance.getPerson().getId())
-                .content("{\"speaker\":\"false\", \"state\":\"PRESENT\"}")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(content().contentType("application/json"))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.Error").value("Je bent al aangemeld voor deze sessie."));
-
-    }
 }
