@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,7 @@ public class FeedbackController {
         );
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ORGANIZER", "ROLE_ADMINISTRATOR"})
     @GetMapping("/{uuid}")
     public ResponseEntity<FeedbackResponse> getFeedbackById(@PathVariable UUID uuid) throws NotFoundException {
         Feedback feedback = this.SERVICE.getFeedbackById(uuid);
@@ -39,6 +42,7 @@ public class FeedbackController {
         return new ResponseEntity<>(convertFeedbackToResponse(feedback), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ORGANIZER", "ROLE_ADMINISTRATOR"})
     @GetMapping("/sessions/{uuid}")
     public ResponseEntity<List<FeedbackResponse>> getFeedbackBySessionId(@PathVariable UUID uuid) throws NotFoundException {
         List<FeedbackResponse> responses = new ArrayList<>();
@@ -51,6 +55,7 @@ public class FeedbackController {
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
+    @PermitAll
     @PostMapping
     public ResponseEntity<FeedbackResponse> createFeedback(@Valid @RequestBody FeedbackRequest feedbackRequest)
             throws NotFoundException {
@@ -59,6 +64,7 @@ public class FeedbackController {
         return new ResponseEntity<>(convertFeedbackToResponse(feedback), HttpStatus.CREATED);
     }
 
+    @PermitAll
     @DeleteMapping("/{uuid}")
     public ResponseEntity<FeedbackResponse> deleteFeedbackById(@PathVariable UUID uuid) throws NotFoundException {
         this.SERVICE.deleteFeedback(uuid);
