@@ -131,8 +131,8 @@ class AttendanceServiceTest {
 
         assertSame(PRESENT, createdAttendance.getState());
         assertTrue(createdAttendance.isSpeaker());
-        verify(PERSON_SERVICE, times(2)).getPerson(any());
-        verify(SESSION_SERVICE, times(2)).getSessionById(any());
+        verify(PERSON_SERVICE, times(1)).getPerson(any());
+        verify(SESSION_SERVICE, times(1)).getSessionById(any());
         verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));
     }
 

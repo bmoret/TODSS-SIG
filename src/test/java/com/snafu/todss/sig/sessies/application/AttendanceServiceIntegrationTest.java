@@ -301,13 +301,11 @@ class AttendanceServiceIntegrationTest {
     void checkAttendanceBySessionPersonTrue() {
         assertTrue(
                 assertDoesNotThrow(
-                        () -> ATTENDANCE_SERVICE.checkIfAttendanceExists(
+                        () -> ATTENDANCE_SERVICE.checkIfAttending(
                                 attendance.getSession().getId(), person.getId())
                 )
         );
     }
-
-
 
     @Test
     @DisplayName("check if attendance exists for person / session combination and returns false when it does not")
@@ -324,7 +322,7 @@ class AttendanceServiceIntegrationTest {
 
         assertFalse(
                 assertDoesNotThrow(
-                        () -> ATTENDANCE_SERVICE.checkIfAttendanceExists(
+                        () -> ATTENDANCE_SERVICE.checkIfAttending(
                                 attendance.getSession().getId(), person.getId())
                 )
         );

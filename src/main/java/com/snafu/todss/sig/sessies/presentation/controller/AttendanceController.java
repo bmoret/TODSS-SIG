@@ -99,10 +99,10 @@ public class AttendanceController {
 
     @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @GetMapping("{sessionId}/{personId}")
-    public ResponseEntity<Boolean> checkIfAttendanceExists(
+    public ResponseEntity<Boolean> checkIfAttendanding(
             @PathVariable UUID sessionId, @PathVariable UUID personId
     ) throws NotFoundException {
-        Boolean present = this.SERVICE.checkIfAttendanceExists(sessionId, personId);
+        Boolean present = this.SERVICE.checkIfAttending(sessionId, personId);
 
         return new ResponseEntity<>(present, HttpStatus.OK);
     }
