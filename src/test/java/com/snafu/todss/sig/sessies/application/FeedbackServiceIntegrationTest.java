@@ -45,7 +45,7 @@ class FeedbackServiceIntegrationTest {
     @BeforeEach
     void setup() throws NotFoundException {
         PersonRequest dtoSupervisor = new PersonRequest();
-            dtoSupervisor.email = "email@email.com";
+            dtoSupervisor.email = "TestEmail@email.com";
             dtoSupervisor.firstname = "fourth";
             dtoSupervisor.lastname = "last";
             dtoSupervisor.expertise = "none";
@@ -56,7 +56,7 @@ class FeedbackServiceIntegrationTest {
         Person supervisor = personService.createPerson(dtoSupervisor);
 
         PersonRequest dtoPerson = new PersonRequest();
-            dtoPerson.email = "andereemail@email.com";
+            dtoPerson.email = "NogEenTestEmail@email.com";
             dtoPerson.firstname = "fourth";
             dtoPerson.lastname = "last";
             dtoPerson.expertise = "none";
