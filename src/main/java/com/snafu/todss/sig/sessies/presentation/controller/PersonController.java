@@ -79,8 +79,8 @@ public class PersonController {
     }
 
     @CrossOrigin("http://localhost:8081")
-    @PostMapping(path = "/search")
-    public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws NotFoundException {
+    @GetMapping(path = "/search")
+    public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws RuntimeException {
         List<Person> personList = SERVICE.searchPerson(request);
         return new ResponseEntity<>(convertSearchPersonToListResponse(personList), HttpStatus.OK);
     }

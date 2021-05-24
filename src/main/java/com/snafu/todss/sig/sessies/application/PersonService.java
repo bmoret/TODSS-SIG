@@ -9,7 +9,6 @@ import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.SearchRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
-import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -18,14 +17,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.lang3.math.NumberUtils.min;
+import static com.snafu.todss.sig.sessies.util.LevenshteinAlgorithm.calculateLevenshteinDistance;
 
 @Service
 @Transactional
 public class PersonService {
     private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final SpringPersonRepository PERSON_REPOSITORY;
-    private LevenshteinDistance distance;
 
     public PersonService(SpringPersonRepository repository) {
         PERSON_REPOSITORY = repository;
@@ -110,36 +108,7 @@ public class PersonService {
         PERSON_REPOSITORY.delete(getPerson(id));
     }
 
-    public int calculateLevenshteinDistance(String val1, String val2) {
-        if (val1.isBlank() || val2.isBlank()) {
-            throw new RuntimeException("deze waarde mag niet leeg zijn");
-        }
-        char[] str1 = val1.toLowerCase(Locale.ROOT).toCharArray();
-        char[] str2 = val2.toLowerCase(Locale.ROOT).toCharArray();
-        int temp[][] = new int[str1.length+1][str2.length+1];
-
-        for(int i=0; i < temp[0].length; i++) {
-            temp[0][i] = i;
-        }
-
-        for(int i=0; i < temp.length; i++) {
-            temp[i][0] = i;
-        }
-
-        for(int i=1;i <=str1.length; i++) {
-            for(int j=1; j <= str2.length; j++) {
-                if(str1[i-1] == str2[j-1]) {
-                    temp[i][j] = temp[i-1][j-1];
-                } else {
-                    temp[i][j] = 1 + min(temp[i-1][j-1], temp[i-1][j], temp[i][j-1]);
-                }
-            }
-        }
-
-        return temp[str1.length][str2.length];
-    }
-
-    public List<Person> getBestlevenshteinDistanceValue(List<Person> allPersons, SearchRequest request) {
+    public List<Person> getBestLevenshteinDistanceValue(List<Person> allPersons, SearchRequest request) {
         Map<Person, Integer> map = new HashMap<>();
 
         allPersons.forEach(
@@ -162,15 +131,17 @@ public class PersonService {
                     if (value > lastnameValue) {
                         value= lastnameValue;
                     }
-                    map.put(
-                            person,
-                            value
-                    );
+                    if (value <= 4) {
+                        map.put(
+                                person,
+                                value
+                        );
+                    }
                 }
         );
 
         return new ArrayList<>(map.entrySet().stream()
-                .sorted(Comparator.comparingInt(e -> e.getValue()))
+                .sorted(Comparator.comparingInt(Map.Entry::getValue))
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
@@ -185,6 +156,6 @@ public class PersonService {
         }
         List<Person> allPersons = this.PERSON_REPOSITORY.findAll();
 
-        return getBestlevenshteinDistanceValue(allPersons, request);
+        return getBestLevenshteinDistanceValue(allPersons, request);
     }
 }

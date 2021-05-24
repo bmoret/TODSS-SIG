@@ -136,8 +136,6 @@ class PersonServiceTest {
         }
     }
 
-
-
     @Test
     void removePerson() {
         try {
@@ -150,100 +148,6 @@ class PersonServiceTest {
                 NotFoundException.class
                 , () ->service.getPersonByEmail("email3@email.com")
         );
-    }
-
-
-    private static Stream<Arguments> stringExamples() {
-        return Stream.of(
-                Arguments.of(
-                        "hoi",
-                        "h",
-                        2
-                ),
-                Arguments.of(
-                        "hoi",
-                        "hoiiii",
-                        3
-                ),
-                Arguments.of(
-                        "solucim",
-                        "cimsolu",
-                        6
-                ),
-                Arguments.of(
-                        "cimSolu",
-                        "cimsolu",
-                        0
-                ),
-                Arguments.of(
-                        "cimSolu",
-                        "Cimsolu",
-                        0
-                ),
-                Arguments.of(
-                        "CimSolu",
-                        "cImsOlu",
-                        0
-                ),
-                Arguments.of(
-                        "Cim Solu",
-                        "cImsOlu",
-                        1
-                ),
-                Arguments.of(
-                        "Plank Van Der Plan",
-                        "van der plan",
-                        6
-                )
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("stringExamples")
-    @DisplayName("calulateLevenshteinDistance returns correct value")
-    void calculateLevenshteinDistance(String s1,
-                                      String s2,
-                                      int expectedValue) {
-        assertEquals(expectedValue, service.calculateLevenshteinDistance(s1, s2));
-    }
-
-    private static Stream<Arguments> stringNullExamples() {
-        return Stream.of(
-                Arguments.of(
-                        "hoi",
-                        null
-                ),
-                Arguments.of(
-                        null,
-                        "hoi"
-                ),
-                Arguments.of(
-                        null,
-                        null
-                ),
-                Arguments.of(
-                        "hoi",
-                        ""
-                ),
-                Arguments.of(
-                        "",
-                        "hoi"
-                ),
-                Arguments.of(
-                        "",
-                        ""
-                )
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("stringNullExamples")
-    @DisplayName("calculateLevenshteinDistance throws when provided with null")
-    void calculateLevenshteinDistanceThrows(String s1,
-                                            String s2) {
-        assertThrows(
-                RuntimeException.class,
-                () -> service.calculateLevenshteinDistance(s1, s2));
     }
 
     private static Stream<Arguments> stringRequestExamples() {
@@ -271,7 +175,7 @@ class PersonServiceTest {
         SearchRequest request = new SearchRequest();
         request.searchTerm = req;
         List<Person> allPersons = this.repo.findAll();
-        assertEquals(req, service.getBestlevenshteinDistanceValue(allPersons, request).get(0).getDetails().getFirstname());
+        assertEquals(req, service.getBestLevenshteinDistanceValue(allPersons, request).get(0).getDetails().getFirstname());
     }
 
     @Test

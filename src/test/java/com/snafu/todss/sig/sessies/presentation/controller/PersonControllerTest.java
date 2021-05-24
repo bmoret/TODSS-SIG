@@ -166,7 +166,7 @@ class PersonControllerTest {
     @Test
     @DisplayName("search provides closest results")
     void search() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
                 .content("{\"searchTerm\":\"ali\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -178,7 +178,7 @@ class PersonControllerTest {
     @Test
     @DisplayName("update state of attendance throws when attendance not found")
     void searchThrows() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
                 .content("{\"searchTerm\":\"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
