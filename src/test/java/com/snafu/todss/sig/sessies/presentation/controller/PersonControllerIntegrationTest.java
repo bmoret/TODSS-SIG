@@ -261,16 +261,6 @@ class PersonControllerTest {
     @DisplayName("Update person as manager")
     void updatePersonAsManager() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/person/"+ supervisor.getId().toString())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email", is("test2@email.com")))
-                .andExpect(jsonPath("$.expertise", is("none")));
-
-
-        request = MockMvcRequestBuilders
                 .put("/person/"+supervisor.getId())
                 .content("{\"email\":\"email2@email.com\"," +
                         "\"firstname\":\"second\"," +
@@ -293,16 +283,6 @@ class PersonControllerTest {
     @DisplayName("Update person as secretary")
     void updatePersonAsSecretary() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/person/"+ supervisor.getId())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email", is("test2@email.com")))
-                .andExpect(jsonPath("$.expertise", is("none")));
-
-
-        request = MockMvcRequestBuilders
                 .put("/person/"+supervisor.getId())
                 .content("{\"email\":\"email2@email.com\"," +
                         "\"firstname\":\"second\"," +
@@ -325,16 +305,6 @@ class PersonControllerTest {
     @DisplayName("Update person as administrator")
     void updatePersonAsAdministrator() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/person/"+ supervisor.getId())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email", is("test2@email.com")))
-                .andExpect(jsonPath("$.expertise", is("none")));
-
-
-        request = MockMvcRequestBuilders
                 .put("/person/"+supervisor.getId())
                 .content("{\"email\":\"email2@email.com\"," +
                         "\"firstname\":\"second\"," +
