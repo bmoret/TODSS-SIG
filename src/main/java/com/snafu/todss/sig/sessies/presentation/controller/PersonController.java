@@ -47,6 +47,7 @@ public class PersonController {
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
+    @CrossOrigin("http://localhost:8081")
     @PostMapping
     public ResponseEntity<PersonResponse> createPerson(
             @Valid @RequestBody PersonRequest dto
@@ -73,8 +74,7 @@ public class PersonController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //search person/medewerker
-    private List<PersonResponse> convertSearchPersonToListResponse(List<Person> persons) {
+    private List<PersonResponse> convertPersonToResponseList(List<Person> persons) {
         return persons.stream().map(this::convertPersonToResponse).collect(Collectors.toList());
     }
 
@@ -82,6 +82,6 @@ public class PersonController {
     @GetMapping(path = "/search")
     public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws RuntimeException {
         List<Person> personList = SERVICE.searchPerson(request);
-        return new ResponseEntity<>(convertSearchPersonToListResponse(personList), HttpStatus.OK);
+        return new ResponseEntity<>(convertPersonToResponseList(personList), HttpStatus.OK);
     }
 }
