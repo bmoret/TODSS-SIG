@@ -75,6 +75,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
                 .claim("rol", roles)
                 .compact();
 
+        response.addHeader("Access-Control-Expose-Headers", "Authorization, User-Username, User-Role, User-Id");
         response.addHeader("Authorization", "Bearer " + token);
         response.addHeader("User-Username", user.getUsername());
         response.addHeader("User-Role", user.getRole().toString());
