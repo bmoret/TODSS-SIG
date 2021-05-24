@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,7 +39,7 @@ SessionController {
         return response;
     }
 
-    @CrossOrigin("http://localhost:8081")
+    @PermitAll
     @GetMapping
     public ResponseEntity<List<SessionResponse>> getAllSessions() {
         List<Session> sessions = this.SERVICE.getAllSessions();
@@ -45,7 +47,7 @@ SessionController {
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:8081")
+    @PermitAll
     @GetMapping("/{sessionId}")
     public ResponseEntity<SessionResponse> getSession(@PathVariable UUID sessionId) throws NotFoundException {
         Session session = this.SERVICE.getSessionById(sessionId);
@@ -53,7 +55,7 @@ SessionController {
         return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:8081")
+    @RolesAllowed({"ROLE_MANAGER","ROLE_SECRETARY", "ROLE_ORGANIZER", "ROLE_ADMINISTRATOR"})
     @PostMapping
     public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest) throws NotFoundException {
         Session session = this.SERVICE.createSession(sessionRequest);
@@ -61,6 +63,7 @@ SessionController {
         return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ORGANIZER", "ROLE_ADMINISTRATOR"})
     @PutMapping("/{sessionId}")
     public ResponseEntity<SessionResponse> updateSession(
             @PathVariable UUID sessionId,
@@ -71,6 +74,7 @@ SessionController {
         return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ORGANIZER", "ROLE_ADMINISTRATOR"})
     @DeleteMapping("/{sessionId}")
     public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId) throws NotFoundException {
         this.SERVICE.deleteSession(sessionId);
@@ -78,7 +82,7 @@ SessionController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @CrossOrigin(origins = "http://localhost:8081")
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
     @PutMapping("/{sessionId}/plan")
     public ResponseEntity<SessionResponse> planSession(
             @PathVariable UUID sessionId,
@@ -90,7 +94,7 @@ SessionController {
         return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:8081")
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @PutMapping("/{sessionId}/request")
     public ResponseEntity<SessionResponse> requestSessionToBePlanned(@PathVariable UUID sessionId) throws NotFoundException {
         Session session = this.SERVICE.requestSessionToBePlanned(sessionId);

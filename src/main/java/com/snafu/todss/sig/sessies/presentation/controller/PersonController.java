@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +33,7 @@ public class PersonController {
         );
     }
 
-    @CrossOrigin("http://localhost:8081")
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
     @GetMapping(path = "/{id}")
     public ResponseEntity<PersonResponse> getPerson(@PathVariable("id") UUID id) throws NotFoundException {
         Person person = SERVICE.getPerson(id);
@@ -40,6 +41,7 @@ public class PersonController {
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
     @GetMapping
     public ResponseEntity<PersonResponse> getPersonByEmail(@RequestBody String email) throws NotFoundException {
         Person person = SERVICE.getPersonByEmail(email);
@@ -47,7 +49,7 @@ public class PersonController {
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
-    @CrossOrigin("http://localhost:8081")
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
     @PostMapping
     public ResponseEntity<PersonResponse> createPerson(
             @Valid @RequestBody PersonRequest dto
@@ -57,6 +59,7 @@ public class PersonController {
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
     @PutMapping(path = "/{id}")
     public ResponseEntity<PersonResponse> updatePerson(
             @PathVariable UUID id,
@@ -67,6 +70,7 @@ public class PersonController {
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<PersonResponse> removePerson(@PathVariable UUID id) throws NotFoundException {
         SERVICE.removePerson(id);
@@ -78,9 +82,9 @@ public class PersonController {
         return persons.stream().map(this::convertPersonToResponse).collect(Collectors.toList());
     }
 
-    @CrossOrigin("http://localhost:8081")
-    @GetMapping(path = "/search")
-    public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws RuntimeException {
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
+    @PostMapping(path = "/search")
+    public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws NotFoundException {
         List<Person> personList = SERVICE.searchPerson(request);
         return new ResponseEntity<>(convertPersonToResponseList(personList), HttpStatus.OK);
     }

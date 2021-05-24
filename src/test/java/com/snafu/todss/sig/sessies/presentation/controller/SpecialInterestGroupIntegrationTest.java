@@ -7,6 +7,7 @@ import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import javassist.NotFoundException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,12 +16,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import javax.print.attribute.standard.Media;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -74,6 +79,7 @@ class SpecialInterestGroupIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get all special integration group gives list with special interest groups")
     void getAllSpecialInterestGroups() throws Exception {
         repository.save(new SpecialInterestGroup(
@@ -83,7 +89,8 @@ class SpecialInterestGroupIntegrationTest {
                         new ArrayList<>()
         ));
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/sig");
+                .get("/sig")
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
@@ -93,10 +100,12 @@ class SpecialInterestGroupIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get all special interest groups gives empty list")
     void getAllSpecialInterestGroupsWithNoSessions() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/sig");
+                .get("/sig")
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
@@ -105,10 +114,12 @@ class SpecialInterestGroupIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get special interest group by id with not existing special interest group throws exception")
     void getSpecialInterestGroupByIdWithNotExistingSpecialInterestGroup_ThrowsNotFound() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/sig/" + UUID.randomUUID());
+                .get("/sig/" + UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound())
@@ -116,6 +127,7 @@ class SpecialInterestGroupIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get associated employees by SIG id returns list of people")
     void getAssociatedEmployeesById_ReturnsListOfPeople() throws Exception {
         SpecialInterestGroup sig = repository.save(new SpecialInterestGroup(
@@ -126,7 +138,8 @@ class SpecialInterestGroupIntegrationTest {
         ));
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/sig/" + sig.getId() + "/people");
+                .get("/sig/" + sig.getId() + "/people")
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
@@ -136,6 +149,7 @@ class SpecialInterestGroupIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get special interest group by id returns the special interest group")
     void getSpecialInterestGroupById_ReturnsSpecialInterestGroup() throws Exception {
         String subject = "subject";
@@ -149,7 +163,8 @@ class SpecialInterestGroupIntegrationTest {
                 )
         );
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/sig/" + specialInterestGroup.getId());
+                .get("/sig/" + specialInterestGroup.getId())
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
@@ -162,10 +177,98 @@ class SpecialInterestGroupIntegrationTest {
                 .andExpect(jsonPath("$.sessions").doesNotExist());
     }
 
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Create special interest group by id as manager returns the special interest group")
+    void createSpecialInterestGroupAsManager_ReturnsSpecialInterestGroup() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        JSONArray ids = new JSONArray();
+        jsonObject.put("subject", "Test subject");
+        jsonObject.put("managerId", person.getId().toString());
+        jsonObject.put("organizerIds", ids);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/sig")
+                .content(jsonObject.toString())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.subject").value("Test subject"))
+                .andExpect(jsonPath("$.manager").exists())
+                .andExpect(jsonPath("$.organizers").exists())
+                .andExpect(jsonPath("$.sessions").doesNotExist());
+    }
 
     @Test
-    @DisplayName("Update special interest group updates the special interest group")
-    void updateSpecialInterestGroup_ReturnsUpdatedSpecialInterestGroup() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Create special interest group by id as manager returns the special interest group")
+    void createSpecialInterestGroupAAdministrator_ReturnsSpecialInterestGroup() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        JSONArray ids = new JSONArray();
+        jsonObject.put("subject", "Test subject");
+        jsonObject.put("managerId", person.getId().toString());
+        jsonObject.put("organizerIds", ids);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/sig")
+                .content(jsonObject.toString())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.subject").value("Test subject"))
+                .andExpect(jsonPath("$.manager").exists())
+                .andExpect(jsonPath("$.organizers").exists())
+                .andExpect(jsonPath("$.sessions").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("Create special interest group by id as secretary returns the special interest group")
+    void createSpecialInterestGroupAsSecretary_ReturnsSpecialInterestGroup() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+       JSONArray ids = new JSONArray();
+        jsonObject.put("subject", "Test1 subject");
+        jsonObject.put("managerId", person.getId().toString());
+        jsonObject.put("organizerIds", ids);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/sig")
+                .content(jsonObject.toString())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.subject").value("Test1 subject"))
+                .andExpect(jsonPath("$.manager").exists())
+                .andExpect(jsonPath("$.organizers").exists())
+                .andExpect(jsonPath("$.sessions").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("Create special interest group by id as manager is not allowed")
+    void createSpecialInterestGroupAsEmployee() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        JSONArray ids = new JSONArray();
+        jsonObject.put("subject", "Test subject");
+        jsonObject.put("managerId", person.getId().toString());
+        jsonObject.put("organizerIds", ids);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/sig")
+                .content(jsonObject.toString())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Update special interest group as manager updates the special interest group")
+    void updateSpecialInterestGroupAsManager_ReturnsUpdatedSpecialInterestGroup() throws Exception {
         String subject = "subject";
         SpecialInterestGroup specialInterestGroup = this.repository.save(
                 new SpecialInterestGroup(
@@ -181,7 +284,7 @@ class SpecialInterestGroupIntegrationTest {
         json.put("person", person);
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sig/" + specialInterestGroup.getId())
-                .contentType("application/json")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(json.toString());
 
         mockMvc.perform(request)
@@ -195,8 +298,99 @@ class SpecialInterestGroupIntegrationTest {
     }
 
     @Test
-    @DisplayName("deleting a special interest group returns no content without body")
-    void deleteSpecialInterestGroup_ReturnsNoContentWithoutBody() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("Update special interest group as secretary updates the special interest group")
+    void updateSpecialInterestGroupAsSecretary_ReturnsUpdatedSpecialInterestGroup() throws Exception {
+        String subject = "subject";
+        SpecialInterestGroup specialInterestGroup = this.repository.save(
+                new SpecialInterestGroup(
+                        subject,
+                        person,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                )
+        );
+
+        JSONObject json = new JSONObject();
+        json.put("subject", "new");
+        json.put("person", person);
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sig/" + specialInterestGroup.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(specialInterestGroup.getId().toString()))
+                .andExpect(jsonPath("$.subject").exists())
+                .andExpect(jsonPath("$.manager").exists())
+                .andExpect(jsonPath("$.organizers").exists())
+                .andExpect(jsonPath("$.sessions").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Update special interest group as administrator updates the special interest group")
+    void updateSpecialInterestGroupAsAdministrator_ReturnsUpdatedSpecialInterestGroup() throws Exception {
+        String subject = "subject";
+        SpecialInterestGroup specialInterestGroup = this.repository.save(
+                new SpecialInterestGroup(
+                        subject,
+                        person,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                )
+        );
+
+        JSONObject json = new JSONObject();
+        json.put("subject", "new");
+        json.put("person", person);
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sig/" + specialInterestGroup.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(specialInterestGroup.getId().toString()))
+                .andExpect(jsonPath("$.subject").exists())
+                .andExpect(jsonPath("$.manager").exists())
+                .andExpect(jsonPath("$.organizers").exists())
+                .andExpect(jsonPath("$.sessions").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("Update special interest group as employee is not allowed")
+    void updateSpecialInterestGroupAsEmployee() throws Exception {
+        String subject = "subject";
+        SpecialInterestGroup specialInterestGroup = this.repository.save(
+                new SpecialInterestGroup(
+                        subject,
+                        person,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                )
+        );
+
+        JSONObject json = new JSONObject();
+        json.put("subject", "new");
+        json.put("person", person);
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sig/" + specialInterestGroup.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Deleting a special interest group as manager returns no content without body")
+    void deleteSpecialInterestGroupAsManager_ReturnsNoContentWithoutBody() throws Exception {
         SpecialInterestGroup specialInterestGroup = this.repository.save(
                 new SpecialInterestGroup(
                         "subject",
@@ -206,7 +400,8 @@ class SpecialInterestGroupIntegrationTest {
                 )
         );
         RequestBuilder request = MockMvcRequestBuilders
-                .delete("/sig/" + specialInterestGroup.getId());
+                .delete("/sig/" + specialInterestGroup.getId())
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isNoContent())
@@ -214,10 +409,74 @@ class SpecialInterestGroupIntegrationTest {
     }
 
     @Test
-    @DisplayName("deleting a special interest group that does not exist throws not found")
-    void deleteNotExistingSpecialInterestGroup_ThrowsNotFound() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("Deleting a special interest group as secretary returns no content without body")
+    void deleteSpecialInterestGroupAsSecretary_ReturnsNoContentWithoutBody() throws Exception {
+        SpecialInterestGroup specialInterestGroup = this.repository.save(
+                new SpecialInterestGroup(
+                        "subject",
+                        person,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                )
+        );
         RequestBuilder request = MockMvcRequestBuilders
-                .delete("/sig/" + UUID.randomUUID());
+                .delete("/sig/" + specialInterestGroup.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Deleting a special interest group as administrator returns no content without body")
+    void deleteSpecialInterestGroupAsAdministrator_ReturnsNoContentWithoutBody() throws Exception {
+        SpecialInterestGroup specialInterestGroup = this.repository.save(
+                new SpecialInterestGroup(
+                        "subject",
+                        person,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                )
+        );
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/sig/" + specialInterestGroup.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("Deleting a special interest group as employee is not allowed")
+    void deleteSpecialInterestGroupAsEmployee() throws Exception {
+        SpecialInterestGroup specialInterestGroup = this.repository.save(
+                new SpecialInterestGroup(
+                        "subject",
+                        person,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                )
+        );
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/sig/" + specialInterestGroup.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Deleting a non existing special interest group as manager throws not found")
+    void deleteNotExistingSpecialInterestGroupAsManager_ThrowsNotFound() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/sig/" + UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
