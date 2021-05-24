@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class PersonControllerTest {
+class PersonControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -453,8 +453,8 @@ class PersonControllerTest {
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("Search person by name as manager")
     void searchPersonAsManager() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
+                .content("{\"searchTerm\":\"Test\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -468,8 +468,8 @@ class PersonControllerTest {
     @WithMockUser(username = "TestUser", roles = "SECRETARY")
     @DisplayName("Search person by name as secretary")
     void searchPersonAsSecretary() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
+                .content("{\"searchTerm\":\"Test\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -483,8 +483,8 @@ class PersonControllerTest {
     @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
     @DisplayName("Search person by name as administrator")
     void searchPersonAsAdministrator() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
+                .content("{\"searchTerm\":\"Test\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
