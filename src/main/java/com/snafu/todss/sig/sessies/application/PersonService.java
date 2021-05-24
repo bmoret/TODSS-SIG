@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class PersonService {
-    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final SpringPersonRepository PERSON_REPOSITORY;
 
     public PersonService(SpringPersonRepository repository) {
