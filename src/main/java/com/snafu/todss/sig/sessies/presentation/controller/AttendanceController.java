@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +43,7 @@ public class AttendanceController {
         return attendances.stream().map(this::convertAttendanceToResponse).collect(Collectors.toList());
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @GetMapping("/{id}")
     public ResponseEntity<AttendanceResponse> getAttendance(
             @PathVariable UUID id
@@ -64,16 +66,32 @@ public class AttendanceController {
         );
     }
 
-    @CrossOrigin("http://localhost:8081")
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @GetMapping ("/{id}/speaker")
     public ResponseEntity<List<PersonResponse>> getSpeakerAttendance(
             @PathVariable UUID id
     ) throws NotFoundException {
+        System.out.println(id);
         List<Person> speakers = this.SERVICE.getSpeakersFromAttendanceSession(id);
+        System.out.println(speakers);
 
         return new ResponseEntity<>(convertPersonToListResponse(speakers), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
+    @PutMapping("/{id}/speaker")
+    public ResponseEntity<AttendanceResponse> updateSpeakerAttendance(
+            @PathVariable UUID id,
+            @Valid @RequestBody AttendanceSpeakerRequest request
+    ) throws NotFoundException {
+        Attendance attendance = this.SERVICE.updateSpeakerAttendance(id, request);
+
+        return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
+    }
+
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
+    @PutMapping("/{id}/state")
+    public ResponseEntity<AttendanceResponse> updateStateAttendance(
     @PutMapping("/{id}/update")
     public ResponseEntity<AttendanceResponse> updateAttendance(
             @PathVariable UUID id,
@@ -84,6 +102,7 @@ public class AttendanceController {
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAttendance(@PathVariable UUID id){
         this.SERVICE.deleteAttendance(id);
@@ -91,6 +110,7 @@ public class AttendanceController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @GetMapping("{sessionId}/{personId}")
     public ResponseEntity<Boolean> checkIfAttendanceExists(
             @PathVariable UUID sessionId, @PathVariable UUID personId

@@ -26,6 +26,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -84,43 +86,47 @@ class SessionControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get all sessions returns list sessions")
     void getAllSessions() throws Exception {
         repository.save(new PhysicalSession());
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions");
+                .get("/sessions")
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$[0]").exists())
                 .andExpect(jsonPath("$[1]").doesNotExist());
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get all sessions returns empty list")
     void getAllSessionsWithNoSessions() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions");
+                .get("/sessions")
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get session by id with not existing session throws Not Found")
     void getSessionByIdWithNotExistingSession_ThrowsNotFound() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions/" + UUID.randomUUID());
+                .get("/sessions/" + UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType("application/json"));
+                .andExpect(status().isNotFound());
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get session by id returns the session")
     void getSessionById_ReturnsSession() throws Exception {
         LocalDateTime now = LocalDateTime.now();
@@ -142,12 +148,12 @@ class SessionControllerIntegrationTest {
                 )
         );
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions/" + session.getId());
+                .get("/sessions/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.id").value(session.getId().toString()))
                 .andExpect(jsonPath("$.state").value(session.getState().toString()))
                 .andExpect(jsonPath("$.details.startDate").exists())
@@ -159,8 +165,9 @@ class SessionControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Create physical session returns the session")
-    void createPhysicalSession_ReturnsSession() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Create physical session as manager returns the session")
+    void createPhysicalSessionAsManager_ReturnsSession() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
         System.out.println(now);
@@ -180,12 +187,11 @@ class SessionControllerIntegrationTest {
         json.put("@type", "PHYSICAL_SESSION_REQUEST");
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/sessions")
-                .contentType("application/json")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(json.toString());
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.state").value("DRAFT"))
                 .andExpect(jsonPath("$.details.startDate").exists())
@@ -197,10 +203,158 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.contactPerson").exists());
     }
 
+    @Test
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("Create physical session as secretary returns the session")
+    void createPhysicalSessionAsSecretary_ReturnsSession() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        System.out.println(now);
+        System.out.println(nowPlusOneHour);
+        String subject = "Subject1";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        JSONObject json = new JSONObject();
+        json.put("subject", subject);
+        json.put("description", description);
+        json.put("address", address);
+        json.put("sigId", sig.getId().toString());
+        json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("contactPerson", supervisor.getId().toString());
+        json.put("@type", "PHYSICAL_SESSION_REQUEST");
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/sessions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value("DRAFT"))
+                .andExpect(jsonPath("$.details.startDate").exists())
+                .andExpect(jsonPath("$.details.endDate").exists())
+                .andExpect(jsonPath("$.details.subject").value(subject))
+                .andExpect(jsonPath("$.details.description").value(description))
+                .andExpect(jsonPath("$.address").value(address))
+                .andExpect(jsonPath("$.type").value("PHYSICAL"))
+                .andExpect(jsonPath("$.contactPerson").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ORGANIZER")
+    @DisplayName("Create physical session as organizer returns the session")
+    void createPhysicalSessionAsOrganizer_ReturnsSession() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        System.out.println(now);
+        System.out.println(nowPlusOneHour);
+        String subject = "Subject2";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        JSONObject json = new JSONObject();
+        json.put("subject", subject);
+        json.put("description", description);
+        json.put("address", address);
+        json.put("sigId", sig.getId().toString());
+        json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("contactPerson", supervisor.getId().toString());
+        json.put("@type", "PHYSICAL_SESSION_REQUEST");
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/sessions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value("DRAFT"))
+                .andExpect(jsonPath("$.details.startDate").exists())
+                .andExpect(jsonPath("$.details.endDate").exists())
+                .andExpect(jsonPath("$.details.subject").value(subject))
+                .andExpect(jsonPath("$.details.description").value(description))
+                .andExpect(jsonPath("$.address").value(address))
+                .andExpect(jsonPath("$.type").value("PHYSICAL"))
+                .andExpect(jsonPath("$.contactPerson").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Create physical session as administrator returns the session")
+    void createPhysicalSessionAsAdministrator_ReturnsSession() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        System.out.println(now);
+        System.out.println(nowPlusOneHour);
+        String subject = "Subject2";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        JSONObject json = new JSONObject();
+        json.put("subject", subject);
+        json.put("description", description);
+        json.put("address", address);
+        json.put("sigId", sig.getId().toString());
+        json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("contactPerson", supervisor.getId().toString());
+        json.put("@type", "PHYSICAL_SESSION_REQUEST");
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/sessions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value("DRAFT"))
+                .andExpect(jsonPath("$.details.startDate").exists())
+                .andExpect(jsonPath("$.details.endDate").exists())
+                .andExpect(jsonPath("$.details.subject").value(subject))
+                .andExpect(jsonPath("$.details.description").value(description))
+                .andExpect(jsonPath("$.address").value(address))
+                .andExpect(jsonPath("$.type").value("PHYSICAL"))
+                .andExpect(jsonPath("$.contactPerson").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("Create physical session as employee is not allowed")
+    void createPhysicalSessionAsEmployee() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        System.out.println(now);
+        System.out.println(nowPlusOneHour);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        JSONObject json = new JSONObject();
+        json.put("subject", subject);
+        json.put("description", description);
+        json.put("address", address);
+        json.put("sigId", sig.getId().toString());
+        json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("contactPerson", supervisor.getId().toString());
+        json.put("@type", "PHYSICAL_SESSION_REQUEST");
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/sessions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
     @ParameterizedTest
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
     @MethodSource("provideOnlineRequests")
-    @DisplayName("Create online session returns the session")
-    void createOnlineSession_ReturnsSession(String platform, String joinUrl, String expectedPlatform, String expectedType) throws Exception {
+    @DisplayName("Create online session as manager returns the session")
+    void createOnlineSessionAsManager_ReturnsSession(String platform, String joinUrl, String expectedPlatform, String expectedType) throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
         String subject = "Subject";
@@ -218,12 +372,11 @@ class SessionControllerIntegrationTest {
         json.put("@type", "ONLINE_SESSION_REQUEST");
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/sessions")
-                .contentType("application/json")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(json.toString());
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.state").value("DRAFT"))
                 .andExpect(jsonPath("$.details.startDate").exists())
@@ -244,8 +397,9 @@ class SessionControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Update physical session updates the session")
-    void updatePhysicalSession_ReturnsUpdatedSession() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Update physical session as manager updates the session")
+    void updatePhysicalSessionAsManager_ReturnsUpdatedSession() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
         String subject = "Subject";
@@ -275,12 +429,11 @@ class SessionControllerIntegrationTest {
         json.put("contactPerson", null);
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sessions/" + session.getId())
-                .contentType("application/json")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(json.toString());
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.state").value("DRAFT"))
                 .andExpect(jsonPath("$.details.startDate").exists())
@@ -290,10 +443,192 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.address").value(address));
     }
 
+    @Test
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("Update physical session as secretary updates the session")
+    void updatePhysicalSessionASecretary_ReturnsUpdatedSession() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = repository.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "address",
+                        supervisor
+                )
+        );
+
+        JSONObject json = new JSONObject();
+        json.put("subject", subject);
+        json.put("description", description);
+        json.put("address", address);
+        json.put("sigId", sig.getId().toString());
+        json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("@type", "PHYSICAL_SESSION_REQUEST");
+        json.put("contactPerson", null);
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value("DRAFT"))
+                .andExpect(jsonPath("$.details.startDate").exists())
+                .andExpect(jsonPath("$.details.endDate").exists())
+                .andExpect(jsonPath("$.details.subject").value(subject))
+                .andExpect(jsonPath("$.details.description").value(description))
+                .andExpect(jsonPath("$.address").value(address));
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ORGANIZER")
+    @DisplayName("Update physical session as organizer updates the session")
+    void updatePhysicalSessionAsOrganizer_ReturnsUpdatedSession() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = repository.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "address",
+                        supervisor
+                )
+        );
+
+        JSONObject json = new JSONObject();
+        json.put("subject", subject);
+        json.put("description", description);
+        json.put("address", address);
+        json.put("sigId", sig.getId().toString());
+        json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("@type", "PHYSICAL_SESSION_REQUEST");
+        json.put("contactPerson", null);
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value("DRAFT"))
+                .andExpect(jsonPath("$.details.startDate").exists())
+                .andExpect(jsonPath("$.details.endDate").exists())
+                .andExpect(jsonPath("$.details.subject").value(subject))
+                .andExpect(jsonPath("$.details.description").value(description))
+                .andExpect(jsonPath("$.address").value(address));
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Update physical session as administrator updates the session")
+    void updatePhysicalSessionAsAdministrator_ReturnsUpdatedSession() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = repository.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "address",
+                        supervisor
+                )
+        );
+
+        JSONObject json = new JSONObject();
+        json.put("subject", subject);
+        json.put("description", description);
+        json.put("address", address);
+        json.put("sigId", sig.getId().toString());
+        json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("@type", "PHYSICAL_SESSION_REQUEST");
+        json.put("contactPerson", null);
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value("DRAFT"))
+                .andExpect(jsonPath("$.details.startDate").exists())
+                .andExpect(jsonPath("$.details.endDate").exists())
+                .andExpect(jsonPath("$.details.subject").value(subject))
+                .andExpect(jsonPath("$.details.description").value(description))
+                .andExpect(jsonPath("$.address").value(address));
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("Update physical session as employee is not allowed")
+    void updatePhysicalSessionAsEmployee() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = repository.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "address",
+                        supervisor
+                )
+        );
+
+        JSONObject json = new JSONObject();
+        json.put("subject", subject);
+        json.put("description", description);
+        json.put("address", address);
+        json.put("sigId", sig.getId().toString());
+        json.put("startDate", now.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("endDate", nowPlusOneHour.format(DateTimeFormatter.ISO_DATE_TIME));
+        json.put("@type", "PHYSICAL_SESSION_REQUEST");
+        json.put("contactPerson", null);
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
     @ParameterizedTest
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
     @MethodSource("provideUpdateOnlineRequests")
-    @DisplayName("Update online session returns the updated session")
-    void updateOnlineSession_ReturnsUpdatedSession(String platform, String joinUrl, String expectedPlatform, Session session) throws Exception {
+    @DisplayName("Update online session as manager returns the updated session")
+    void updateOnlineSessionAsManager_ReturnsUpdatedSession(String platform, String joinUrl, String expectedPlatform, Session session) throws Exception {
         SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
         session = repository.save(session);
         JSONObject json = new JSONObject();
@@ -308,12 +643,11 @@ class SessionControllerIntegrationTest {
         json.put("@type", "ONLINE_SESSION_REQUEST");
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sessions/" + session.getId())
-                .contentType("application/json")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(json.toString());
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.state").value("DRAFT"))
                 .andExpect(jsonPath("$.details.startDate").exists())
@@ -363,11 +697,13 @@ class SessionControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deleting a session returns OK without body")
-    void deleteSession_ReturnsOkWithoutBody() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Deleting a session as manager returns OK without body")
+    void deleteSessionAsManager_ReturnsOkWithoutBody() throws Exception {
         Session session = this.repository.save(new PhysicalSession());
         RequestBuilder request = MockMvcRequestBuilders
-                .delete("/sessions/" + session.getId());
+                .delete("/sessions/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isNoContent())
@@ -375,28 +711,100 @@ class SessionControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deleting a session that does not exis throws not found")
-    void deleteNotExistingSession_ThrowsNotFound() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("Deleting a session as secretary returns OK without body")
+    void deleteSessionAsSecretary_ReturnsOkWithoutBody() throws Exception {
+        Session session = this.repository.save(new PhysicalSession());
         RequestBuilder request = MockMvcRequestBuilders
-                .delete("/sessions/" + UUID.randomUUID());
+                .delete("/sessions/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ORGANIZER")
+    @DisplayName("Deleting a session as organizer returns OK without body")
+    void deleteSessionAsOrganizer_ReturnsOkWithoutBody() throws Exception {
+        Session session = this.repository.save(new PhysicalSession());
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/sessions/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Deleting a session as administrator returns OK without body")
+    void deleteSessionAsAdministrator_ReturnsOkWithoutBody() throws Exception {
+        Session session = this.repository.save(new PhysicalSession());
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/sessions/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("Deleting a session as employee is not allowed")
+    void deleteSessionAsEmployee() throws Exception {
+        Session session = this.repository.save(new PhysicalSession());
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/sessions/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Deleting a non existing session as manager throws not found")
+    void deleteNonExistingSessionAsManager_ThrowsNotFound() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/sessions/" + UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("Requesting planning for a session that does not exist throws not found")
-    void requestPlanningForNotExistingSession_ThrowsNotFound() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Requesting planning for non existing session as manager throws not found")
+    void requestPlanningForNonExistingSessionAsManager_ThrowsNotFound() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/sessions/" + UUID.randomUUID() + "/request");
+                .put("/sessions/" + UUID.randomUUID() + "/request")
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("Requesting planning for a session that when in wrong state throws IAE")
-    void requestPlanningForSession_WhenWrongState() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("Requesting planning for non existing session as secretary throws not found")
+    void requestPlanningForNonExistingSessionAsSecretary_ThrowsNotFound() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + UUID.randomUUID() + "/request")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Requesting planning for a session that is in wrong state as manager throws IAE")
+    void requestPlanningForSessionAsManager_WhenWrongState() throws Exception {
         SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
         PhysicalSession session = this.repository.save(
                 new PhysicalSession(
@@ -411,15 +819,17 @@ class SessionControllerIntegrationTest {
         );
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/sessions/" + session.getId() + "/request");
+                .put("/sessions/" + session.getId() + "/request")
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isConflict());
     }
 
     @Test
-    @DisplayName("Requesting planning for a session UpdatesState to TO_BE_PLANNED")
-    void requestPlanningForSession_UpdatesState() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Requesting planning for a session as manager UpdatesState to TO_BE_PLANNED")
+    void requestPlanningForSessionAsManager_UpdatesState() throws Exception {
         SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
         PhysicalSession session = this.repository.save(
                 new PhysicalSession(
@@ -434,7 +844,8 @@ class SessionControllerIntegrationTest {
         );
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/sessions/" + session.getId() + "/request");
+                .put("/sessions/" + session.getId() + "/request")
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
@@ -442,8 +853,60 @@ class SessionControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Plan session returns OK with body")
-    void planSession_ReturnsOkWithBody() throws Exception {
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("Requesting planning for a session as employee is not allowed")
+    void requestPlanningForSessionAsEmployee() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        PhysicalSession session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Subject", "Description"),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address",
+                        null
+                )
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + session.getId() + "/request")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Requesting planning for a session as administrator UpdatesState to TO_BE_PLANNED")
+    void requestPlanningForSessionAsAdministrator_UpdatesState() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        PhysicalSession session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Subject", "Description"),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address",
+                        null
+                )
+        );
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/sessions/" + session.getId() + "/request")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("TO_BE_PLANNED"));
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Plan session returns as manager OK with body")
+    void planSessionAsManager_ReturnsOkWithBody() throws Exception {
         SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
         Session session = this.repository.save(
                 new PhysicalSession(
@@ -460,17 +923,99 @@ class SessionControllerIntegrationTest {
                 .put(String.format("/sessions/%s/plan?startDate=%s&endDate=%s",
                         session.getId(),
                         LocalDateTime.now().plusHours(1),
-                        LocalDateTime.now().plusHours(2))
-                );
+                        LocalDateTime.now().plusHours(2)))
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("Plan session returns as secretary OK with body")
+    void planSessionAsSecretary_ReturnsOkWithBody() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(null, null, "Subject", "Description"),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address",
+                        null
+                )
+        );
+        RequestBuilder request = MockMvcRequestBuilders
+                .put(String.format("/sessions/%s/plan?startDate=%s&endDate=%s",
+                        session.getId(),
+                        LocalDateTime.now().plusHours(1),
+                        LocalDateTime.now().plusHours(2)))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Plan session returns as administrator OK with body")
+    void planSessionAsAdministrator_ReturnsOkWithBody() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(null, null, "Subject", "Description"),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address",
+                        null
+                )
+        );
+        RequestBuilder request = MockMvcRequestBuilders
+                .put(String.format("/sessions/%s/plan?startDate=%s&endDate=%s",
+                        session.getId(),
+                        LocalDateTime.now().plusHours(1),
+                        LocalDateTime.now().plusHours(2)))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("Plan session returns as employee is not allowed")
+    void planSessionAsEmployee() throws Exception {
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        Session session = this.repository.save(
+                new PhysicalSession(
+                        new SessionDetails(null, null, "Subject", "Description"),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        "Address",
+                        null
+                )
+        );
+        RequestBuilder request = MockMvcRequestBuilders
+                .put(String.format("/sessions/%s/plan?startDate=%s&endDate=%s",
+                        session.getId(),
+                        LocalDateTime.now().plusHours(1),
+                        LocalDateTime.now().plusHours(2)))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
     @ParameterizedTest
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
     @MethodSource("ProvideInvalidDateCombinations")
-    @DisplayName("Plan session with missing date time arguments is conflict")
-    void planSessionWithMissingArgs_IsConflict(String startDate, String endDate) throws Exception {
+    @DisplayName("Plan session with missing date time arguments as manager is conflict")
+    void planSessionWithMissingArgsAsManager_IsConflict(String startDate, String endDate) throws Exception {
         SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
         Session session = this.repository.save(
                 new PhysicalSession(
@@ -487,8 +1032,8 @@ class SessionControllerIntegrationTest {
                 .put(String.format("/sessions/%s/plan?startdDate=%s&endDate=%s",
                         session.getId(),
                         startDate,
-                        endDate)
-                );
+                        endDate))
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isConflict());
