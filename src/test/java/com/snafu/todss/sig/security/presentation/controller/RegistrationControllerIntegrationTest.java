@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.security.presentation.controller;
 
 import com.snafu.todss.sig.security.data.SpringUserRepository;
+import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,9 +23,13 @@ class RegistrationIntegrationControllerTest {
     @Autowired
     private SpringUserRepository userRepository;
 
+    @Autowired
+    private SpringPersonRepository personRepository;
+
     @AfterEach
     void tearDown() {
         this.userRepository.deleteAll();
+        this.personRepository.deleteAll();
     }
 
     @Test
@@ -32,7 +37,15 @@ class RegistrationIntegrationControllerTest {
     void createUserWithPasswordLengthShorterThan7_ThrowsException() throws Exception {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("username", "TestUserName");
-        jsonObject.put("password", "short");
+        jsonObject.put("password", "123456");
+        jsonObject.put("email", "test2@email.com");
+        jsonObject.put("firstname", "FirstName");
+        jsonObject.put("lastname", "LastName");
+        jsonObject.put("expertise", "none");
+        jsonObject.put("branch", "VIANEN");
+        jsonObject.put("role", "EMPLOYEE");
+        jsonObject.put("employedSince", "01/01/2021");
+        jsonObject.put("supervisorId", null);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/registration")
@@ -49,6 +62,14 @@ class RegistrationIntegrationControllerTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("username", "TestUserName");
         jsonObject.put("password", "1234567");
+        jsonObject.put("email", "test2@email.com");
+        jsonObject.put("firstname", "FirstName");
+        jsonObject.put("lastname", "LastName");
+        jsonObject.put("expertise", "none");
+        jsonObject.put("branch", "VIANEN");
+        jsonObject.put("role", "EMPLOYEE");
+        jsonObject.put("employedSince", "01/01/2021");
+        jsonObject.put("supervisorId", null);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/registration")
@@ -56,15 +77,23 @@ class RegistrationIntegrationControllerTest {
                 .content(jsonObject.toString());
 
         mockMvc.perform(request)
-                .andExpect(status().isCreated());
+                .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("Creating a user with password length over 7 does not throw exception")
     void createUserWithPasswordLengthOver7_DoesNotThrow() throws Exception {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("username", "TestUserName2");
-        jsonObject.put("password", "testPassWord");
+        jsonObject.put("username", "TestUserName");
+        jsonObject.put("password", "12345678");
+        jsonObject.put("email", "test2@email.com");
+        jsonObject.put("firstname", "FirstName");
+        jsonObject.put("lastname", "LastName");
+        jsonObject.put("expertise", "none");
+        jsonObject.put("branch", "VIANEN");
+        jsonObject.put("role", "EMPLOYEE");
+        jsonObject.put("employedSince", "01/01/2021");
+        jsonObject.put("supervisorId", null);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/registration")
@@ -72,7 +101,7 @@ class RegistrationIntegrationControllerTest {
                 .content(jsonObject.toString());
 
         mockMvc.perform(request)
-                .andExpect(status().isCreated());
+                .andExpect(status().isOk());
     }
 
 }
