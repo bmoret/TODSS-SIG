@@ -1,12 +1,16 @@
 package com.snafu.todss.sig.sessies.domain.person;
 
+import com.snafu.todss.sig.sessies.presentation.dto.request.SearchRequest;
+import javassist.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import com.snafu.todss.sig.sessies.domain.*;
 import com.snafu.todss.sig.sessies.domain.person.enums.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
