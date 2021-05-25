@@ -388,7 +388,6 @@ class PersonControllerIntegrationTest {
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
 
-
         RequestBuilder request = MockMvcRequestBuilders
                 .delete("/person/"+person.getId());
 
