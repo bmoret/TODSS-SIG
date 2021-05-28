@@ -325,4 +325,59 @@ class AttendanceServiceTest {
 
         verify(ATTENDANCE_REPOSITORY, times(1)).findById(any());
     }
+
+    @Test
+    @DisplayName("check if attending returns true when attendance with state PRESENT exists")
+    void checkIfAttendingTrue() throws NotFoundException {
+        Attendance presentAttendance = new Attendance(PRESENT, false, person, session);
+        when(PERSON_SERVICE.getPerson(person.getId())).thenReturn(person);
+        when(SESSION_SERVICE.getSessionById(session.getId())).thenReturn(session);
+        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(presentAttendance));
+
+        assertTrue(
+                assertDoesNotThrow(
+                        () -> SERVICE.checkIfAttending(session.getId(), person.getId())
+                )
+        );
+
+        verify(PERSON_SERVICE, times(1)).getPerson(any());
+        verify(SESSION_SERVICE, times(1)).getSessionById(any());
+        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(), any());
+    }
+
+    @Test
+    @DisplayName("check if attending returns true when attendance with state PRESENT exists")
+    void checkIfAttendingFalse() throws NotFoundException {
+        when(PERSON_SERVICE.getPerson(person.getId())).thenReturn(person);
+        when(SESSION_SERVICE.getSessionById(session.getId())).thenReturn(session);
+        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
+
+        assertFalse(
+                assertDoesNotThrow(
+                        () -> SERVICE.checkIfAttending(session.getId(), person.getId())
+                )
+        );
+
+        verify(PERSON_SERVICE, times(1)).getPerson(any());
+        verify(SESSION_SERVICE, times(1)).getSessionById(any());
+        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(), any());
+    }
+
+    @Test
+    @DisplayName("check if attending returns true when attendance with state PRESENT exists")
+    void signUpForSession() throws NotFoundException {
+        when(PERSON_SERVICE.getPerson(person.getId())).thenReturn(person);
+        when(SESSION_SERVICE.getSessionById(session.getId())).thenReturn(session);
+        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
+
+        assertFalse(
+                assertDoesNotThrow(
+                        () -> SERVICE.checkIfAttending(session.getId(), person.getId())
+                )
+        );
+
+        verify(PERSON_SERVICE, times(1)).getPerson(any());
+        verify(SESSION_SERVICE, times(1)).getSessionById(any());
+        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(), any());
+    }
 }

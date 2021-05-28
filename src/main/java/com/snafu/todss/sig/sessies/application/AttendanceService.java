@@ -55,7 +55,7 @@ public class AttendanceService {
         Person person = this.PERSON_SERVICE.getPerson(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
         Optional<Attendance> attendance = getAttendanceBySessionAndPerson(session, person);
-        if(attendance.isPresent() && attendance.get().getState() != AttendanceState.PRESENT) {
+        if(attendance.isPresent()) {
             return updateAttendance(attendance.get().getId(),request);
         }
         return createAttendance(request.state, request.speaker,sessionId, personId);
