@@ -391,14 +391,4 @@ class AttendanceServiceIntegrationTest {
                 )
         );
     }
-
-    @Test
-    @DisplayName("update attendance by useing signUpForSession throws when attendance exists and state is present")
-    void singUpForSessionWithNoAttendance() {
-        AttendanceRequest request = new AttendanceRequest();
-
-        assertThrows(DuplicateRequestException.class,
-                () -> ATTENDANCE_SERVICE.signUpForSession(attendance.getSession().getId(), attendance.getPerson().getId(), request)
-        );
-    }
 }

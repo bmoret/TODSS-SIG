@@ -68,7 +68,6 @@ public class AttendanceService {
     ) throws DuplicateRequestException, NotFoundException {
         Person person = this.PERSON_SERVICE.getPerson(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
-
         if(getAttendanceBySessionAndPerson(session, person).isPresent()) {
             throw new DuplicateRequestException("Je bent al aangemeld voor deze sessie.");
         }
