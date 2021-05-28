@@ -179,6 +179,16 @@ class PersonServiceTest {
     }
 
     @Test
+    @DisplayName("levenshtein result of person by getting levenshtein value by full, first and lastname")
+    void getBestlevenshteinDistanceValueError() {
+        SearchRequest request = new SearchRequest();
+        List<Person> allPersons = this.repo.findAll();
+        assertThrows(
+                RuntimeException.class,
+                () -> service.getBestLevenshteinDistanceValue(allPersons, request));
+    }
+
+    @Test
     @DisplayName("searchPerson provides searched term")
     void searchPerson() {
         SearchRequest request = new SearchRequest();
