@@ -43,7 +43,7 @@ class RegistrationIntegrationControllerTest {
         jsonObject.put("expertise", "none");
         jsonObject.put("branch", "VIANEN");
         jsonObject.put("role", "EMPLOYEE");
-        jsonObject.put("employedSince", "01/01/2021");
+        jsonObject.put("employedSince", "2005/12/01");
         jsonObject.put("supervisorId", null);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -67,7 +67,7 @@ class RegistrationIntegrationControllerTest {
         jsonObject.put("expertise", "none");
         jsonObject.put("branch", "VIANEN");
         jsonObject.put("role", "EMPLOYEE");
-        jsonObject.put("employedSince", "01/01/2021");
+        jsonObject.put("employedSince", "2005/12/01");
         jsonObject.put("supervisorId", null);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -91,7 +91,7 @@ class RegistrationIntegrationControllerTest {
         jsonObject.put("expertise", "none");
         jsonObject.put("branch", "VIANEN");
         jsonObject.put("role", "EMPLOYEE");
-        jsonObject.put("employedSince", "01/01/2021");
+        jsonObject.put("employedSince", "2005/12/01");
         jsonObject.put("supervisorId", null);
 
         RequestBuilder request = MockMvcRequestBuilders

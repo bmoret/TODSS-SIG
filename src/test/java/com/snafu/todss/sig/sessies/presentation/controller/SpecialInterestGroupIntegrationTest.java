@@ -1,7 +1,6 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
 import com.snafu.todss.sig.sessies.application.PersonService;
-import com.snafu.todss.sig.sessies.application.SpecialInterestGroupService;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
@@ -23,9 +22,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-import javax.print.attribute.standard.Media;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,9 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SpecialInterestGroupIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private SpecialInterestGroupService service;
 
     @Autowired
     private SpecialInterestGroupRepository repository;
@@ -56,7 +50,7 @@ class SpecialInterestGroupIntegrationTest {
             dtoSupervisor.expertise = "none";
             dtoSupervisor.branch = "VIANEN";
             dtoSupervisor.role = "EMPLOYEE";
-            dtoSupervisor.employedSince = "01/01/2021";
+            dtoSupervisor.employedSince = "2005/12/01";
             dtoSupervisor.supervisorId = null;
         Person supervisor = personService.createPerson(dtoSupervisor);
 
@@ -67,7 +61,7 @@ class SpecialInterestGroupIntegrationTest {
             dtoPerson.expertise = "none";
             dtoPerson.branch = "VIANEN";
             dtoPerson.role = "EMPLOYEE";
-            dtoPerson.employedSince = "01/01/2021";
+            dtoPerson.employedSince = "2000/12/01";
             dtoPerson.supervisorId = supervisor.getId();
         person = personService.createPerson(dtoPerson);
     }

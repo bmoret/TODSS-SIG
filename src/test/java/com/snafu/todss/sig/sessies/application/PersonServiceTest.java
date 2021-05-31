@@ -2,14 +2,7 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.CiTestConfiguration;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
-import com.snafu.todss.sig.sessies.domain.AttendanceState;
-import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
-import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
-import com.snafu.todss.sig.sessies.domain.session.SessionState;
-import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
-import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.*;
 import com.snafu.todss.sig.sessies.domain.person.enums.*;
 import javassist.NotFoundException;
@@ -24,13 +17,10 @@ import org.springframework.context.annotation.Import;
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
-import static com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN;
-import static com.snafu.todss.sig.sessies.domain.person.enums.Role.MANAGER;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -80,7 +70,7 @@ class PersonServiceTest {
         dto.expertise = "none";
         dto.branch = "VIANEN";
         dto.role = "EMPLOYEE";
-        dto.employedSince = "01/01/2021";
+        dto.employedSince = "2021/01/01";
         dto.supervisorId = supervisor.getId();
 
         Person person = null;
@@ -114,7 +104,7 @@ class PersonServiceTest {
         dto.expertise = "all";
         dto.branch = "VIANEN";
         dto.role = "EMPLOYEE";
-        dto.employedSince = "01/01/2000";
+        dto.employedSince = "2000/01/01";
         dto.supervisorId = supervisor.getId();
 
         Person person = null;

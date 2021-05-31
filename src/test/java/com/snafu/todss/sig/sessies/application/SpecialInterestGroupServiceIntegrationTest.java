@@ -59,7 +59,7 @@ class SpecialInterestGroupServiceIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005/12/01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
 
@@ -70,7 +70,7 @@ class SpecialInterestGroupServiceIntegrationTest {
         dtoPerson.expertise = "none";
         dtoPerson.branch = "VIANEN";
         dtoPerson.role = "EMPLOYEE";
-        dtoPerson.employedSince = "01/01/2021";
+        dtoPerson.employedSince = "2000/12/01";
         dtoPerson.supervisorId = supervisor.getId();
         person = personService.createPerson(dtoPerson);
 
