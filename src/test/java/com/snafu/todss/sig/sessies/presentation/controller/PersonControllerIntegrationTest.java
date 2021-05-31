@@ -56,6 +56,26 @@ class PersonControllerTest {
     @AfterEach
     void tearDown(){
         personRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("Logging in")
+    void loggingIN() throws Exception {
+        User user = new User("TestUser", "TestPassword", supervisor);
+        userRepository.save(user);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("username", "TestUser");
+        jsonObject.put("password", "TestPassword");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/login")
+                .content(jsonObject.toString())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
     }
 
     @Test
