@@ -1,9 +1,12 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.security.data.SpringUserRepository;
+import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
+import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +35,9 @@ class PersonControllerTest {
 
     @Autowired
     private SpringPersonRepository personRepository;
+
+    @Autowired
+    private SpringUserRepository userRepository;
 
     @Autowired
     private PersonService personService;
