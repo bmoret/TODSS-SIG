@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain filterChain, Authentication authentication) throws IOException, ServletException {
         User user = (User) authentication.getPrincipal();
-A        String accessToken = JWT_GENERATOR.generateAccessToken(user);
+        String accessToken = JWT_GENERATOR.generateAccessToken(user);
         String refreshToken = JWT_GENERATOR.generateRefreshToken();
 
         response.addHeader("Access-Token", "Bearer " + accessToken);

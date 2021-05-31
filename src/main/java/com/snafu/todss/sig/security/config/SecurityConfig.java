@@ -23,7 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
                             jsr250Enabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public final static String LOGIN_PATH = "/login";
-    public final static String REGISTER_PATH = "/registration";
+    public final static String[] PATHS = {"/authenticate/refresh", "/registration", LOGIN_PATH};
     private final JwtGenerator jwtGenerator;
 
     @Value("${security.jwt.secret}")
@@ -38,8 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, REGISTER_PATH).permitAll()
-                .antMatchers(HttpMethod.POST, LOGIN_PATH).permitAll()
+                .antMatchers(HttpMethod.POST, PATHS).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(
