@@ -22,7 +22,7 @@ import static com.snafu.todss.sig.sessies.util.LevenshteinAlgorithm.calculateLev
 @Service
 @Transactional
 public class PersonService {
-    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final SpringPersonRepository PERSON_REPOSITORY;
 
     public PersonService(SpringPersonRepository repository) {

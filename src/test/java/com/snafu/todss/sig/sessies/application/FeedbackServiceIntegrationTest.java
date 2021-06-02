@@ -51,7 +51,7 @@ class FeedbackServiceIntegrationTest {
             dtoSupervisor.expertise = "none";
             dtoSupervisor.branch = "VIANEN";
             dtoSupervisor.role = "EMPLOYEE";
-            dtoSupervisor.employedSince = "2005/12/01";
+            dtoSupervisor.employedSince = "2005-12-01";
             dtoSupervisor.supervisorId = null;
         Person supervisor = personService.createPerson(dtoSupervisor);
 
@@ -62,7 +62,7 @@ class FeedbackServiceIntegrationTest {
             dtoPerson.expertise = "none";
             dtoPerson.branch = "VIANEN";
             dtoPerson.role = "EMPLOYEE";
-            dtoPerson.employedSince = "2000/12/01";
+            dtoPerson.employedSince = "2000-12-01";
             dtoPerson.supervisorId = supervisor.getId();
         person = personService.createPerson(dtoPerson);
 

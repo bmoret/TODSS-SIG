@@ -47,7 +47,7 @@ class PersonControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "2005/12/01";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
         personRepository.save(supervisor);
@@ -182,7 +182,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"2005/12/01\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -204,7 +204,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"2005/12/01\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -226,7 +226,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"2005/12/01\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -248,7 +248,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"2005/12/01\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -268,7 +268,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"2005/12/01\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -290,7 +290,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"2005/12/01\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -312,7 +312,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"2005/12/01\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -334,7 +334,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"2005/12/01\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -353,7 +353,7 @@ class PersonControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "2005/12/01";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -377,7 +377,7 @@ class PersonControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "2005/12/01";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -401,7 +401,7 @@ class PersonControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "2005/12/01";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -425,7 +425,7 @@ class PersonControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "2005/12/01";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -497,7 +497,7 @@ class PersonControllerIntegrationTest {
     @Test
     @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
     @DisplayName("Search person by name as employee is not allowed")
-    void searchPersonAsEmployee() throws Exception { //todo expected 200?
+    void searchPersonAsEmployee() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
                 .content("{\"firstname\":\"second\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);

@@ -70,7 +70,7 @@ class PersonServiceTest {
         dto.expertise = "none";
         dto.branch = "VIANEN";
         dto.role = "EMPLOYEE";
-        dto.employedSince = "2021/01/01";
+        dto.employedSince = "2021-01-01";
         dto.supervisorId = supervisor.getId();
 
         Person person = null;
@@ -104,7 +104,7 @@ class PersonServiceTest {
         dto.expertise = "all";
         dto.branch = "VIANEN";
         dto.role = "EMPLOYEE";
-        dto.employedSince = "2000/01/01";
+        dto.employedSince = "2000-01-01";
         dto.supervisorId = supervisor.getId();
 
         Person person = null;
