@@ -23,12 +23,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -60,6 +58,8 @@ class AttendanceControllerIntegrationTest {
 
     private Attendance attendance;
 
+    private Session session;
+
     @BeforeEach
     void setup() {
         ATTENDANCE_REPOSITORY.deleteAll();
@@ -83,7 +83,7 @@ class AttendanceControllerIntegrationTest {
         String description = "Description";
         String address = "Address";
         SpecialInterestGroup sig = SIG_REPOSITORY.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
-        Session session = SESSION_REPOSITORY.save(
+        session = SESSION_REPOSITORY.save(
                 new PhysicalSession(
                         new SessionDetails(now, nowPlusOneHour, subject, description),
                         SessionState.DRAFT,
@@ -95,6 +95,9 @@ class AttendanceControllerIntegrationTest {
                 )
         );
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, true, person, session));
+
+        session.addAttendee(attendance);
+
     }
 
     @AfterEach
@@ -314,5 +317,60 @@ class AttendanceControllerIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isConflict());
     }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Get all attendances by session returns list attendances as manager")
+    void getAllSessionsAsAManager() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/attendances/session/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("Get all attendances by session returns list attendances as secretary")
+    void getAllSessionsAsSecretary() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/attendances/session/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Get all attendances by session returns list attendances as administrator")
+    void getAllSessionsAsAdministrator() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/attendances/session/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("Get all attendances by session returns list attendances as employee")
+    void getAllSessionsAsEmployee() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/attendances/session/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
 
 }

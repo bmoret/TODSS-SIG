@@ -89,6 +89,15 @@ class AttendanceServiceTest {
     }
 
     @Test
+    @DisplayName("get attendance by session")
+    void getAttendanceBySession() throws NotFoundException {
+        when(MOCKSERVICE.getAllAttendeesFromSession(any())).thenReturn(List.of(attendance));
+
+        List<Attendance> attendances = MOCKSERVICE.getAllAttendeesFromSession(session.getId());
+        assertEquals(List.of(attendance), attendances);
+    }
+
+    @Test
     @DisplayName("get attendance by id")
     void getAttendance() throws NotFoundException {
         UUID uuid = UUID.randomUUID();

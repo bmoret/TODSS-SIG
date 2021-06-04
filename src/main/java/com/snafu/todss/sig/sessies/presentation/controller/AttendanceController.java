@@ -107,11 +107,14 @@ public class AttendanceController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RolesAllowed({"ROLE_MANAGER","ROLE_SECRETARY"})
+    @RolesAllowed({"ROLE_MANAGER","ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
     @GetMapping("/session/{sessionId}")
-    public ResponseEntity<List<AttendanceResponse>> getAllAttendeesFromSession(@PathVariable UUID sessionId) throws NotFoundException {
+    public ResponseEntity<List<AttendanceResponse>> getAllAttendeesFromSession(
+            @PathVariable UUID sessionId
+    ) throws NotFoundException {
         List<Attendance> attendees = this.SERVICE.getAllAttendeesFromSession(sessionId);
 
         return new ResponseEntity<>(convertAttendanceToListResponse(attendees), HttpStatus.OK);
     }
+
 }

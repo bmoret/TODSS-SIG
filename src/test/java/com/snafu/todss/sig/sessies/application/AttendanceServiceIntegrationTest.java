@@ -64,7 +64,6 @@ class AttendanceServiceIntegrationTest {
 
     @BeforeEach
     void setup() {
-
         person = PERSON_REPOSITORY.save( new PersonBuilder()
                 .setEmail("t_a")
                 .setFirstname("ttt")
@@ -92,6 +91,8 @@ class AttendanceServiceIntegrationTest {
         ));
 
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session));
+
+        session.addAttendee(attendance);
     }
 
     @AfterEach
@@ -111,6 +112,16 @@ class AttendanceServiceIntegrationTest {
         assertFalse(testAttendance.isSpeaker());
         assertEquals("ttt", testAttendance.getPerson().getDetails().getFirstname());
         assertEquals("Subjectttt", testAttendance.getSession().getDetails().getSubject());
+    }
+
+    @Test
+    @DisplayName("get attendance by session")
+    void getAttendanceBySession() {
+        List<Attendance> attendances = assertDoesNotThrow(() ->
+                ATTENDANCE_SERVICE.getAllAttendeesFromSession(session.getId()));
+
+        assertEquals(1, attendances.size());
+        assertTrue(attendances.contains(attendance));
     }
 
     @Test
