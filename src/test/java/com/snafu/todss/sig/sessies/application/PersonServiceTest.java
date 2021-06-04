@@ -5,6 +5,7 @@ import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.*;
 import com.snafu.todss.sig.sessies.domain.person.enums.*;
+import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -87,6 +88,66 @@ class PersonServiceTest {
             fail();
         }
 
+    }
+
+    @Test
+    void createPersonDuplicateEmail() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "email2@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "VIANEN";
+        dto.role = "EMPLOYEE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = null;
+
+        assertThrows(DuplicateRequestException.class, ()  -> service.createPerson(dto));
+    }
+
+    @Test
+    void createPersonUnknownBranch() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "TestEmail@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "RANDOM_LOCATION";
+        dto.role = "EMPLOYEE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = null;
+
+        assertThrows(IllegalArgumentException.class, ()  -> service.createPerson(dto));
+    }
+
+    @Test
+    void createPersonUnknownRole() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "TestEmail@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "VIANEN";
+        dto.role = "RANDOM_ROLE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = null;
+
+        assertThrows(IllegalArgumentException.class, ()  -> service.createPerson(dto));
+    }
+
+    @Test
+    void createPersonUnknownSupervisor() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "TestEmail@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "VIANEN";
+        dto.role = "EMPLOYEE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = UUID.randomUUID();
+
+        assertThrows(NotFoundException.class, ()  -> service.createPerson(dto));
     }
 
     @Test
