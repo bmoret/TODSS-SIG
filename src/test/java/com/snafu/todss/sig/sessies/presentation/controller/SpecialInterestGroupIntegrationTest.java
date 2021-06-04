@@ -172,6 +172,33 @@ class SpecialInterestGroupIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
+    @DisplayName("Get special interest group without any people by id returns the special interest group")
+    void getSpecialInterestGroupByIdWithoutPeople_ReturnsSpecialInterestGroup() throws Exception {
+        SpecialInterestGroup specialInterestGroup = this.repository.save(
+                new SpecialInterestGroup(
+                        "TestSubject",
+                        null,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                )
+        );
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sig/" + specialInterestGroup.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.id").value(specialInterestGroup.getId().toString()))
+                .andExpect(jsonPath("$.subject").value(specialInterestGroup.getSubject()))
+                .andExpect(jsonPath("$.manager").isEmpty())
+                .andExpect(jsonPath("$.organizers").exists())
+                .andExpect(jsonPath("$.sessions").doesNotExist());
+    }
+
+    @Test
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("Create special interest group by id as manager returns the special interest group")
     void createSpecialInterestGroupAsManager_ReturnsSpecialInterestGroup() throws Exception {
