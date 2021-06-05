@@ -51,7 +51,6 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
         response.addHeader("Access-Token", "Bearer " + accessToken);
         response.addHeader("Refresh-Token", refreshToken);
-        response.addHeader("Token-Type", "Bearer");
         response.addHeader("User-Username", user.getUsername());
         response.addHeader("User-Role", user.getRole().toString());
         response.addHeader("User-Id", user.getId().toString());
