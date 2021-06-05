@@ -106,5 +106,4 @@ public class AttendanceController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 }

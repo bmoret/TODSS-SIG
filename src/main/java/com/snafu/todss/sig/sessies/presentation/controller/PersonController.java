@@ -83,8 +83,8 @@ public class PersonController {
     }
 
     @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
-    @PostMapping(path = "/search")
-    public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws NotFoundException {
+    @GetMapping(path = "/search")
+    public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws RuntimeException {
         List<Person> personList = SERVICE.searchPerson(request);
         return new ResponseEntity<>(convertPersonToResponseList(personList), HttpStatus.OK);
     }

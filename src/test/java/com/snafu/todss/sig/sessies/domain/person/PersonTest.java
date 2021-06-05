@@ -6,7 +6,6 @@ import com.snafu.todss.sig.sessies.domain.*;
 import com.snafu.todss.sig.sessies.domain.person.enums.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
