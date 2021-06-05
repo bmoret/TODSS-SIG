@@ -5,6 +5,7 @@ import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
@@ -57,7 +58,6 @@ class UserServiceIntegrationTest {
         dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
-        personRepository.save(supervisor);
 
         user = new User("TestUser", "TestPassword", supervisor);
         this.userRepository.save(user);
@@ -72,6 +72,33 @@ class UserServiceIntegrationTest {
     @Test
     @DisplayName("Creating a user")
     void createUser() {
+        userService.register("TestUser1", "TestPassword", supervisor);
+
+        assertEquals(2, userRepository.findAll().size());
+    }
+
+    @Test
+    @DisplayName("Creating a user")
+    void createUserManager() {
+        supervisor.getDetails().setRole(Role.MANAGER);
+        userService.register("TestUser1", "TestPassword", supervisor);
+
+        assertEquals(2, userRepository.findAll().size());
+    }
+
+    @Test
+    @DisplayName("Creating a user")
+    void createUserGuest() {
+        supervisor.getDetails().setRole(Role.GUEST);
+        userService.register("TestUser1", "TestPassword", supervisor);
+
+        assertEquals(2, userRepository.findAll().size());
+    }
+
+    @Test
+    @DisplayName("Creating a user")
+    void createUserSecretary() {
+        supervisor.getDetails().setRole(Role.SECRETARY);
         userService.register("TestUser1", "TestPassword", supervisor);
 
         assertEquals(2, userRepository.findAll().size());
