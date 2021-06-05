@@ -48,7 +48,7 @@ public class JwtGenerator {
         return builder.signWith(Keys.hmacShaKeyFor(CREDENTIALS.jwtSecret.getBytes()), SignatureAlgorithm.HS256)
                 .setExpiration(new Date(System.currentTimeMillis() + CREDENTIALS.jwtExpirationInMs))
                 .setSubject(user.getUsername())
-                .claim("role", roles.toString())
+                .claim("role", roles.toArray())
                 .compact();
     }
 
