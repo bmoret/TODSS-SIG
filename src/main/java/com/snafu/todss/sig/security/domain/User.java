@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.security.domain;
 
 import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +33,15 @@ public class User implements UserDetails {
         this.username = username;
         this.password = password;
         this.person = person;
-        this.role = UserRole.ROLE_GUEST;
+        if (person.getDetails().getRole() == Role.MANAGER) {
+            this.role = UserRole.ROLE_MANAGER;
+        } else if (person.getDetails().getRole() == Role.SECRETARY) {
+            this.role = UserRole.ROLE_SECRETARY;
+        } else if (person.getDetails().getRole() == Role.EMPLOYEE) {
+            this.role = UserRole.ROLE_EMPLOYEE;
+        } else {
+            this.role = UserRole.ROLE_GUEST;
+        }
     }
 
     public UUID getId() {
