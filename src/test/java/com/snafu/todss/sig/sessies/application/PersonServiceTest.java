@@ -2,16 +2,10 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.CiTestConfiguration;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
-import com.snafu.todss.sig.sessies.domain.AttendanceState;
-import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
-import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
-import com.snafu.todss.sig.sessies.domain.session.SessionState;
-import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
-import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.*;
 import com.snafu.todss.sig.sessies.domain.person.enums.*;
+import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,13 +18,10 @@ import org.springframework.context.annotation.Import;
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
-import static com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN;
-import static com.snafu.todss.sig.sessies.domain.person.enums.Role.MANAGER;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -80,7 +71,7 @@ class PersonServiceTest {
         dto.expertise = "none";
         dto.branch = "VIANEN";
         dto.role = "EMPLOYEE";
-        dto.employedSince = "01/01/2021";
+        dto.employedSince = "2021-01-01";
         dto.supervisorId = supervisor.getId();
 
         Person person = null;
@@ -100,6 +91,66 @@ class PersonServiceTest {
     }
 
     @Test
+    void createPersonDuplicateEmail() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "email2@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "VIANEN";
+        dto.role = "EMPLOYEE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = null;
+
+        assertThrows(DuplicateRequestException.class, ()  -> service.createPerson(dto));
+    }
+
+    @Test
+    void createPersonUnknownBranch() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "TestEmail@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "RANDOM_LOCATION";
+        dto.role = "EMPLOYEE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = null;
+
+        assertThrows(IllegalArgumentException.class, ()  -> service.createPerson(dto));
+    }
+
+    @Test
+    void createPersonUnknownRole() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "TestEmail@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "VIANEN";
+        dto.role = "RANDOM_ROLE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = null;
+
+        assertThrows(IllegalArgumentException.class, ()  -> service.createPerson(dto));
+    }
+
+    @Test
+    void createPersonUnknownSupervisor() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "TestEmail@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "VIANEN";
+        dto.role = "EMPLOYEE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = UUID.randomUUID();
+
+        assertThrows(NotFoundException.class, ()  -> service.createPerson(dto));
+    }
+
+    @Test
     void editPerson() {
         Person supervisor = null;
         try {
@@ -114,7 +165,7 @@ class PersonServiceTest {
         dto.expertise = "all";
         dto.branch = "VIANEN";
         dto.role = "EMPLOYEE";
-        dto.employedSince = "01/01/2000";
+        dto.employedSince = "2000-01-01";
         dto.supervisorId = supervisor.getId();
 
         Person person = null;
