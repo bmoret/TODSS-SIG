@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class PersonControllerTest {
+class PersonControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -53,7 +53,7 @@ class PersonControllerTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
         personRepository.save(supervisor);
@@ -208,7 +208,7 @@ class PersonControllerTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2021\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -230,7 +230,7 @@ class PersonControllerTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2021\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -252,7 +252,7 @@ class PersonControllerTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2021\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -274,7 +274,7 @@ class PersonControllerTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2021\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -294,7 +294,7 @@ class PersonControllerTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2000\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -316,7 +316,7 @@ class PersonControllerTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2000\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -338,7 +338,7 @@ class PersonControllerTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2000\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -360,7 +360,7 @@ class PersonControllerTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2000\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -379,7 +379,7 @@ class PersonControllerTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -403,7 +403,7 @@ class PersonControllerTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -427,7 +427,7 @@ class PersonControllerTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -451,7 +451,7 @@ class PersonControllerTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -479,8 +479,8 @@ class PersonControllerTest {
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("Search person by name as manager")
     void searchPersonAsManager() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
+                .content("{\"searchTerm\":\"Test\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -494,8 +494,8 @@ class PersonControllerTest {
     @WithMockUser(username = "TestUser", roles = "SECRETARY")
     @DisplayName("Search person by name as secretary")
     void searchPersonAsSecretary() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
+                .content("{\"searchTerm\":\"Test\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -509,8 +509,8 @@ class PersonControllerTest {
     @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
     @DisplayName("Search person by name as administrator")
     void searchPersonAsAdministrator() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
+                .content("{\"searchTerm\":\"Test\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -523,7 +523,7 @@ class PersonControllerTest {
     @Test
     @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
     @DisplayName("Search person by name as employee is not allowed")
-    void searchPersonAsEmployee() throws Exception { //todo expected 200?
+    void searchPersonAsEmployee() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
                 .content("{\"firstname\":\"second\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
