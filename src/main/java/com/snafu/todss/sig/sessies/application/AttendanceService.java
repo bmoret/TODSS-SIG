@@ -33,16 +33,6 @@ public class AttendanceService {
         return ATTENDANCE_REPOSITORY.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Aanwezigheid met id '%s' bestaat niet.", id)));
     }
-
-    public boolean checkIfAttending(UUID sessionId, UUID personId) throws NotFoundException {
-        Person person = this.PERSON_SERVICE.getPerson(personId);
-        Session session = this.SESSION_SERVICE.getSessionById(sessionId);
-
-        Optional<Attendance> attendance = getAttendanceBySessionAndPerson(session, person);
-
-        return attendance.isPresent() && attendance.get().getState() == AttendanceState.PRESENT;
-    }
-
     public Optional<Attendance> getAttendanceBySessionAndPerson(Session session, Person person) {
         return ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person);
     }
@@ -100,5 +90,14 @@ public class AttendanceService {
                 }
         );
         return speakers;
+    }
+
+    public boolean checkIfAttending(UUID sessionId, UUID personId) throws NotFoundException {
+        Person person = this.PERSON_SERVICE.getPerson(personId);
+        Session session = this.SESSION_SERVICE.getSessionById(sessionId);
+
+        Optional<Attendance> attendance = getAttendanceBySessionAndPerson(session, person);
+
+        return attendance.isPresent() && attendance.get().getState() == AttendanceState.PRESENT;
     }
 }
