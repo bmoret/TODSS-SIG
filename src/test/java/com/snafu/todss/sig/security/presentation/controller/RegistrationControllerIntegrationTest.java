@@ -12,6 +12,9 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +27,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -130,7 +134,7 @@ class RegistrationControllerIntegrationTest {
 
     @Test
     @DisplayName("Creating a login DTO")
-    void createLoginDTO(){
+    void createLoginDTO() {
         Login login = new Login();
         login.username = "TestUser";
         login.password = "TestPassword";
@@ -165,7 +169,7 @@ class RegistrationControllerIntegrationTest {
 
     @Test
     @DisplayName("invalid login credentials throw 401")
-    void invalidLogin () throws Exception {
+    void invalidLogin() throws Exception {
         createDefaultTestUser();
 
         JSONObject jsonObject = new JSONObject();
@@ -186,7 +190,7 @@ class RegistrationControllerIntegrationTest {
     void refreshAccessToken() throws Exception {
         Map<String, String> tokens = getTokensFromLogin();
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("accessToken", tokens.get("access_token").split( " ")[1]);
+        jsonObject.put("accessToken", tokens.get("access_token").split(" ")[1]);
         jsonObject.put("refreshToken", tokens.get("refresh_token"));
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -228,7 +232,7 @@ class RegistrationControllerIntegrationTest {
     void wrongRefreshTokenThrows() throws Exception {
         Map<String, String> tokens = getTokensFromLogin();
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("accessToken", tokens.get("access_token").split( " ")[1]);
+        jsonObject.put("accessToken", tokens.get("access_token").split(" ")[1]);
         jsonObject.put("refreshToken", "randomtokenddd.sdasdad.asdasd");
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -240,4 +244,51 @@ class RegistrationControllerIntegrationTest {
                 .andExpect(status().isConflict());
     }
 
+    @Test
+    @DisplayName("request without token")
+    void requestWithoutToken() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/random")
+                .contentType("application/json");
+
+        mockMvc.perform(request)
+                .andExpect(status().isForbidden());
+    }
+
+    @ParameterizedTest
+    @MethodSource("tokens")
+    @DisplayName("request with empty token")
+    void requestWithEmptyToken(String token) throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/random")
+                .contentType("application/json")
+                .header("Access-Token", token);
+
+        mockMvc.perform(request)
+                .andExpect(status().isForbidden());
+    }
+
+    private static Stream<Arguments> tokens() {
+        return Stream.of(
+                Arguments.of(""),
+                Arguments.of("bbbb")
+        );
+    }
+
+    @Test
+    @DisplayName("Refresh access token with refresh token")
+    void requestWithCorrectTokens() throws Exception {
+        Map<String, String> tokens = getTokensFromLogin();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("accessToken", tokens.get("access_token").split(" ")[1]);
+        jsonObject.put("refreshToken", tokens.get("refresh_token"));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/sessions")
+                .contentType("application/json")
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isForbidden());
+    }
 }
