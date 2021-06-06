@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class AttendanceResponse {
     private final UUID id;
-    private final AttendanceState state;
+    private final String state;
     private final boolean isSpeaker;
     private final PersonCompactResponse person;
     private final UUID sessionId;
@@ -21,7 +21,7 @@ public class AttendanceResponse {
                               Session session
     ) {
         this.id = id;
-        this.state = state;
+        this.state = state.toString();
         this.isSpeaker = isSpeaker;
         PersonDetails details = person.getDetails();
         this.person = new PersonCompactResponse(
@@ -35,7 +35,7 @@ public class AttendanceResponse {
         return id;
     }
 
-    public AttendanceState getState() {
+    public String getState() {
         return state;
     }
 

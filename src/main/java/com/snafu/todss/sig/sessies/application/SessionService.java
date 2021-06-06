@@ -121,4 +121,9 @@ public class SessionService {
         session.nextState();
         return session;
     }
+
+    public void removeAttendeeFromSession(Session session, Person person) {
+        session.removeAttendee(person);
+        SESSION_REPOSITORY.save(session);
+    }
 }

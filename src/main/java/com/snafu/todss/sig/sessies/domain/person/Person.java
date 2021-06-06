@@ -20,7 +20,7 @@ public class Person {
     @OneToOne(cascade = {CascadeType.ALL})
     private Person supervisor;
 
-    @OneToMany(mappedBy = "person")
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
     private List<Attendance> attendance;
 
     @OneToMany(mappedBy = "manager")

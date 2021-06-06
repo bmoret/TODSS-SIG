@@ -5,18 +5,18 @@ import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.person.PersonDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.session.PhysicalSessionRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
@@ -26,8 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.CANCELED;
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -37,7 +36,8 @@ class AttendanceServiceTest {
     private static final SpringAttendanceRepository ATTENDANCE_REPOSITORY = mock(SpringAttendanceRepository.class);
     private static final PersonService PERSON_SERVICE = mock(PersonService.class);
     private static final SessionService SESSION_SERVICE = mock(SessionService.class);
-    private AttendanceService SERVICE = new AttendanceService(ATTENDANCE_REPOSITORY, PERSON_SERVICE, SESSION_SERVICE);
+    private final AttendanceService MOCKSERVICE = mock(AttendanceService.class);
+    private final AttendanceService SERVICE = new AttendanceService(ATTENDANCE_REPOSITORY, PERSON_SERVICE, SESSION_SERVICE);
 
     private static Attendance attendance;
     private static Person person;
@@ -61,11 +61,9 @@ class AttendanceServiceTest {
                 address,
                 null
         );
-
-        SessionRequest request = new PhysicalSessionRequest();
-
         person = new Person();
         attendance = new Attendance(CANCELED, true, person, session);
+        session.addAttendee(attendance);
     }
 
     @AfterEach
@@ -73,8 +71,6 @@ class AttendanceServiceTest {
         clearInvocations(ATTENDANCE_REPOSITORY, PERSON_SERVICE, SESSION_SERVICE);
     }
 
-
-    private AttendanceService MOCKSERVICE = mock(AttendanceService.class);
     @Test
     @DisplayName("get attendance by id")
     void getAttendance1() throws NotFoundException {
@@ -194,6 +190,7 @@ class AttendanceServiceTest {
     @DisplayName("update speaker of attendance")
     void updateSpeakerAttendance() throws Exception {
         AttendanceRequest request = new AttendanceRequest();
+        request.state = PRESENT.toString();
         request.speaker = false;
         Attendance updatedAttendance = new Attendance(PRESENT, false, person, session);
 
@@ -228,7 +225,7 @@ class AttendanceServiceTest {
     @DisplayName("update state of attendance")
     void updateAttendance() throws Exception {
         AttendanceRequest request = new AttendanceRequest();
-        request.state = PRESENT;
+        request.state = PRESENT.toString();
         Attendance updatedAttendance = new Attendance(PRESENT, false, person, session);
 
         when(ATTENDANCE_REPOSITORY.findById(any())).thenReturn(Optional.of(attendance));
@@ -246,7 +243,7 @@ class AttendanceServiceTest {
     void ThrowExceptionWhenNoPersonInUpdate() {
         UUID attendanceId = UUID.randomUUID();
         AttendanceRequest request = new AttendanceRequest();
-        request.state = PRESENT;
+        request.state = PRESENT.toString();
 
         when(ATTENDANCE_REPOSITORY.findById(attendanceId)).thenReturn(Optional.empty());
 
@@ -260,7 +257,7 @@ class AttendanceServiceTest {
 
     @Test
     @DisplayName("deleteAttendance deletes attendance")
-    void deleteAttendance() {
+    void deleteAttendance() throws NotFoundException {
         SERVICE.deleteAttendance(UUID.randomUUID());
 
         verify(ATTENDANCE_REPOSITORY, times(1)).deleteById(any(UUID.class));
@@ -297,11 +294,11 @@ class AttendanceServiceTest {
     @DisplayName("sign up for session with existing attendance and state not PRESENT goes into update")
     void singUpWithCorrectUserAndStatePresent() throws NotFoundException {
         AttendanceRequest request = new AttendanceRequest();
-        request.state = PRESENT;
+        request.state = PRESENT.toString();
         request.speaker = false;
         when(SERVICE.getAttendanceBySessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
         when(ATTENDANCE_REPOSITORY.findById(attendance.getId())).thenReturn(Optional.of(attendance));
-        when(SERVICE.createAttendance(request.state, request.speaker, session.getId(), person.getId())).thenReturn(attendance);
+        when(SERVICE.createAttendance(AttendanceState.valueOf(request.state), request.speaker, session.getId(), person.getId())).thenReturn(attendance);
 
         assertDoesNotThrow(
                 () -> SERVICE.signUpForSession(person.getId(), session.getId(), request)
@@ -314,6 +311,7 @@ class AttendanceServiceTest {
     @DisplayName("sign up for session with existing attendance and state not PRESENT goes into update")
     void singUpWithCorrectUserAndState() throws NotFoundException {
         AttendanceRequest request = new AttendanceRequest();
+        request.state = PRESENT.toString();
         attendance.setState(PRESENT);
         when(SERVICE.getAttendanceBySessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
         when(ATTENDANCE_REPOSITORY.findById(attendance.getId())).thenReturn(Optional.of(attendance));
@@ -326,13 +324,29 @@ class AttendanceServiceTest {
         verify(ATTENDANCE_REPOSITORY, times(1)).findById(any());
     }
 
+    private void setOneAttendanceWithIdForSession(AttendanceState state) throws NotFoundException {
+        session.removeAttendee(person);
+        person = mock(Person.class,
+                Mockito.withSettings()
+                        .useConstructor(
+                                new PersonDetails(),
+                                null,
+                                new ArrayList<>(),
+                                new ArrayList<>(),
+                                new ArrayList<>()
+                        )
+                        .defaultAnswer(CALLS_REAL_METHODS)
+        );
+        session.addAttendee(new Attendance(state, true, person, session));
+
+        when(SESSION_SERVICE.getSessionById(session.getId())).thenReturn(session);
+        when(person.getId()).thenReturn(UUID.randomUUID());
+    }
+
     @Test
     @DisplayName("check if attending returns true when attendance with state PRESENT exists")
     void checkIfAttendingTrue() throws NotFoundException {
-        Attendance presentAttendance = new Attendance(PRESENT, false, person, session);
-        when(PERSON_SERVICE.getPerson(person.getId())).thenReturn(person);
-        when(SESSION_SERVICE.getSessionById(session.getId())).thenReturn(session);
-        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(presentAttendance));
+        setOneAttendanceWithIdForSession(PRESENT);
 
         assertTrue(
                 assertDoesNotThrow(
@@ -340,17 +354,13 @@ class AttendanceServiceTest {
                 )
         );
 
-        verify(PERSON_SERVICE, times(1)).getPerson(any());
         verify(SESSION_SERVICE, times(1)).getSessionById(any());
-        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(), any());
     }
 
     @Test
-    @DisplayName("check if attending returns true when attendance with state PRESENT exists")
+    @DisplayName("check if attending returns true when attendance with state CANCELED exists")
     void checkIfAttendingFalse() throws NotFoundException {
-        when(PERSON_SERVICE.getPerson(person.getId())).thenReturn(person);
-        when(SESSION_SERVICE.getSessionById(session.getId())).thenReturn(session);
-        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
+        setOneAttendanceWithIdForSession(CANCELED);
 
         assertFalse(
                 assertDoesNotThrow(
@@ -358,17 +368,13 @@ class AttendanceServiceTest {
                 )
         );
 
-        verify(PERSON_SERVICE, times(1)).getPerson(any());
         verify(SESSION_SERVICE, times(1)).getSessionById(any());
-        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(), any());
     }
 
     @Test
-    @DisplayName("check if attending returns true when attendance with state PRESENT exists")
+    @DisplayName("check if attending returns true when attendance with state NO_SHOW exists")
     void signUpForSession() throws NotFoundException {
-        when(PERSON_SERVICE.getPerson(person.getId())).thenReturn(person);
-        when(SESSION_SERVICE.getSessionById(session.getId())).thenReturn(session);
-        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
+        setOneAttendanceWithIdForSession(NO_SHOW);
 
         assertFalse(
                 assertDoesNotThrow(
@@ -376,8 +382,6 @@ class AttendanceServiceTest {
                 )
         );
 
-        verify(PERSON_SERVICE, times(1)).getPerson(any());
         verify(SESSION_SERVICE, times(1)).getSessionById(any());
-        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(), any());
     }
 }

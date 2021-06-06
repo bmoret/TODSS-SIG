@@ -89,14 +89,14 @@ public class AttendanceController {
 
     @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAttendance(@PathVariable UUID id){
+    public ResponseEntity<Void> deleteAttendance(@PathVariable UUID id) throws NotFoundException {
         this.SERVICE.deleteAttendance(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
-    @GetMapping("{sessionId}/{personId}")
+    @GetMapping("/{sessionId}/{personId}")
     public ResponseEntity<Boolean> checkIfAttending(
             @PathVariable UUID sessionId, @PathVariable UUID personId
     ) throws NotFoundException {
@@ -105,10 +105,11 @@ public class AttendanceController {
         return new ResponseEntity<>(present, HttpStatus.OK);
     }
 
-    @PutMapping("{sessionId}/{personId}")
+    @PutMapping("/{sessionId}/{personId}")
     public ResponseEntity<AttendanceResponse> signUpForAttendance(
             @PathVariable UUID sessionId, @PathVariable UUID personId, @Valid @RequestBody AttendanceRequest request
     ) throws NotFoundException {
+        System.out.println("ssss");
         Attendance attendance = SERVICE.signUpForSession(sessionId, personId, request);
 
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);

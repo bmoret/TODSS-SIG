@@ -48,7 +48,7 @@ public class AttendanceService {
         if(attendance.isPresent()) {
             return updateAttendance(attendance.get().getId(),request);
         }
-        return createAttendance(request.state, request.speaker,sessionId, personId);
+        return createAttendance(getAttendanceStateOfString(request.state), request.speaker,sessionId, personId);
     }
 
     public Attendance createAttendance(AttendanceState state,
@@ -68,13 +68,25 @@ public class AttendanceService {
 
     public Attendance updateAttendance(UUID id, AttendanceRequest attendanceRequest) throws NotFoundException {
         Attendance attendance = this.getAttendanceById(id);
-        attendance.setState(attendanceRequest.state);
+        attendance.setState(getAttendanceStateOfString(attendanceRequest.state));
         attendance.setSpeaker(attendanceRequest.speaker);
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);
     }
 
-    public void deleteAttendance(UUID id) {
+    private AttendanceState getAttendanceStateOfString(String state) {
+        try {
+            return AttendanceState.valueOf(state);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(String.format("No state with name '%s' exists", state));
+        }
+    }
+
+    public void deleteAttendance(UUID id) throws NotFoundException {
+        Attendance attendance = getAttendanceById(id);
+        SESSION_SERVICE.removeAttendeeFromSession(attendance.getSession(), attendance.getPerson());
+        PERSON_SERVICE.removeAttendanceFromPerson(attendance.getPerson(), attendance);
+
         this.ATTENDANCE_REPOSITORY.deleteById(id);
     }
 
@@ -93,11 +105,10 @@ public class AttendanceService {
     }
 
     public boolean checkIfAttending(UUID sessionId, UUID personId) throws NotFoundException {
-        Person person = this.PERSON_SERVICE.getPerson(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
-
-        Optional<Attendance> attendance = getAttendanceBySessionAndPerson(session, person);
-
+        Optional<Attendance> attendance = session.getAttendances().stream()
+                .filter(a -> a.getPerson().getId().equals(personId))
+                .findAny();
         return attendance.isPresent() && attendance.get().getState() == AttendanceState.PRESENT;
     }
 }

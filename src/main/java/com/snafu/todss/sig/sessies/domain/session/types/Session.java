@@ -30,10 +30,10 @@ public abstract class Session {
     @ManyToOne
     private SpecialInterestGroup sig;
 
-    @OneToMany(orphanRemoval = true)
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Attendance> attendanceList;
 
-    @OneToMany(orphanRemoval = true)
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Feedback> feedbackList;
 
     @OneToOne

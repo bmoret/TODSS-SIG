@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
+import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
@@ -97,6 +98,8 @@ public class PersonService {
             try {
                 return getPerson(id);
             } catch (NotFoundException e) {
+
+                System.out.println("ss");
                 throw new NotFoundException("The given supervisor id is not related to a person");
             }
         }
@@ -157,5 +160,10 @@ public class PersonService {
         List<Person> allPersons = this.PERSON_REPOSITORY.findAll();
 
         return getBestLevenshteinDistanceValue(allPersons, request);
+    }
+
+    public void removeAttendanceFromPerson(Person person, Attendance attendance) {
+        person.removeAttendance(attendance);
+        PERSON_REPOSITORY.save(person);
     }
 }

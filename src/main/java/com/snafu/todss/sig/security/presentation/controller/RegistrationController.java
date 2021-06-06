@@ -29,7 +29,7 @@ public class RegistrationController {
         this.personService = personService;
     }
 
-    @PostMapping("/registration")
+    @PostMapping
     public void register(@Valid @RequestBody Registration registration) throws NotFoundException {
         Person person = this.personService.createPerson(registration);
         this.userService.register(

@@ -26,7 +26,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.snafu.todss.sig.sessies.domain.AttendanceState.*;
@@ -90,6 +93,8 @@ class AttendanceServiceIntegrationTest {
         ));
 
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session));
+        session.addAttendee(attendance);
+        session = this.SESSION_REPOSITORY.save(session);
     }
 
     @AfterEach
@@ -120,10 +125,17 @@ class AttendanceServiceIntegrationTest {
         );
     }
 
+    private void clearAttendancesFromRepository() {
+        session.removeAttendee(person);
+        person.removeAttendance(attendance);
+        ATTENDANCE_REPOSITORY.save(attendance);
+        ATTENDANCE_REPOSITORY.deleteAll();
+    }
+
     @Test
     @DisplayName("create attendance")
     void createAttendance() {
-        ATTENDANCE_REPOSITORY.deleteAll();
+        clearAttendancesFromRepository();
 
         assertDoesNotThrow(
                 () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getSession().getId(), attendance.getPerson().getId())
@@ -223,6 +235,7 @@ class AttendanceServiceIntegrationTest {
     @DisplayName("update speaker of attendance")
     void updateSpeakerAttendance() {
         AttendanceRequest request = new AttendanceRequest();
+        request.state = PRESENT.toString();
         request.speaker = true;
 
         Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request));
@@ -244,7 +257,7 @@ class AttendanceServiceIntegrationTest {
     @DisplayName("update state of attendance")
     void updateAttendance() {
         AttendanceRequest request = new AttendanceRequest();
-        request.state = NO_SHOW;
+        request.state = NO_SHOW.toString();
 
         Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request));
 
@@ -255,7 +268,7 @@ class AttendanceServiceIntegrationTest {
     @DisplayName("update attendance throws when attendance not found")
     void updateAttendanceThrows() {
         AttendanceRequest request = new AttendanceRequest();
-        request.state = NO_SHOW;
+        request.state = NO_SHOW.toString();
         assertThrows(
                 NotFoundException.class,
                 () -> ATTENDANCE_SERVICE.updateAttendance(UUID.randomUUID(), request));
@@ -299,6 +312,7 @@ class AttendanceServiceIntegrationTest {
     @Test
     @DisplayName("check if attendance exists for person / session combination and returns true when it does")
     void checkAttendanceBySessionPersonTrue() {
+        session.getAttendances().forEach( e -> System.out.println(e.getPerson().getId()));
         assertTrue(
                 assertDoesNotThrow(
                         () -> ATTENDANCE_SERVICE.checkIfAttending(
@@ -365,7 +379,7 @@ class AttendanceServiceIntegrationTest {
     void singUpForSessionsWithNoAttendance() {
         ATTENDANCE_REPOSITORY.deleteAll();
         AttendanceRequest request = new AttendanceRequest();
-        request.state = PRESENT;
+        request.state = PRESENT.toString();
         request.speaker= false;
 
                 assertDoesNotThrow(
@@ -377,7 +391,7 @@ class AttendanceServiceIntegrationTest {
     @DisplayName("update attendance by useing signUpForSession")
     void singUpForSessionWithAttendanceAndStateNotPresent() {
         AttendanceRequest request = new AttendanceRequest();
-        request.state = PRESENT;
+        request.state = PRESENT.toString();
         request.speaker= false;
         attendance.setState(CANCELED);
         ATTENDANCE_REPOSITORY.save(attendance);
