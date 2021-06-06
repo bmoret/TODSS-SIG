@@ -1,12 +1,9 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
-import com.snafu.todss.sig.security.data.SpringUserRepository;
-import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
-import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,9 +36,6 @@ class PersonControllerIntegrationTest {
     @Autowired
     private PersonService personService;
 
-    @Autowired
-    private SpringUserRepository userRepository;
-
     private Person supervisor;
 
     @BeforeEach
@@ -53,7 +47,7 @@ class PersonControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
         personRepository.save(supervisor);
@@ -188,7 +182,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2021\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -210,7 +204,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2021\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -232,7 +226,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2021\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -254,7 +248,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"none\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2021\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -274,7 +268,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2000\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -296,7 +290,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2000\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -318,7 +312,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2000\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -340,7 +334,7 @@ class PersonControllerIntegrationTest {
                         "\"expertise\":\"all\"," +
                         "\"branch\":\"VIANEN\"," +
                         "\"role\":\"EMPLOYEE\"," +
-                        "\"employedSince\":\"01/01/2000\"," +
+                        "\"employedSince\":\"2005-12-01\"," +
                         "\"supervisorId\":\""+ supervisor.getId().toString() +"\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -359,7 +353,7 @@ class PersonControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -383,7 +377,7 @@ class PersonControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -406,7 +400,7 @@ class PersonControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -430,7 +424,7 @@ class PersonControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
@@ -502,7 +496,7 @@ class PersonControllerIntegrationTest {
     @Test
     @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
     @DisplayName("Search person by name as employee is not allowed")
-    void searchPersonAsEmployee() throws Exception { //todo expected 200?
+    void searchPersonAsEmployee() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
                 .content("{\"firstname\":\"second\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);

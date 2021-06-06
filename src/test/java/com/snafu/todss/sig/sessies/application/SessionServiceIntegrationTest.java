@@ -39,8 +39,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @SpringBootTest
 class SessionServiceIntegrationTest {
-    @Autowired
-    private SpecialInterestGroupService sigService;
 
     @Autowired
     private PersonService personService;
@@ -70,7 +68,7 @@ class SessionServiceIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
 

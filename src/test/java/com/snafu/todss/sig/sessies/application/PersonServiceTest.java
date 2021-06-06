@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Import;
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
+
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -79,7 +80,7 @@ class PersonServiceTest {
         dto.expertise = "none";
         dto.branch = "VIANEN";
         dto.role = "EMPLOYEE";
-        dto.employedSince = "01/01/2021";
+        dto.employedSince = "2021-01-01";
         dto.supervisorId = supervisor.getId();
 
         Person person = null;
@@ -99,23 +100,63 @@ class PersonServiceTest {
     }
 
     @Test
-    @DisplayName("createPerson throws when email already in use")
-    void createPersonThrows() {
-        Person supervisor = assertDoesNotThrow(() -> service.getPersonByEmail("email@email.com"));
+    void createPersonDuplicateEmail() {
         PersonRequest dto = new PersonRequest();
-        dto.email = "thomaz@email.com";
+        dto.email = "email2@email.com";
         dto.firstname = "fourth";
         dto.lastname = "last";
         dto.expertise = "none";
         dto.branch = "VIANEN";
         dto.role = "EMPLOYEE";
-        dto.employedSince = "01/01/2021";
-        dto.supervisorId = supervisor.getId();
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = null;
 
-        assertThrows(
-                DuplicateRequestException.class,
-                () -> service.createPerson(dto)
-        );
+        assertThrows(DuplicateRequestException.class, ()  -> service.createPerson(dto));
+    }
+
+    @Test
+    void createPersonUnknownBranch() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "TestEmail@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "RANDOM_LOCATION";
+        dto.role = "EMPLOYEE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = null;
+
+        assertThrows(IllegalArgumentException.class, ()  -> service.createPerson(dto));
+    }
+
+    @Test
+    void createPersonUnknownRole() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "TestEmail@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "VIANEN";
+        dto.role = "RANDOM_ROLE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = null;
+
+        assertThrows(IllegalArgumentException.class, ()  -> service.createPerson(dto));
+    }
+
+    @Test
+    void createPersonUnknownSupervisor() {
+        PersonRequest dto = new PersonRequest();
+        dto.email = "TestEmail@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "VIANEN";
+        dto.role = "EMPLOYEE";
+        dto.employedSince = "2021-01-01";
+        dto.supervisorId = UUID.randomUUID();
+
+        assertThrows(NotFoundException.class, ()  -> service.createPerson(dto));
     }
 
     @Test
@@ -133,7 +174,7 @@ class PersonServiceTest {
         dto.expertise = "all";
         dto.branch = "VIANEN";
         dto.role = "EMPLOYEE";
-        dto.employedSince = "01/01/2000";
+        dto.employedSince = "2000-01-01";
         dto.supervisorId = supervisor.getId();
 
         Person person = null;

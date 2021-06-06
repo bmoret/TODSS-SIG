@@ -164,7 +164,7 @@ class AttendanceControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("update speaker of attendance as manager")
     void updateSpeakerAttendanceAsManager() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", attendance.getId())
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", attendance.getId())
                 .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -181,7 +181,7 @@ class AttendanceControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
     @DisplayName("update speaker of attendance as administrator")
     void updateSpeakerAttendanceAsAdministrator() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", attendance.getId())
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", attendance.getId())
                 .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -211,7 +211,7 @@ class AttendanceControllerIntegrationTest {
     @DisplayName("update attendance as manager throws when attendance not found")
     void updateSpeakerOfUnknownAttendanceAsManager_ThrowsNotFound() throws Exception{
         UUID id = UUID.randomUUID();
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", id)
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", id)
                 .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -224,7 +224,7 @@ class AttendanceControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("update state of attendance as manager")
     void updateStateAttendanceAsManager() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/state", attendance.getId())
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", attendance.getId())
                 .content("{\"state\":\"NO_SHOW\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
@@ -242,7 +242,7 @@ class AttendanceControllerIntegrationTest {
     @DisplayName("update state of attendance as manager throws when attendance not found")
     void updateStateOfUnknownAttendanceAsManagerThrowsNotFound() throws Exception{
         UUID id = UUID.randomUUID();
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/state", id)
+        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/update", id)
                 .content("{\"state\":\"NO_SHOW\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 

@@ -10,4 +10,5 @@ insert into sig_organizers(organised_special_interest_groups_id, organizers_id)
 VALUES ('e4fb562d-e468-431b-ab0f-ba0ad16a2631', 'b4ba9d87-41d5-4c56-9c20-5addcf875f86');
 
 insert into session(id, description, end_date, start_date, subject, state, sig_id, contact_person_id)
-values ('effb562d-e468-431b-ab0f-ba0ad16a2639', 'Dit is een sessie omschrijving. bla bla bla', date('2021-02-07'))
+values ('effb562d-e468-431b-ab0f-ba0ad16a2639', 'Dit is een sessie omschrijving. bla bla bla', date('2021-02-07'), date('2021-02-06'),
+        'subject', 'PLANNED', 'e4fb562d-e468-431b-ab0f-ba0ad16a2631', 'd4fb562d-e468-431b-ab0f-ba0ad16a2639')

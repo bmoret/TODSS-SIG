@@ -29,8 +29,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.NO_SHOW;
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.*;
 import static com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN;
 import static com.snafu.todss.sig.sessies.domain.person.enums.Role.MANAGER;
 import static org.junit.jupiter.api.Assertions.*;
@@ -127,17 +126,16 @@ class AttendanceServiceIntegrationTest {
         ATTENDANCE_REPOSITORY.deleteAll();
 
         assertDoesNotThrow(
-                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getPerson().getId(), attendance.getSession().getId())
+                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getSession().getId(), attendance.getPerson().getId())
         );
     }
 
     @Test
     @DisplayName("create attendance with info of already existing attendance")
     void createAttendanceThrowsWhenAlreadyExists() {
-        System.out.println(attendance.getPerson().getId());
         assertThrows(
                 DuplicateRequestException.class,
-                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getPerson().getId(), attendance.getSession().getId())
+                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getSession().getId(), attendance.getPerson().getId())
         );
     }
 
@@ -197,7 +195,6 @@ class AttendanceServiceIntegrationTest {
         UUID sessionId = UUID.randomUUID();
         sig = SIG_REPOSITORY.save(sig);
 
-
         if (person != null) {
             personId = PERSON_REPOSITORY.save(person).getId();
         }
@@ -209,18 +206,16 @@ class AttendanceServiceIntegrationTest {
         UUID finalSessionId = sessionId;
         assertThrows(
                 NotFoundException.class,
-                () -> ATTENDANCE_SERVICE.createAttendance(attendanceState, false, finalPersonId, finalSessionId)
+                () -> ATTENDANCE_SERVICE.createAttendance(attendanceState, false, finalSessionId, finalPersonId)
         );
     }
 
     @Test
     @DisplayName("Create existing attendance")
     void createExistingAttendance_ThrowsDuplicateRequestException() {
-        System.out.println(session.getId());
-        System.out.println(person.getId());
         assertThrows(
                 DuplicateRequestException.class,
-                () ->ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, attendance.getPerson().getId(), attendance.getSession().getId())
+                () ->ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, session.getId(), person.getId())
         );
     }
 
@@ -301,7 +296,99 @@ class AttendanceServiceIntegrationTest {
         assertEquals(2, speakers.size());
     }
 
+    @Test
+    @DisplayName("check if attendance exists for person / session combination and returns true when it does")
+    void checkAttendanceBySessionPersonTrue() {
+        assertTrue(
+                assertDoesNotThrow(
+                        () -> ATTENDANCE_SERVICE.checkIfAttending(
+                                attendance.getSession().getId(), person.getId())
+                )
+        );
+    }
 
+    @Test
+    @DisplayName("check if attendance exists for person / session combination and returns false when it does not")
+    void checkIfAttendanceExistsReturnsFalse() {
+        PersonBuilder pb = new PersonBuilder();
+        pb.setEmail("t_a");
+        pb.setFirstname("a");
+        pb.setLastname("t");
+        pb.setExpertise("none");
+        pb.setEmployedSince(LocalDate.of(2021,1,1));
+        pb.setBranch(VIANEN);
+        pb.setRole(MANAGER);
+        Person person = PERSON_REPOSITORY.save(pb.build());
 
+        assertFalse(
+                assertDoesNotThrow(
+                        () -> ATTENDANCE_SERVICE.checkIfAttending(
+                                attendance.getSession().getId(), person.getId())
+                )
+        );
+    }
 
+    @Test
+    @DisplayName("check if attendance exists for person / session combination")
+    void checkIfAttendanceExists() {
+        assertTrue(
+                assertDoesNotThrow(
+                        () -> ATTENDANCE_SERVICE.getAttendanceBySessionAndPerson(
+                                attendance.getSession(), attendance.getPerson()).isPresent()
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("check if attendance exists for person / session combination")
+    void checkAttendanceBySessionPersonFalse() {
+        PersonBuilder pb = new PersonBuilder();
+        pb.setEmail("t_a");
+        pb.setFirstname("a");
+        pb.setLastname("t");
+        pb.setExpertise("none");
+        pb.setEmployedSince(LocalDate.of(2021,1,1));
+        pb.setBranch(VIANEN);
+        pb.setRole(MANAGER);
+        Person person1 = PERSON_REPOSITORY.save(pb.build());
+
+        assertFalse(
+                assertDoesNotThrow(
+                        () -> ATTENDANCE_SERVICE.getAttendanceBySessionAndPerson(
+                                attendance.getSession(), person1).isPresent()
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("create attendance by useing signUpForSession")
+    void singUpForSessionsWithNoAttendance() {
+        ATTENDANCE_REPOSITORY.deleteAll();
+        AttendanceRequest request = new AttendanceRequest();
+        request.state = PRESENT;
+        request.speaker= false;
+
+                assertDoesNotThrow(
+                () -> ATTENDANCE_SERVICE.signUpForSession(attendance.getSession().getId(), attendance.getPerson().getId(), request)
+        );
+    }
+
+    @Test
+    @DisplayName("update attendance by useing signUpForSession")
+    void singUpForSessionWithAttendanceAndStateNotPresent() {
+        AttendanceRequest request = new AttendanceRequest();
+        request.state = PRESENT;
+        request.speaker= false;
+        attendance.setState(CANCELED);
+        ATTENDANCE_REPOSITORY.save(attendance);
+
+        assertDoesNotThrow(
+                () -> ATTENDANCE_SERVICE.signUpForSession(attendance.getSession().getId(), attendance.getPerson().getId(), request)
+        );
+        assertEquals(PRESENT,
+                assertDoesNotThrow(
+                    () -> ATTENDANCE_SERVICE.getAttendanceById(attendance.getId()).getState()
+                )
+        );
+    }
 }

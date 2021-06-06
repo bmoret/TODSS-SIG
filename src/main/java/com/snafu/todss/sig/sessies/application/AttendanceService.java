@@ -63,8 +63,9 @@ public class AttendanceService {
 
     public Attendance createAttendance(AttendanceState state,
                                        boolean isSpeaker,
-                                       UUID personId,
-                                       UUID sessionId) throws DuplicateRequestException, NotFoundException {
+                                       UUID sessionId,
+                                       UUID personId
+    ) throws DuplicateRequestException, NotFoundException {
         Person person = this.PERSON_SERVICE.getPerson(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
         if(getAttendanceBySessionAndPerson(session, person).isPresent()) {

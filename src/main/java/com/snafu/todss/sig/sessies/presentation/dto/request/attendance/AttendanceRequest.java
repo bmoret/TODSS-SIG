@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 
 public class AttendanceRequest {
     @NotNull
-    public boolean speaker;
-    @NotNull
     public AttendanceState state;
+    @NotNull
+    public boolean speaker;
 }
