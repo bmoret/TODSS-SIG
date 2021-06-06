@@ -2,16 +2,10 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.CiTestConfiguration;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
-import com.snafu.todss.sig.sessies.domain.AttendanceState;
-import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
-import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
-import com.snafu.todss.sig.sessies.domain.session.SessionState;
-import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
-import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.*;
 import com.snafu.todss.sig.sessies.domain.person.enums.*;
+import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,13 +18,9 @@ import org.springframework.context.annotation.Import;
 import javax.transaction.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
-import static com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN;
-import static com.snafu.todss.sig.sessies.domain.person.enums.Role.MANAGER;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -66,6 +56,15 @@ class PersonServiceTest {
     }
 
     @Test
+    @DisplayName("getPersonByEmail throws when no results are found")
+    void getPersonByEmailThrows() {
+        assertThrows(
+                NotFoundException.class,
+                () -> service.getPersonByEmail("hoihoi@email.com")
+        );
+    }
+
+    @Test
     void createPerson() {
         Person supervisor = null;
         try {
@@ -97,6 +96,26 @@ class PersonServiceTest {
             fail();
         }
 
+    }
+
+    @Test
+    @DisplayName("createPerson throws when email already in use")
+    void createPersonThrows() {
+        Person supervisor = assertDoesNotThrow(() -> service.getPersonByEmail("email@email.com"));
+        PersonRequest dto = new PersonRequest();
+        dto.email = "thomaz@email.com";
+        dto.firstname = "fourth";
+        dto.lastname = "last";
+        dto.expertise = "none";
+        dto.branch = "VIANEN";
+        dto.role = "EMPLOYEE";
+        dto.employedSince = "01/01/2021";
+        dto.supervisorId = supervisor.getId();
+
+        assertThrows(
+                DuplicateRequestException.class,
+                () -> service.createPerson(dto)
+        );
     }
 
     @Test
@@ -176,6 +195,16 @@ class PersonServiceTest {
         request.searchTerm = req;
         List<Person> allPersons = this.repo.findAll();
         assertEquals(req, service.getBestLevenshteinDistanceValue(allPersons, request).get(0).getDetails().getFirstname());
+    }
+
+    @Test
+    @DisplayName("levenshtein result of person by getting levenshtein value by full, first and lastname")
+    void getBestlevenshteinDistanceValueError() {
+        SearchRequest request = new SearchRequest();
+        List<Person> allPersons = this.repo.findAll();
+        assertThrows(
+                RuntimeException.class,
+                () -> service.getBestLevenshteinDistanceValue(allPersons, request));
     }
 
     @Test

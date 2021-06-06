@@ -165,7 +165,7 @@ class AttendanceControllerIntegrationTest {
     @DisplayName("update speaker of attendance as manager")
     void updateSpeakerAttendanceAsManager() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", attendance.getId())
-                .content("{\"speaker\":\"true\"}")
+                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -182,7 +182,7 @@ class AttendanceControllerIntegrationTest {
     @DisplayName("update speaker of attendance as administrator")
     void updateSpeakerAttendanceAsAdministrator() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", attendance.getId())
-                .content("{\"speaker\":\"true\"}")
+                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -199,7 +199,7 @@ class AttendanceControllerIntegrationTest {
     @DisplayName("update speaker of attendance as employee is not allowed")
     void updateSpeakerAttendanceAsEmployee() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", attendance.getId())
-                .content("{\"speaker\":\"true\"}")
+                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -212,7 +212,7 @@ class AttendanceControllerIntegrationTest {
     void updateSpeakerOfUnknownAttendanceAsManager_ThrowsNotFound() throws Exception{
         UUID id = UUID.randomUUID();
         RequestBuilder request = MockMvcRequestBuilders.put("/attendances/{id}/speaker", id)
-                .content("{\"speaker\":\"true\"}")
+                .content("{\"speaker\":\"true\", \"state\":\"PRESENT\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)

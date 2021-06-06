@@ -48,9 +48,6 @@ class SessionControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private SessionService service;
-
-    @Autowired
     private PersonService personService;
 
     @Autowired

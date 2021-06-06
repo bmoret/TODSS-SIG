@@ -1,9 +1,12 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.security.data.SpringUserRepository;
+import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class PersonControllerTest {
+class PersonControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,6 +38,9 @@ class PersonControllerTest {
 
     @Autowired
     private PersonService personService;
+
+    @Autowired
+    private SpringUserRepository userRepository;
 
     private Person supervisor;
 
@@ -382,7 +388,6 @@ class PersonControllerTest {
         Person person = personService.createPerson(dtoSupervisor);
         personRepository.save(person);
 
-
         RequestBuilder request = MockMvcRequestBuilders
                 .delete("/person/"+person.getId());
 
@@ -453,8 +458,8 @@ class PersonControllerTest {
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("Search person by name as manager")
     void searchPersonAsManager() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
+                .content("{\"searchTerm\":\"Test\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -468,8 +473,8 @@ class PersonControllerTest {
     @WithMockUser(username = "TestUser", roles = "SECRETARY")
     @DisplayName("Search person by name as secretary")
     void searchPersonAsSecretary() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
+                .content("{\"searchTerm\":\"Test\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -483,8 +488,8 @@ class PersonControllerTest {
     @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
     @DisplayName("Search person by name as administrator")
     void searchPersonAsAdministrator() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
+                .content("{\"searchTerm\":\"Test\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)

@@ -8,8 +8,7 @@ import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.PhysicalSessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import javassist.NotFoundException;
@@ -193,14 +192,14 @@ class AttendanceServiceTest {
     @Test
     @DisplayName("update speaker of attendance")
     void updateSpeakerAttendance() throws Exception {
-        AttendanceSpeakerRequest request = new AttendanceSpeakerRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.speaker = false;
         Attendance updatedAttendance = new Attendance(PRESENT, false, person, session);
 
         when(ATTENDANCE_REPOSITORY.findById(any())).thenReturn(Optional.of(attendance));
         when(ATTENDANCE_REPOSITORY.save(any(Attendance.class))).thenReturn(updatedAttendance);
 
-        Attendance actualUpdatedAttendance = SERVICE.updateSpeakerAttendance(UUID.randomUUID(), request);
+        Attendance actualUpdatedAttendance = SERVICE.updateAttendance(UUID.randomUUID(), request);
 
         assertFalse(actualUpdatedAttendance.isSpeaker());
         verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));
@@ -211,14 +210,14 @@ class AttendanceServiceTest {
     @DisplayName("throw exception when cant find attendance by id in updateAttendance")
     void ThrowExceptionWhenNoPersonInUpdateSpeaker() {
         UUID attendanceId = UUID.randomUUID();
-        AttendanceSpeakerRequest request = new AttendanceSpeakerRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.speaker = false;
 
         when(ATTENDANCE_REPOSITORY.findById(attendanceId)).thenReturn(Optional.empty());
 
         assertThrows(
                 NotFoundException.class,
-                () -> SERVICE.updateSpeakerAttendance(attendanceId, request)
+                () -> SERVICE.updateAttendance(attendanceId, request)
         );
 
         verify(ATTENDANCE_REPOSITORY, times(1)).findById(attendanceId);
@@ -227,14 +226,14 @@ class AttendanceServiceTest {
     @Test
     @DisplayName("update state of attendance")
     void updateAttendance() throws Exception {
-        AttendanceStateRequest request = new AttendanceStateRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.state = PRESENT;
         Attendance updatedAttendance = new Attendance(PRESENT, false, person, session);
 
         when(ATTENDANCE_REPOSITORY.findById(any())).thenReturn(Optional.of(attendance));
         when(ATTENDANCE_REPOSITORY.save(any(Attendance.class))).thenReturn(updatedAttendance);
 
-        Attendance actualUpdatedAttendance = SERVICE.updateStateAttendance(UUID.randomUUID(), request);
+        Attendance actualUpdatedAttendance = SERVICE.updateAttendance(UUID.randomUUID(), request);
 
         assertEquals(PRESENT, actualUpdatedAttendance.getState());
         verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));
@@ -245,14 +244,14 @@ class AttendanceServiceTest {
     @DisplayName("throw exception when cant find attendance by id in updateAttendance")
     void ThrowExceptionWhenNoPersonInUpdate() {
         UUID attendanceId = UUID.randomUUID();
-        AttendanceStateRequest request = new AttendanceStateRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.state = PRESENT;
 
         when(ATTENDANCE_REPOSITORY.findById(attendanceId)).thenReturn(Optional.empty());
 
         assertThrows(
                 NotFoundException.class,
-                () -> SERVICE.updateStateAttendance(attendanceId, request)
+                () -> SERVICE.updateAttendance(attendanceId, request)
         );
 
         verify(ATTENDANCE_REPOSITORY, times(1)).findById(attendanceId);

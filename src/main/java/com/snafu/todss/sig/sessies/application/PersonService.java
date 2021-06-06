@@ -151,7 +151,7 @@ public class PersonService {
     }
 
     public List<Person> searchPerson(SearchRequest request) {
-        if (request.searchTerm.isBlank() || request.searchTerm.isBlank()) {
+        if (request.searchTerm.isBlank()) {
             throw new RuntimeException("vul de zoekbalk");
         }
         List<Person> allPersons = this.PERSON_REPOSITORY.findAll();

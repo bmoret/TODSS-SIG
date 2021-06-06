@@ -13,8 +13,7 @@ import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
@@ -135,6 +134,7 @@ class AttendanceServiceIntegrationTest {
     @Test
     @DisplayName("create attendance with info of already existing attendance")
     void createAttendanceThrowsWhenAlreadyExists() {
+        System.out.println(attendance.getPerson().getId());
         assertThrows(
                 DuplicateRequestException.class,
                 () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getPerson().getId(), attendance.getSession().getId())
@@ -215,24 +215,22 @@ class AttendanceServiceIntegrationTest {
 
     @Test
     @DisplayName("Create existing attendance")
-    void createExistingAttendance_ThrowsDuplicateRequestException() throws NotFoundException {
-        this.ATTENDANCE_REPOSITORY.deleteAll();
-
-        ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, person.getId(), session.getId());
-
+    void createExistingAttendance_ThrowsDuplicateRequestException() {
+        System.out.println(session.getId());
+        System.out.println(person.getId());
         assertThrows(
                 DuplicateRequestException.class,
-                () ->ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, person.getId(), session.getId())
+                () ->ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, attendance.getPerson().getId(), attendance.getSession().getId())
         );
     }
 
     @Test
     @DisplayName("update speaker of attendance")
     void updateSpeakerAttendance() {
-        AttendanceSpeakerRequest request = new AttendanceSpeakerRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.speaker = true;
 
-        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateSpeakerAttendance(this.attendance.getId(), request));
+        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request));
 
         assertTrue(attendance.isSpeaker());
     }
@@ -240,20 +238,20 @@ class AttendanceServiceIntegrationTest {
     @Test
     @DisplayName("update attendance throws when attendance not found")
     void updateSpeakerAttendanceThrows() {
-        AttendanceSpeakerRequest request = new AttendanceSpeakerRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.speaker = true;
         assertThrows(
                 NotFoundException.class,
-                () -> ATTENDANCE_SERVICE.updateSpeakerAttendance(UUID.randomUUID(), request));
+                () -> ATTENDANCE_SERVICE.updateAttendance(UUID.randomUUID(), request));
     }
 
     @Test
     @DisplayName("update state of attendance")
     void updateAttendance() {
-        AttendanceStateRequest request = new AttendanceStateRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.state = NO_SHOW;
 
-        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateStateAttendance(this.attendance.getId(), request));
+        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request));
 
         assertEquals(NO_SHOW, attendance.getState());
     }
@@ -261,11 +259,11 @@ class AttendanceServiceIntegrationTest {
     @Test
     @DisplayName("update attendance throws when attendance not found")
     void updateAttendanceThrows() {
-        AttendanceStateRequest request = new AttendanceStateRequest();
+        AttendanceRequest request = new AttendanceRequest();
         request.state = NO_SHOW;
         assertThrows(
                 NotFoundException.class,
-                () -> ATTENDANCE_SERVICE.updateStateAttendance(UUID.randomUUID(), request));
+                () -> ATTENDANCE_SERVICE.updateAttendance(UUID.randomUUID(), request));
     }
 
     @Test
