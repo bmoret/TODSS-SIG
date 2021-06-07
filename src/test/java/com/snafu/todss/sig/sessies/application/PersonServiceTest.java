@@ -222,7 +222,7 @@ class PersonServiceTest {
         List<Person> allPersons = this.repo.findAll();
 
         assertThrows(
-                RuntimeException.class,
+                IllegalArgumentException.class,
                 () -> service.getBestLevenshteinDistanceValue(allPersons, ""));
     }
 
@@ -241,7 +241,7 @@ class PersonServiceTest {
     @DisplayName("searchPerson throws when searchTerm is not filled")
     void searchPersonThrows() {
         assertThrows(
-                RuntimeException.class,
+                IllegalArgumentException.class,
                 () -> service.searchPerson("")
         );
     }
