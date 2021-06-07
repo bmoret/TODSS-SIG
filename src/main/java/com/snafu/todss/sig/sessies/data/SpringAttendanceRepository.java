@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Repository
 public interface SpringAttendanceRepository extends JpaRepository<Attendance, UUID> {
-    @Query(nativeQuery=true, value="SELECT * FROM attendance a WHERE a.person_id = ?1 AND a.session_id = ?2")
-    Optional<Attendance> findAttendanceByIdContainingAndPersonAndSession(Person person, Session session);
+    @Query(nativeQuery=true, value="SELECT * FROM attendance a WHERE a.session_id = ?1 AND a.person_id = ?2")
+    Optional<Attendance> findAttendanceByIdContainingAndSessionAndPerson(Session session, Person person);
     List<Attendance> findAttendancesBySession(Session session);
 }

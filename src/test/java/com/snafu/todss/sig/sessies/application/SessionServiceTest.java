@@ -67,6 +67,7 @@ class SessionServiceTest {
                 address,
                 supervisor
         );
+
     }
 
     @AfterEach

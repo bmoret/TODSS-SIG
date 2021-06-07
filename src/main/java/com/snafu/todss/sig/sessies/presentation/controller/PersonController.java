@@ -3,7 +3,6 @@ package com.snafu.todss.sig.sessies.presentation.controller;
 import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.SearchRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
@@ -83,9 +82,9 @@ public class PersonController {
     }
 
     @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
-    @PostMapping(path = "/search")
-    public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestBody SearchRequest request) throws NotFoundException {
-        List<Person> personList = SERVICE.searchPerson(request);
+    @GetMapping(path = "/search")
+    public ResponseEntity<List<PersonResponse>> searchPerson(@Valid @RequestParam String name) throws RuntimeException {
+        List<Person> personList = SERVICE.searchPerson(name);
         return new ResponseEntity<>(convertPersonToResponseList(personList), HttpStatus.OK);
     }
 }
