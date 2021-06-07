@@ -70,7 +70,7 @@ class SessionControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
     }

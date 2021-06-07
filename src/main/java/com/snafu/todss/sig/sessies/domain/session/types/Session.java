@@ -5,7 +5,9 @@ import com.snafu.todss.sig.sessies.domain.Feedback;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
+import com.snafu.todss.sig.sessies.domain.session.SessionListener;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,11 +16,14 @@ import java.util.UUID;
 
 import static com.snafu.todss.sig.sessies.util.InputValidations.inputNotNull;
 
+@EntityListeners(SessionListener.class)
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Session {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator="generator")
+    @GenericGenerator(name="generator", strategy="com.snafu.todss.sig.sessies.domain.idgenerator.FilterIdentifierGenerator")
+    @Column(unique=true, nullable=false)
     private UUID id;
 
     @Embedded
@@ -30,10 +35,10 @@ public abstract class Session {
     @ManyToOne
     private SpecialInterestGroup sig;
 
-    @OneToMany(orphanRemoval = true)
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Attendance> attendanceList;
 
-    @OneToMany(orphanRemoval = true)
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Feedback> feedbackList;
 
     @OneToOne
@@ -62,6 +67,18 @@ public abstract class Session {
         return details;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void addAllAttendees(List<Attendance> attendances) {
+        attendances.forEach(this::addAttendee);
+    }
+
+    public void addAllFeedback(List<Feedback> feedbacks) {
+        feedbacks.forEach(this::addFeedback);
+    }
+
     public List<Attendance> getAttendances() {
         return List.copyOf(attendanceList);
     }
@@ -72,7 +89,7 @@ public abstract class Session {
                 .map(Attendance::getPerson)
                 .anyMatch(attendancePerson -> attendancePerson.equals(attendance.getPerson()));
         if (isPersonAttendingSession) {
-            throw new IllegalArgumentException("Person already attending session");
+            return false;
         }
         return this.attendanceList.add(attendance);
     }

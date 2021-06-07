@@ -1,8 +1,11 @@
 package com.snafu.todss.sig.security.application;
 
+import com.snafu.todss.sig.security.application.util.JwtGenerator;
+import com.snafu.todss.sig.security.application.util.JwtValidator;
 import com.snafu.todss.sig.security.data.SpringUserRepository;
 import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.security.domain.UserRole;
+import com.snafu.todss.sig.security.presentation.dto.request.RefreshTokenRequest;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
@@ -12,17 +15,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
 public class UserService implements UserDetailsService {
     private final SpringUserRepository USER_REPOSITORY;
     private final PasswordEncoder PASSSWORD_ENCODER;
+    private final JwtGenerator JWT_GENERATOR;
+    private final JwtValidator JWT_VALIDATOR;
 
-    public UserService(SpringUserRepository repository, PasswordEncoder passwordEncoder) {
+    public UserService(SpringUserRepository repository, PasswordEncoder passwordEncoder, JwtGenerator jwtGenerator, JwtValidator jwtValidator) {
         this.USER_REPOSITORY = repository;
         this.PASSSWORD_ENCODER = passwordEncoder;
+        JWT_GENERATOR = jwtGenerator;
+        JWT_VALIDATOR = jwtValidator;
     }
 
     private void checkIfUserAlreadyExists(String username) {
@@ -69,5 +78,16 @@ public class UserService implements UserDetailsService {
 
     public void removeUser(String username) throws NotFoundException {
         USER_REPOSITORY.delete(getUserByUsername(username));
+    }
+
+    public Map<String, String> refreshUserToken(RefreshTokenRequest refreshTokenRequest) {
+        this.JWT_VALIDATOR.validateAccessJwt(refreshTokenRequest.accessToken);
+        this.JWT_VALIDATOR.validateRefreshJwt(refreshTokenRequest.refreshToken);
+        String accessToken = this.JWT_GENERATOR.refreshAccessTokenFromAccessToken(refreshTokenRequest.accessToken);
+        Map<String, String> authTokenMap = new HashMap<>();
+        authTokenMap.put("Access-Token", accessToken);
+        authTokenMap.put("Access-Control-Expose-Headers", "*");
+
+        return authTokenMap;
     }
 }

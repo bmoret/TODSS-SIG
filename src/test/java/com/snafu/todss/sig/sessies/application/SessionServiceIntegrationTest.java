@@ -39,8 +39,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @SpringBootTest
 class SessionServiceIntegrationTest {
-    @Autowired
-    private SpecialInterestGroupService sigService;
 
     @Autowired
     private PersonService personService;
@@ -70,7 +68,7 @@ class SessionServiceIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "01/01/2021";
+        dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
 
@@ -267,6 +265,58 @@ class SessionServiceIntegrationTest {
                 NotFoundException.class,
                 () -> sessionService.updateSession(testSession.getId(), request)
         );
+    }
+
+    private PhysicalSessionRequest providePhysicalSessionRequest() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+
+        return new PhysicalSessionRequest(
+                now,
+                nowPlusOneHour,
+                "Subject",
+                "Description",
+                sig.getId(),
+                "Address",
+                supervisor.getId().toString()
+        );
+    }
+    private OnlineSessionRequest provideOnlineSessionRequest() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+
+        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+
+        return new OnlineSessionRequest(
+                now,
+                nowPlusOneHour,
+                "Subject",
+                "Description",
+                sig.getId(),
+                "Random Platform",
+                "link",
+                supervisor.getId().toString()
+        );
+    }
+
+    @Test
+    @DisplayName("Updating sessiontype from online to physical")
+    void updateSessionFromOnlineToPhysical() {
+        Session onlineSession = assertDoesNotThrow(
+                () -> sessionService.createSession(provideOnlineSessionRequest())
+        );
+        System.out.println(repository.findAll().size());
+        Session updatedSession = assertDoesNotThrow(
+                () -> sessionService.updateSession(onlineSession.getId(), providePhysicalSessionRequest())
+        );
+        System.out.println(repository.findAll().size());
+        System.out.println("na save "+ updatedSession.getId());
+        assertEquals(onlineSession.getId(), updatedSession.getId());
+        assertEquals(onlineSession.getAttendances().size(), updatedSession.getAttendances().size());
+        assertEquals(onlineSession.getFeedback().size(), updatedSession.getFeedback().size());
+
     }
 
     @Test

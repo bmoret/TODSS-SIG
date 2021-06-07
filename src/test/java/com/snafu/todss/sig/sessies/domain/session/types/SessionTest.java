@@ -121,14 +121,47 @@ class SessionTest {
     }
 
     @Test
-    @DisplayName("Throws when a person is added twice")
+    @DisplayName("addAttendee does not add attendance when already exists")
     void addAttendeeTwice_ThrowsException() {
         session.addAttendee(testAttendance);
+        assertEquals(1, session.getAttendances().size());
+        session.addAttendee(testAttendance);
+        assertEquals(1, session.getAttendances().size());
+    }
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> session.addAttendee(testAttendance)
-        );
+    @Test
+    @DisplayName("Add all attendances adds all existing attendances")
+    void addAllAttendances() {
+        Person personMock = mock(Person.class);
+        List<Attendance> attendanceList = new ArrayList<>();
+        attendanceList.add(testAttendance);
+        Attendance secondAttendance = new Attendance(PRESENT, true, personMock, session);
+        attendanceList.add(secondAttendance);
+        session.addAllAttendees(attendanceList);
+
+        assertEquals(2, session.getAttendances().size());
+        assertEquals(testPerson, session.getAttendances().get(attendanceList.indexOf(testAttendance)).getPerson());
+        assertEquals(personMock, session.getAttendances().get(attendanceList.indexOf(secondAttendance)).getPerson());
+    }
+
+    @Test
+    @DisplayName("Add all attendances adds all existing attendances")
+    void addAllAttendancesDoesNotFillExistingAttendance() {
+        Person personMock = mock(Person.class);
+        List<Attendance> attendanceList = new ArrayList<>();
+        attendanceList.add(testAttendance);
+        Attendance secondAttendance = new Attendance(PRESENT, true, personMock, session);
+        attendanceList.add(secondAttendance);
+        session.addAllAttendees(attendanceList);
+
+        List<Attendance> attendanceList2 = new ArrayList<>();
+        attendanceList2.add(testAttendance);
+        attendanceList2.add(secondAttendance);
+        session.addAllAttendees(attendanceList2);
+
+        assertEquals(2, session.getAttendances().size());
+        assertEquals(testPerson, session.getAttendances().get(attendanceList.indexOf(testAttendance)).getPerson());
+        assertEquals(personMock, session.getAttendances().get(attendanceList.indexOf(secondAttendance)).getPerson());
     }
 
     @Test
@@ -233,6 +266,22 @@ class SessionTest {
     }
 
     @Test
+    @DisplayName("Add all feedback adds all existing feedback")
+    void addAllFeedback() {
+        List<Feedback> feedbackList = new ArrayList<>();
+        feedbackList.add(testFeedback);
+        Feedback secondFeedback = new Feedback("leuke les", session, testPerson);
+        feedbackList.add(secondFeedback);
+        session.addAllFeedback(feedbackList);
+        for (Feedback feedback : session.getFeedback()) {
+            System.out.println(feedback.getDescription());
+        }
+        assertEquals(2, session.getFeedback().size());
+        assertEquals(testFeedback.getDescription(), session.getFeedback().get(feedbackList.indexOf(testFeedback)).getDescription());
+        assertEquals(secondFeedback.getDescription(), session.getFeedback().get(feedbackList.indexOf(secondFeedback)).getDescription());
+    }
+
+    @Test
     @DisplayName("Altering feedback list from getter doesn't alter the list in Session itself")
     void alterFeedbackListOfGetter_DoesNotAlterListInSession() {
         List<Feedback> feedbackList = session.getFeedback();
@@ -326,6 +375,8 @@ class SessionTest {
     @MethodSource("provideSessionEquals")
     @DisplayName("Test Equals")
     void equalsTest(Session session, Session equalsSession, boolean isEquals) {
+        System.out.println("test");
+        System.out.println(session.equals(equalsSession));
         assertEquals(isEquals, session.equals(equalsSession));
         if (equalsSession != null) {
             assertEquals(isEquals, session.hashCode() == equalsSession.hashCode());
@@ -349,6 +400,67 @@ class SessionTest {
                 Arguments.of(session, null, false),
                 Arguments.of(session, new TeamsOnlineSession(), false),
                 Arguments.of(new TeamsOnlineSession(), session, false)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideEqualsExamples")
+    @DisplayName("equals works correctly")
+    void equalsWorks(boolean expectedIsEqual, Session session, Object object) {
+        assertEquals(expectedIsEqual, session.equals(object));
+    }
+
+    private static Stream<Arguments> provideEqualsExamples() {
+
+        Session session = mock(Session.class,
+                Mockito.withSettings()
+                        .useConstructor(
+                                new SessionDetails(),
+                                SessionState.DRAFT,
+                                new SpecialInterestGroup(),
+                                new ArrayList<>(),
+                                new ArrayList<>(),
+                                null
+
+                        )
+                        .defaultAnswer(CALLS_REAL_METHODS));
+        doCallRealMethod().when(session).addAttendee(any());
+        doCallRealMethod().when(session).addFeedback(any());
+
+        SessionDetails sessionDetails = new SessionDetails(LocalDateTime.now(), LocalDateTime.now(), "tests", "test");
+        Session session2 = mock(Session.class,
+                Mockito.withSettings()
+                        .useConstructor(
+                                sessionDetails,
+                                SessionState.DRAFT,
+                                new SpecialInterestGroup(),
+                                new ArrayList<>(),
+                                new ArrayList<>(),
+                                null
+
+                        )
+                        .defaultAnswer(CALLS_REAL_METHODS));
+        doCallRealMethod().when(session2).addAttendee(any());
+        doCallRealMethod().when(session2).addFeedback(any());
+
+        Session session3 = session2;
+        session3.setSig(new SpecialInterestGroup());
+
+
+        return Stream.of(
+
+                Arguments.of(true,
+                        session,
+                        session),
+                Arguments.of(false,
+                        session,
+                        null),
+                Arguments.of(false,
+                        session,
+                        session2),
+                Arguments.of(false,
+                        session,
+                        session3)
         );
     }
 }

@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 
 import com.snafu.todss.sig.sessies.domain.person.enums.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
