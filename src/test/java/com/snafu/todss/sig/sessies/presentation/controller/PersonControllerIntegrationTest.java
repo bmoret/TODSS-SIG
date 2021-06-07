@@ -54,7 +54,7 @@ class PersonControllerIntegrationTest {
     }
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
         personRepository.deleteAll();
     }
 

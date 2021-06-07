@@ -326,6 +326,8 @@ class SessionTest {
     @MethodSource("provideSessionEquals")
     @DisplayName("Test Equals")
     void equalsTest(Session session, Session equalsSession, boolean isEquals) {
+        System.out.println("test");
+        System.out.println(session.equals(equalsSession));
         assertEquals(isEquals, session.equals(equalsSession));
         if (equalsSession != null) {
             assertEquals(isEquals, session.hashCode() == equalsSession.hashCode());
@@ -349,6 +351,67 @@ class SessionTest {
                 Arguments.of(session, null, false),
                 Arguments.of(session, new TeamsOnlineSession(), false),
                 Arguments.of(new TeamsOnlineSession(), session, false)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideEqualsExamples")
+    @DisplayName("equals works correctly")
+    void equalsWorks(boolean expectedIsEqual, Session session, Object object) {
+        assertEquals(expectedIsEqual, session.equals(object));
+    }
+
+    private static Stream<Arguments> provideEqualsExamples() {
+
+        Session session = mock(Session.class,
+                Mockito.withSettings()
+                        .useConstructor(
+                                new SessionDetails(),
+                                SessionState.DRAFT,
+                                new SpecialInterestGroup(),
+                                new ArrayList<>(),
+                                new ArrayList<>(),
+                                null
+
+                        )
+                        .defaultAnswer(CALLS_REAL_METHODS));
+        doCallRealMethod().when(session).addAttendee(any());
+        doCallRealMethod().when(session).addFeedback(any());
+
+        SessionDetails sessionDetails = new SessionDetails(LocalDateTime.now(), LocalDateTime.now(), "tests", "test");
+        Session session2 = mock(Session.class,
+                Mockito.withSettings()
+                        .useConstructor(
+                                sessionDetails,
+                                SessionState.DRAFT,
+                                new SpecialInterestGroup(),
+                                new ArrayList<>(),
+                                new ArrayList<>(),
+                                null
+
+                        )
+                        .defaultAnswer(CALLS_REAL_METHODS));
+        doCallRealMethod().when(session2).addAttendee(any());
+        doCallRealMethod().when(session2).addFeedback(any());
+
+        Session session3 = session2;
+        session3.setSig(new SpecialInterestGroup());
+
+
+        return Stream.of(
+
+                Arguments.of(true,
+                        session,
+                        session),
+                Arguments.of(false,
+                        session,
+                        null),
+                Arguments.of(false,
+                        session,
+                        session2),
+                Arguments.of(false,
+                        session,
+                        session3)
         );
     }
 }
