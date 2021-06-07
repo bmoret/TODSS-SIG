@@ -14,6 +14,7 @@ import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.PresenceRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
@@ -58,6 +59,13 @@ class AttendanceServiceIntegrationTest {
     private Attendance attendance;
     private Person person;
     private Session session;
+    private SpecialInterestGroup sig;
+
+    private final LocalDateTime now = LocalDateTime.now();
+    private final LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+    private final String subject = "Subjectttt";
+    private final String description = "Description";
+    private final String address = "Address";
 
     @BeforeAll
     static void init() {
@@ -65,7 +73,6 @@ class AttendanceServiceIntegrationTest {
 
     @BeforeEach
     void setup() {
-
         person = PERSON_REPOSITORY.save( new PersonBuilder()
                 .setEmail("t_a")
                 .setFirstname("ttt")
@@ -76,15 +83,10 @@ class AttendanceServiceIntegrationTest {
                 .setRole(MANAGER)
                 .build());
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
-        String subject = "Subjectttt";
-        String description = "Description";
-        String address = "Address";
-        SpecialInterestGroup sig = SIG_REPOSITORY.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
+        sig = SIG_REPOSITORY.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
         session = SESSION_REPOSITORY.save(new PhysicalSession(
                 new SessionDetails(now, nowPlusOneHour, subject, description),
-                SessionState.DRAFT,
+                SessionState.ONGOING,
                 sig,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -114,6 +116,16 @@ class AttendanceServiceIntegrationTest {
         assertFalse(testAttendance.isSpeaker());
         assertEquals("ttt", testAttendance.getPerson().getDetails().getFirstname());
         assertEquals("Subjectttt", testAttendance.getSession().getDetails().getSubject());
+    }
+
+    @Test
+    @DisplayName("get attendance by session")
+    void getAttendanceBySession() {
+        List<Attendance> attendances = assertDoesNotThrow(() ->
+                ATTENDANCE_SERVICE.getAllAttendeesFromSession(session.getId()));
+
+        assertEquals(1, attendances.size());
+        assertTrue(attendances.contains(attendance));
     }
 
     @Test
@@ -241,6 +253,52 @@ class AttendanceServiceIntegrationTest {
         Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request));
 
         assertTrue(attendance.isSpeaker());
+    }
+
+    @Test
+    @DisplayName("update presence of attendance when attendee is not present")
+    void updatePresenceToNoShow() {
+        PresenceRequest request = new PresenceRequest();
+        request.isPresent = false;
+        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updatePresence(this.attendance.getId(),
+                                                                                            request));
+
+        assertEquals(NO_SHOW, attendance.getState());
+    }
+
+    @Test
+    @DisplayName("update presence of attendance when session has not begun")
+    void updatePresenceWhenSessionNotBegun() {
+        Session session1 = SESSION_REPOSITORY.save(new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                sig,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address,
+                null
+        ));
+        Attendance attendance1 = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session1));
+        session1.addAttendee(attendance1);
+        this.SESSION_REPOSITORY.save(session1);
+
+        PresenceRequest request = new PresenceRequest();
+        request.isPresent = false;
+
+        assertThrows(IllegalArgumentException.class, () -> ATTENDANCE_SERVICE.updatePresence(attendance1.getId(),
+                request));
+    }
+
+    @Test
+    @DisplayName("update presence of attendance when attendee is present")
+    void updatePresenceToPresent() {
+        attendance.setState(NO_SHOW);
+        PresenceRequest request = new PresenceRequest();
+        request.isPresent = true;
+        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updatePresence(this.attendance.getId(),
+                request));
+
+        assertEquals(PRESENT, attendance.getState());
     }
 
     @Test

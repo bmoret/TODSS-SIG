@@ -11,10 +11,10 @@ public class JwtCredentials {
     @Value("${JWT_EXPIRATION_DATE_IN_MS}")
     protected Integer jwtExpirationInMs;
 
-    @Value("${JWT_SECRET}")
+    @Value("${JWT_REFRESH_TOKEN_SECRET}")
     protected String jwtRefreshSecret;
 
-    @Value("${JWT_EXPIRATION_DATE_IN_MS}")
+    @Value("${JWT_REFRESH_TOKEN_EXPIRATION_DATE_IN_MS}")
     protected Integer jwtRefreshExpirationInMs;
 
     @Value("${JWT_AUDIENCE}")

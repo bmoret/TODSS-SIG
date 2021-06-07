@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         response.addHeader("User-Username", user.getUsername());
         response.addHeader("User-Role", user.getRole().toString());
         response.addHeader("User-Id", user.getId().toString());
-        response.addHeader("User-Id", user.getId().toString());
+        response.addHeader("Person-Id", user.getPerson().getId().toString());
         response.addHeader("Access-Control-Expose-Headers", "*");
     }
 }

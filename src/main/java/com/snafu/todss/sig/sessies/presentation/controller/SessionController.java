@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
 import com.snafu.todss.sig.sessies.application.SessionService;
+import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SessionResponse;

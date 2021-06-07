@@ -21,7 +21,7 @@ public abstract class Session {
     @Id
     //todo: huidige manier -> @GeneratedValue(strategy = GenerationType.AUTO)
     @GeneratedValue(generator="generator")
-    @GenericGenerator(name="generator", strategy="com.snafu.todss.sig.sessies.domain.session.idGenerator.FilterIdentifierGenerator")
+    @GenericGenerator(name="generator", strategy="com.snafu.todss.sig.sessies.domain.idgenerator.FilterIdentifierGenerator")
     @Column(unique=true, nullable=false)
     private UUID id;
 
