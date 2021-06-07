@@ -9,6 +9,7 @@ import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -19,7 +20,6 @@ import static com.snafu.todss.sig.sessies.util.InputValidations.inputNotNull;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Session {
     @Id
-    //todo: huidige manier -> @GeneratedValue(strategy = GenerationType.AUTO)
     @GeneratedValue(generator="generator")
     @GenericGenerator(name="generator", strategy="com.snafu.todss.sig.sessies.domain.idgenerator.FilterIdentifierGenerator")
     @Column(unique=true, nullable=false)
@@ -42,6 +42,18 @@ public abstract class Session {
 
     @OneToOne
     private Person contactPerson;
+
+    @PostLoad
+    public void doThing() {
+        LocalDateTime startDate = this.details.getStartDate();
+        if (this.state.equals(SessionState.PLANNED) && startDate.isBefore(LocalDateTime.now())){
+            this.nextState();
+        }
+        LocalDateTime endDate = this.details.getEndDate();
+        if (this.state.equals(SessionState.ONGOING) && endDate.isBefore(LocalDateTime.now())){
+            this.nextState();
+        }
+    }
 
     protected Session() {
     }

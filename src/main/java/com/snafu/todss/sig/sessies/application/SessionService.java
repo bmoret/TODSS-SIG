@@ -1,7 +1,6 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
-import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
@@ -43,8 +42,7 @@ public class SessionService {
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
         Person person = null;
         if (sessionRequest.contactPerson != null) {
-            person = personService
-                    .getPerson(sessionRequest.contactPerson);
+            person = personService.getPerson(sessionRequest.contactPerson);
         }
         Session session = SessionDirector.build(sessionRequest, sig, person);
         return this.SESSION_REPOSITORY.save(session);
@@ -54,17 +52,13 @@ public class SessionService {
         Session session = getSessionById(sessionId);
         Person person = null;
         if (sessionRequest.contactPerson != null) {
-            person = personService
-                    .getPerson(sessionRequest.contactPerson);
+            person = personService.getPerson(sessionRequest.contactPerson);
         }
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
-
         Session updatedSession = SessionDirector.update(session, sessionRequest, sig, person);
         if (!updatedSession.getClass().isAssignableFrom(session.getClass())) {
-            System.out.println("hey hallo");
             this.deleteSession(session.getId());
         }
-        System.out.println("voor: "+updatedSession.getId());
         return this.SESSION_REPOSITORY.save(updatedSession);
     }
 
