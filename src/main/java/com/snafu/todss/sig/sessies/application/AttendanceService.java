@@ -79,16 +79,15 @@ public class AttendanceService {
     public Attendance updatePresence(UUID id, PresenceRequest presenceRequest) throws NotFoundException {
         Attendance attendance = this.getAttendanceById(id);
         Session session = attendance.getSession();
-
-        if (session.getState() == SessionState.ONGOING || session.getState() == SessionState.ENDED) {
-            if (presenceRequest.isPresent) {
-                attendance.setState(AttendanceState.PRESENT);
-            } else {
-                attendance.setState(AttendanceState.NO_SHOW);
-            }
-        } else {
+        System.out.println(presenceRequest.isPresent);
+        if (session.getState() != SessionState.ONGOING && session.getState() != SessionState.ENDED) {
             throw new IllegalArgumentException(
                     "Cannot change the state of attendance when the session has not begun yet.");
+        }
+        if (presenceRequest.isPresent) {
+            attendance.setState(AttendanceState.PRESENT);
+        } else {
+            attendance.setState(AttendanceState.NO_SHOW);
         }
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);

@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
-import javax.naming.PartialResultException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -70,9 +69,7 @@ public class AttendanceController {
     public ResponseEntity<List<PersonResponse>> getSpeakerAttendance(
             @PathVariable UUID id
     ) throws NotFoundException {
-        System.out.println(id);
         List<Person> speakers = this.SERVICE.getSpeakersFromAttendanceSession(id);
-        System.out.println(speakers);
 
         return new ResponseEntity<>(convertPersonToListResponse(speakers), HttpStatus.OK);
     }
