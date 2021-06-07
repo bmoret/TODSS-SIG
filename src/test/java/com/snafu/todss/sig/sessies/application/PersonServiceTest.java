@@ -57,6 +57,15 @@ class PersonServiceTest {
     }
 
     @Test
+    @DisplayName("getPersonByEmail throws when no results are found")
+    void getPersonByEmailThrows() {
+        assertThrows(
+                NotFoundException.class,
+                () -> service.getPersonByEmail("hoihoi@email.com")
+        );
+    }
+
+    @Test
     void createPerson() {
         Person supervisor = null;
         try {
@@ -227,6 +236,16 @@ class PersonServiceTest {
         request.searchTerm = req;
         List<Person> allPersons = this.repo.findAll();
         assertEquals(req, service.getBestLevenshteinDistanceValue(allPersons, request).get(0).getDetails().getFirstname());
+    }
+
+    @Test
+    @DisplayName("levenshtein result of person by getting levenshtein value by full, first and lastname")
+    void getBestlevenshteinDistanceValueError() {
+        SearchRequest request = new SearchRequest();
+        List<Person> allPersons = this.repo.findAll();
+        assertThrows(
+                RuntimeException.class,
+                () -> service.getBestLevenshteinDistanceValue(allPersons, request));
     }
 
     @Test

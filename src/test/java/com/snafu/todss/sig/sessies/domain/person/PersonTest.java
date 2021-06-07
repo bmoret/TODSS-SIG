@@ -119,7 +119,6 @@ class PersonTest {
         pb.setRole(Role.MANAGER);
 
         Person testPerson = pb.build();
-        System.out.println(person.getId());
         assertEquals(testPerson, person);
     }
 
@@ -136,7 +135,6 @@ class PersonTest {
         pb.setRole(Role.MANAGER);
 
         Person testPerson = pb.build();
-        System.out.println(person.getId());
         assertNotEquals(testPerson, person);
     }
 }

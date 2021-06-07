@@ -3,8 +3,7 @@ package com.snafu.todss.sig.sessies.presentation.controller;
 import com.snafu.todss.sig.sessies.application.AttendanceService;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceSpeakerRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceStateRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.AttendanceResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import javassist.NotFoundException;
@@ -78,32 +77,41 @@ public class AttendanceController {
     }
 
     @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
-    @PutMapping("/{id}/speaker")
-    public ResponseEntity<AttendanceResponse> updateSpeakerAttendance(
+    @PutMapping("/{id}/update")
+    public ResponseEntity<AttendanceResponse> updateAttendance(
             @PathVariable UUID id,
-            @Valid @RequestBody AttendanceSpeakerRequest request
+            @Valid @RequestBody AttendanceRequest request
     ) throws NotFoundException {
-        Attendance attendance = this.SERVICE.updateSpeakerAttendance(id, request);
-
-        return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
-    }
-
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
-    @PutMapping("/{id}/state")
-    public ResponseEntity<AttendanceResponse> updateStateAttendance(
-            @PathVariable UUID id,
-            @Valid @RequestBody AttendanceStateRequest request
-    ) throws NotFoundException {
-        Attendance attendance = this.SERVICE.updateStateAttendance(id, request);
+        Attendance attendance = this.SERVICE.updateAttendance(id, request);
 
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 
     @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAttendance(@PathVariable UUID id){
+    public ResponseEntity<Void> deleteAttendance(@PathVariable UUID id) throws NotFoundException {
         this.SERVICE.deleteAttendance(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
+    @GetMapping("/{sessionId}/{personId}")
+    public ResponseEntity<Boolean> checkIfAttending(
+            @PathVariable UUID sessionId, @PathVariable UUID personId
+    ) throws NotFoundException {
+        Boolean present = this.SERVICE.checkIfAttending(sessionId, personId);
+
+        return new ResponseEntity<>(present, HttpStatus.OK);
+    }
+
+    @PutMapping("/{sessionId}/{personId}")
+    public ResponseEntity<AttendanceResponse> signUpForAttendance(
+            @PathVariable UUID sessionId, @PathVariable UUID personId, @Valid @RequestBody AttendanceRequest request
+    ) throws NotFoundException {
+        System.out.println("ssss");
+        Attendance attendance = SERVICE.signUpForSession(sessionId, personId, request);
+
+        return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 }
