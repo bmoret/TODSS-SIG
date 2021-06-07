@@ -31,6 +31,12 @@ public class AttendanceService {
         SESSION_SERVICE = sessionService;
     }
 
+    public List<Attendance> getAllAttendeesFromSession(UUID id) throws NotFoundException {
+        Session session = SESSION_SERVICE.getSessionById(id);
+
+        return this.ATTENDANCE_REPOSITORY.findAttendancesBySession(session);
+    }
+
     public Attendance getAttendanceById(UUID id) throws NotFoundException {
         return ATTENDANCE_REPOSITORY.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Aanwezigheid met id '%s' bestaat niet.", id)));

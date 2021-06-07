@@ -99,6 +99,7 @@ class AttendanceControllerIntegrationTest {
                 )
         );
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, true, person, session));
+        session.addAttendee(attendance);
     }
 
     @AfterEach
@@ -609,4 +610,59 @@ class AttendanceControllerIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isOk());
     }
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Get all attendances by session returns list attendances as manager")
+    void getAllSessionsAsAManager() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/attendances/session/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("Get all attendances by session returns list attendances as secretary")
+    void getAllSessionsAsSecretary() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/attendances/session/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Get all attendances by session returns list attendances as administrator")
+    void getAllSessionsAsAdministrator() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/attendances/session/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("Get all attendances by session returns list attendances as employee")
+    void getAllSessionsAsEmployee() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/attendances/session/" + session.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+
 }

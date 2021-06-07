@@ -119,6 +119,16 @@ class AttendanceServiceIntegrationTest {
     }
 
     @Test
+    @DisplayName("get attendance by session")
+    void getAttendanceBySession() {
+        List<Attendance> attendances = assertDoesNotThrow(() ->
+                ATTENDANCE_SERVICE.getAllAttendeesFromSession(session.getId()));
+
+        assertEquals(1, attendances.size());
+        assertTrue(attendances.contains(attendance));
+    }
+
+    @Test
     @DisplayName("get attendance by id throws when not found")
     void getAttendanceByIdThrows() {
         assertThrows(
