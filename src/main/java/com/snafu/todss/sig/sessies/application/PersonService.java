@@ -7,7 +7,6 @@ import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.SearchRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -111,21 +110,21 @@ public class PersonService {
         PERSON_REPOSITORY.delete(getPerson(id));
     }
 
-    public List<Person> getBestLevenshteinDistanceValue(List<Person> allPersons, SearchRequest request) {
+    public List<Person> getBestLevenshteinDistanceValue(List<Person> allPersons, String name) {
         Map<Person, Integer> map = new HashMap<>();
 
         allPersons.forEach(
                 person -> {
                     int value = calculateLevenshteinDistance(
-                            request.searchTerm,
+                            name,
                             person.getDetails().getFirstname()+" "+ person.getDetails().getLastname()
                     );
                     int firstnameValue= calculateLevenshteinDistance(
-                            request.searchTerm,
+                            name,
                             person.getDetails().getFirstname()
                     );
                     int lastnameValue= calculateLevenshteinDistance(
-                            request.searchTerm,
+                            name,
                             person.getDetails().getLastname()
                     );
                     if(value > firstnameValue) {
@@ -153,13 +152,13 @@ public class PersonService {
                 )).keySet());
     }
 
-    public List<Person> searchPerson(SearchRequest request) {
-        if (request.searchTerm.isBlank()) {
+    public List<Person> searchPerson(String name) {
+        if (name.isBlank()) {
             throw new RuntimeException("vul de zoekbalk");
         }
         List<Person> allPersons = this.PERSON_REPOSITORY.findAll();
 
-        return getBestLevenshteinDistanceValue(allPersons, request);
+        return getBestLevenshteinDistanceValue(allPersons, name);
     }
 
     public void removeAttendanceFromPerson(Person person, Attendance attendance) {
