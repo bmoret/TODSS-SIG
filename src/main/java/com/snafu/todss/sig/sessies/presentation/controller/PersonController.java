@@ -36,7 +36,6 @@ public class PersonController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<PersonResponse> getPerson(@PathVariable("id") UUID id) throws NotFoundException {
         Person person = SERVICE.getPerson(id);
-
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
@@ -44,7 +43,6 @@ public class PersonController {
     @GetMapping
     public ResponseEntity<PersonResponse> getPersonByEmail(@RequestBody String email) throws NotFoundException {
         Person person = SERVICE.getPersonByEmail(email);
-
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
@@ -54,7 +52,6 @@ public class PersonController {
             @Valid @RequestBody PersonRequest dto
     ) throws NotFoundException {
         Person person = SERVICE.createPerson(dto);
-
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
@@ -65,7 +62,6 @@ public class PersonController {
             @Valid @RequestBody PersonRequest dto
     ) throws NotFoundException {
         Person person = SERVICE.editPerson(id, dto);
-
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 
@@ -73,7 +69,6 @@ public class PersonController {
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<PersonResponse> removePerson(@PathVariable UUID id) throws NotFoundException {
         SERVICE.removePerson(id);
-
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

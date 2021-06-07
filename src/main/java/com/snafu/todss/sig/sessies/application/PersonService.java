@@ -147,15 +147,6 @@ public class PersonService {
                 )).keySet());
     }
 
-    public List<Person> searchPerson(SearchRequest request) {
-        if (request.searchTerm.isBlank()) {
-            throw new RuntimeException("vul de zoekbalk");
-        }
-        List<Person> allPersons = this.PERSON_REPOSITORY.findAll();
-
-        return getBestLevenshteinDistanceValue(allPersons, request);
-    }
-
     public void addAttendanceToPerson(Person person, Attendance attendance) {
         person.addAttendance(attendance);
         PERSON_REPOSITORY.save(person);
