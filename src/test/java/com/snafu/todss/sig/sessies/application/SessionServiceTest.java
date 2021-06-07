@@ -9,7 +9,9 @@ import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.domain.session.types.TeamsOnlineSession;
+import com.snafu.todss.sig.sessies.presentation.dto.request.session.OnlineSessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.PhysicalSessionRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -147,6 +149,82 @@ class SessionServiceTest {
         verify(sigService, times(1)).getSpecialInterestGroupById(any(UUID.class));
         verify(repository, times(1)).findById(any());
         verify(repository, times(1)).save(any(Session.class));
+    }
+
+
+    @Test
+    @DisplayName("Update session, from Physical to Online")
+    void updateSessionFromPhysicalToOnline() throws NotFoundException {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+
+        OnlineSessionRequest onlineSessionRequest = new OnlineSessionRequest(
+                now,
+                nowPlusOneHour,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Random Platform",
+                "link",
+                UUID.randomUUID().toString()
+        );
+
+        when(repository.findById(any())).thenReturn(Optional.of(session));
+        when(repository.save(any(Session.class))).thenReturn(new OnlineSession());
+        when(sigService.getSpecialInterestGroupById(onlineSessionRequest.sigId)).thenReturn(new SpecialInterestGroup());
+
+        Session resSession = service.updateSession(UUID.randomUUID(), onlineSessionRequest);
+
+        assertNotNull(resSession);
+        verify(sigService, times(1)).getSpecialInterestGroupById(any(UUID.class));
+        verify(repository, times(1)).findById(any());
+        verify(repository, times(1)).save(any(Session.class));
+    }
+
+    @Test
+    @DisplayName("Update session, from Online to Physical")
+    void updateSessionFromOnlineToPhysical() throws NotFoundException {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+
+        PhysicalSessionRequest physicalSessionRequest = new PhysicalSessionRequest(
+                now,
+                nowPlusOneHour,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Address",
+                UUID.randomUUID().toString()
+        );
+
+        when(repository.findById(any())).thenReturn(Optional.of(session));
+        when(repository.save(any(Session.class))).thenReturn(new OnlineSession());
+        when(sigService.getSpecialInterestGroupById(physicalSessionRequest.sigId)).thenReturn(new SpecialInterestGroup());
+
+        Session resSession = service.updateSession(UUID.randomUUID(), physicalSessionRequest);
+
+        assertNotNull(resSession);
+        verify(sigService, times(1)).getSpecialInterestGroupById(any(UUID.class));
+        verify(repository, times(1)).findById(any());
+        verify(repository, times(1)).save(any(Session.class));
+    }
+
+    @Test
+    @DisplayName("Update session type throws when correct type is not found")
+    void updateSessionFromTypeThrows() throws NotFoundException {
+        SessionRequest request = mock(SessionRequest.class);
+        request.sigId = UUID.randomUUID();
+        when(repository.findById(any())).thenReturn(Optional.of(session));
+        when(repository.save(any(Session.class))).thenReturn(new OnlineSession());
+        when(sigService.getSpecialInterestGroupById(request.sigId)).thenReturn(new SpecialInterestGroup());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updateSession(UUID.randomUUID(), request)
+        );
+
+        verify(sigService, times(1)).getSpecialInterestGroupById(any(UUID.class));
+        verify(repository, times(1)).findById(any());
     }
 
     @Test

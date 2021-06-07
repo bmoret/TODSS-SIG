@@ -1,5 +1,9 @@
 package com.snafu.todss.sig.sessies.domain.session.builder;
 
+import com.snafu.todss.sig.sessies.domain.Attendance;
+import com.snafu.todss.sig.sessies.domain.AttendanceState;
+import com.snafu.todss.sig.sessies.domain.Feedback;
+import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
@@ -147,6 +151,84 @@ class SessionDirectorTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> SessionDirector.update( new PhysicalSession(), request, null, null)
+        );
+    }
+
+    private PhysicalSessionRequest providePhysicalSessionRequest() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+
+        return new PhysicalSessionRequest(
+                now,
+                nowPlusOneHour,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Address",
+                UUID.randomUUID().toString()
+        );
+    }
+    private OnlineSessionRequest provideOnlineSessionRequest() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+
+        return new OnlineSessionRequest(
+                now,
+                nowPlusOneHour,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Random Platform",
+                "link",
+                UUID.randomUUID().toString()
+        );
+    }
+
+    @Test
+    @DisplayName("change session type from Physical to Online")
+    void changeSessionFromPhysicalToOnline() {
+        Session session = SessionDirector.build(providePhysicalSessionRequest(), null, null);
+        session.addAttendee(new Attendance(AttendanceState.PRESENT, false, person, session));
+        session.addFeedback(new Feedback("leuk!@!@!@!@!@!", session, person));
+        session.addFeedback(new Feedback("hallo daaarrrrrrrrrrrr", session, person));
+        Session updatedSession = SessionDirector.update(session, provideOnlineSessionRequest(), null, null);
+
+        assertEquals(session.getId(), updatedSession.getId());
+        assertEquals(session.getAttendances().size(), updatedSession.getAttendances().size());
+        assertEquals(session.getFeedback().size(), updatedSession.getFeedback().size());
+    }
+
+    @Test
+    @DisplayName("change session type from Online to Physical")
+    void changeSessionFromOnlineToPhysical() {
+        Session session = SessionDirector.build(provideOnlineSessionRequest(), null, null);
+        session.addAttendee(new Attendance(AttendanceState.PRESENT, false, person, session));
+        session.addFeedback(new Feedback("leuk!@!@!@!@!@!", session, person));
+        session.addFeedback(new Feedback("hallo daaarrrrrrrrrrrr", session, person));
+        Session updatedSession = SessionDirector.update(session, providePhysicalSessionRequest(), null, null);
+        for(Feedback feedback : updatedSession.getFeedback()) {
+            System.out.println(feedback.getDescription());
+        }
+        assertEquals(session.getId(), updatedSession.getId());
+        assertEquals(session.getAttendances().size(), updatedSession.getAttendances().size());
+        assertEquals(session.getFeedback().size(), updatedSession.getFeedback().size());
+    }
+
+    @Test
+    @DisplayName("change session type throws when no correct Request is found")
+    void changeSessionThrows() {
+        Session session = SessionDirector.build(provideOnlineSessionRequest(), null, null);
+        session.addAttendee(new Attendance(AttendanceState.PRESENT, false, person, session));
+        session.addFeedback(new Feedback("leuk!@!@!@!@!@!", session, person));
+        session.addFeedback(new Feedback("hallo daaarrrrrrrrrrrr", session, person));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> SessionDirector.rebuild(
+                        session,
+                        mock(SessionRequest.class),
+                        null,
+                        null
+                )
         );
     }
 }
