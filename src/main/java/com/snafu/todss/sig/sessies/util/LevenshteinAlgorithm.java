@@ -5,7 +5,7 @@ import java.util.Locale;
 public class LevenshteinAlgorithm {
     public static int calculateLevenshteinDistance(String val1, String val2) {
         if (val1.isBlank() || val2.isBlank()) {
-            throw new RuntimeException("deze waarde mag niet leeg zijn");
+            throw new IllegalArgumentException("deze waarde mag niet leeg zijn");
         }
         char[] str1 = val1.toLowerCase(Locale.ROOT).toCharArray();
         char[] str2 = val2.toLowerCase(Locale.ROOT).toCharArray();

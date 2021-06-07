@@ -85,7 +85,8 @@ public class UserService implements UserDetailsService {
         this.JWT_VALIDATOR.validateRefreshJwt(refreshTokenRequest.refreshToken);
         String accessToken = this.JWT_GENERATOR.refreshAccessTokenFromAccessToken(refreshTokenRequest.accessToken);
         Map<String, String> authTokenMap = new HashMap<>();
-        authTokenMap.put("Access_Token", accessToken);
+        authTokenMap.put("Access-Token", accessToken);
+        authTokenMap.put("Access-Control-Expose-Headers", "*");
 
         return authTokenMap;
     }
