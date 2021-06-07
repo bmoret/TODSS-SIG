@@ -292,19 +292,20 @@ class AttendanceServiceTest {
 
     @Test
     @DisplayName("sign up for session with existing attendance and state not PRESENT goes into update")
-    void singUpWithCorrectUserAndStatePresent() throws NotFoundException {
+    void singUpWithCorrectUserAndStatePresent() {
         AttendanceRequest request = new AttendanceRequest();
         request.state = PRESENT.toString();
         request.speaker = false;
+        doNothing().when(SESSION_SERVICE).addAttendeeToSession(session, attendance);
+        doNothing().when(PERSON_SERVICE).addAttendanceToPerson(person, attendance);
         when(SERVICE.getAttendanceBySessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
         when(ATTENDANCE_REPOSITORY.findById(attendance.getId())).thenReturn(Optional.of(attendance));
-        when(SERVICE.createAttendance(AttendanceState.valueOf(request.state), request.speaker, session.getId(), person.getId())).thenReturn(attendance);
 
         assertDoesNotThrow(
                 () -> SERVICE.signUpForSession(person.getId(), session.getId(), request)
         );
 
-        verify(ATTENDANCE_REPOSITORY, times(3)).findAttendanceByIdContainingAndSessionAndPerson(any(), any());
+        verify(ATTENDANCE_REPOSITORY, times(2)).findAttendanceByIdContainingAndSessionAndPerson(any(), any());
     }
 
     @Test

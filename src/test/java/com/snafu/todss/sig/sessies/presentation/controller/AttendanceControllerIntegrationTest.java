@@ -62,11 +62,6 @@ class AttendanceControllerIntegrationTest {
 
     @BeforeEach
     void setup() {
-        ATTENDANCE_REPOSITORY.deleteAll();
-        SESSION_REPOSITORY.deleteAll();
-        SIG_REPOSITORY.deleteAll();
-        PERSON_REPOSITORY.deleteAll();
-
         PersonBuilder pb = new PersonBuilder();
         pb.setEmail("t_a");
         pb.setFirstname("t");
@@ -95,11 +90,6 @@ class AttendanceControllerIntegrationTest {
                 )
         );
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, true, person, session));
-    }
-
-    @AfterEach
-    void tearDown() {
-        ATTENDANCE_REPOSITORY.deleteAll();
     }
 
     @Test

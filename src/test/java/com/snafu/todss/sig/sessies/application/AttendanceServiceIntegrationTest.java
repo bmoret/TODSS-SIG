@@ -93,7 +93,7 @@ class AttendanceServiceIntegrationTest {
         ));
 
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session));
-//        session.addAttendee(attendance);
+        session.addAttendee(attendance);
         session = this.SESSION_REPOSITORY.save(session);
     }
 
@@ -312,7 +312,6 @@ class AttendanceServiceIntegrationTest {
     @Test
     @DisplayName("check if attendance exists for person / session combination and returns true when it does")
     void checkAttendanceBySessionPersonTrue() {
-        session.getAttendances().forEach(e -> System.out.println(e.getPerson().getId()));
         assertTrue(
                 assertDoesNotThrow(
                         () -> ATTENDANCE_SERVICE.checkIfAttending(
@@ -404,35 +403,6 @@ class AttendanceServiceIntegrationTest {
                         () -> ATTENDANCE_SERVICE.getAttendanceById(attendance.getId()).getState()
                 )
         );
-    }
-
-
-    @Autowired
-    private SessionService SESSION_SERVICE;
-
-    @Test
-    @DisplayName("update attendance by useing signUpForSession")
-    void at() throws NotFoundException {
-        PersonBuilder pb = new PersonBuilder();
-        pb.setEmail("t_a");
-        pb.setFirstname("a");
-        pb.setLastname("t");
-        pb.setExpertise("none");
-        pb.setEmployedSince(LocalDate.of(2021, 1, 1));
-        pb.setBranch(VIANEN);
-        pb.setRole(MANAGER);
-        Person person1 = PERSON_REPOSITORY.save(pb.build());
-
-        System.out.println("pls false: " + ATTENDANCE_SERVICE.checkIfAttending(session.getId(), person1.getId()));
-
-        Attendance jow = ATTENDANCE_SERVICE.createAttendance(PRESENT, false, session.getId(), person1.getId());
-        System.out.println("bestaat in attend?: " + ATTENDANCE_SERVICE.getAttendanceById(jow.getId()).getId());
-        System.out.println(SESSION_SERVICE.getSessionById(jow.getSession().getId()).getAttendances().size());
-        for (Attendance attendance : SESSION_SERVICE.getSessionById(jow.getSession().getId()).getAttendances()) {
-            System.out.println("bestaat in sessie?: " + attendance.getId());
-        }
-
-        System.out.println("pls true: " + ATTENDANCE_SERVICE.checkIfAttending(session.getId(), person1.getId()));
     }
 }
 
