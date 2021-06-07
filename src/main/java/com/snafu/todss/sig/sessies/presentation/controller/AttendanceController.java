@@ -75,7 +75,7 @@ public class AttendanceController {
     }
 
     @RolesAllowed({"ROLE_MANAGER","ROLE_SECRETARY", "ROLE_ORGANIZER","ROLE_ADMINISTRATOR"})
-    @PutMapping("/{id}/presence")
+    @PatchMapping("/{id}/presence")
     public ResponseEntity<AttendanceResponse> updatePresence(
             @PathVariable UUID id,
             @Valid @RequestBody PresenceRequest request
@@ -114,7 +114,8 @@ public class AttendanceController {
         return new ResponseEntity<>(present, HttpStatus.OK);
     }
 
-    @PutMapping("/{sessionId}/{personId}")
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
+    @PatchMapping("/{sessionId}/{personId}")
     public ResponseEntity<AttendanceResponse> signUpForAttendance(
             @PathVariable UUID sessionId, @PathVariable UUID personId, @Valid @RequestBody AttendanceRequest request
     ) throws NotFoundException {

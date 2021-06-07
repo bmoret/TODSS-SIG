@@ -79,7 +79,6 @@ public class AttendanceService {
     public Attendance updatePresence(UUID id, PresenceRequest presenceRequest) throws NotFoundException {
         Attendance attendance = this.getAttendanceById(id);
         Session session = attendance.getSession();
-        System.out.println(presenceRequest.isPresent);
         if (session.getState() != SessionState.ONGOING && session.getState() != SessionState.ENDED) {
             throw new IllegalArgumentException(
                     "Cannot change the state of attendance when the session has not begun yet.");

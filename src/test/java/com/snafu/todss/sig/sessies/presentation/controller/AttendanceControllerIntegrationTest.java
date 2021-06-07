@@ -289,12 +289,10 @@ class AttendanceControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("update presence of attendance when attendee is not present as manager")
     void updatePresenceToNoShowAsManager() throws Exception {
-
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("isPresent", false);
-
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/attendances/{id}/presence", attendance.getId())
+                .patch("/attendances/{id}/presence", attendance.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonObject.toString());
 
@@ -315,7 +313,7 @@ class AttendanceControllerIntegrationTest {
         jsonObject.put("isPresent", false);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/attendances/{id}/presence", attendance.getId())
+                .patch("/attendances/{id}/presence", attendance.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonObject.toString());
 
@@ -336,7 +334,7 @@ class AttendanceControllerIntegrationTest {
         jsonObject.put("isPresent", false);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/attendances/{id}/presence", attendance.getId())
+                .patch("/attendances/{id}/presence", attendance.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonObject.toString());
 
@@ -357,7 +355,7 @@ class AttendanceControllerIntegrationTest {
         jsonObject.put("isPresent", false);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/attendances/{id}/presence", attendance.getId())
+                .patch("/attendances/{id}/presence", attendance.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonObject.toString());
 
@@ -395,7 +393,7 @@ class AttendanceControllerIntegrationTest {
         jsonObject.put("isPresent", true);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/attendances/{id}/presence", attendance.getId())
+                .patch("/attendances/{id}/presence", attendance.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonObject.toString());
 
@@ -417,7 +415,7 @@ class AttendanceControllerIntegrationTest {
         jsonObject.put("isPresent", true);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/attendances/{id}/presence", attendance.getId())
+                .patch("/attendances/{id}/presence", attendance.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonObject.toString());
 
@@ -439,7 +437,7 @@ class AttendanceControllerIntegrationTest {
         jsonObject.put("isPresent", true);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/attendances/{id}/presence", attendance.getId())
+                .patch("/attendances/{id}/presence", attendance.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonObject.toString());
 
@@ -461,7 +459,7 @@ class AttendanceControllerIntegrationTest {
         jsonObject.put("isPresent", true);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put("/attendances/{id}/presence", attendance.getId())
+                .patch("/attendances/{id}/presence", attendance.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonObject.toString());
 
@@ -604,7 +602,7 @@ class AttendanceControllerIntegrationTest {
         body.put("state", "PRESENT");
         body.put("speaker", "true");
 
-        RequestBuilder request = MockMvcRequestBuilders.put("/attendances/"+sessionId+"/"+personId)
+        RequestBuilder request = MockMvcRequestBuilders.patch("/attendances/"+sessionId+"/"+personId)
                 .content(body.toString())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
