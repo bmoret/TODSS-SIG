@@ -58,6 +58,18 @@ public abstract class Session {
         this.contactPerson = contactPerson;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void addAllAttendees(List<Attendance> attendances) {
+        attendances.forEach(this::addAttendee);
+    }
+
+    public void addAllFeedback(List<Feedback> feedbacks) {
+        feedbacks.forEach(this::addFeedback);
+    }
+
     public SessionDetails getDetails() {
         return details;
     }
@@ -72,7 +84,7 @@ public abstract class Session {
                 .map(Attendance::getPerson)
                 .anyMatch(attendancePerson -> attendancePerson.equals(attendance.getPerson()));
         if (isPersonAttendingSession) {
-            throw new IllegalArgumentException("Person already attending session");
+            return false;
         }
         return this.attendanceList.add(attendance);
     }
