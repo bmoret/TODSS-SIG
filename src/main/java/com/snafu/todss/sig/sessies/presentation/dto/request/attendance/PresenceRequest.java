@@ -4,5 +4,5 @@ import javax.validation.constraints.NotNull;
 
 public class PresenceRequest {
     @NotNull
-    public boolean isPresent;
+    public Boolean isPresent;
 }
