@@ -18,7 +18,7 @@ import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/registration")
+@RequestMapping
 @Transactional
 public class RegistrationController {
     private final UserService userService;
@@ -29,7 +29,7 @@ public class RegistrationController {
         this.personService = personService;
     }
 
-    @PostMapping
+    @PostMapping("/registration")
     public void register(@Valid @RequestBody Registration registration) throws NotFoundException {
         Person person = this.personService.createPerson(registration);
         this.userService.register(

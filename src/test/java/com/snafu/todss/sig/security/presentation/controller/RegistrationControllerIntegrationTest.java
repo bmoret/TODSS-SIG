@@ -279,16 +279,13 @@ class RegistrationControllerIntegrationTest {
     @DisplayName("Refresh access token with refresh token")
     void requestWithCorrectTokens() throws Exception {
         Map<String, String> tokens = getTokensFromLogin();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("accessToken", tokens.get("access_token").split(" ")[1]);
-        jsonObject.put("refreshToken", tokens.get("refresh_token"));
 
         RequestBuilder request = MockMvcRequestBuilders
-                .post("/sessions")
+                .get("/sessions")
                 .contentType("application/json")
-                .content(jsonObject.toString());
+                .header("Access-Token", tokens.get("access_token"));
 
         mockMvc.perform(request)
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
     }
 }
