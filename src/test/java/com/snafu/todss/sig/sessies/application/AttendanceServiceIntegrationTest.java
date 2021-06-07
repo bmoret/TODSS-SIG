@@ -14,6 +14,7 @@ import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.PresenceRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
@@ -241,6 +242,29 @@ class AttendanceServiceIntegrationTest {
         Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request));
 
         assertTrue(attendance.isSpeaker());
+    }
+
+    @Test
+    @DisplayName("update presence of attendance when attendee is not present")
+    void updatePresenceToNoShow() {
+        PresenceRequest request = new PresenceRequest();
+        request.isPresent = false;
+        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updatePresence(this.attendance.getId(),
+                                                                                            request));
+
+        assertEquals(NO_SHOW, attendance.getState());
+    }
+
+    @Test
+    @DisplayName("update presence of attendance when attendee is present")
+    void updatePresenceToPresent() {
+        attendance.setState(NO_SHOW);
+        PresenceRequest request = new PresenceRequest();
+        request.isPresent = true;
+        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updatePresence(this.attendance.getId(),
+                request));
+
+        assertEquals(PRESENT, attendance.getState());
     }
 
     @Test

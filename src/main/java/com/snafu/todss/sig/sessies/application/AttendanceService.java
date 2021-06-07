@@ -6,6 +6,7 @@ import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.PresenceRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -70,6 +71,18 @@ public class AttendanceService {
         Attendance attendance = this.getAttendanceById(id);
         attendance.setState(getAttendanceStateOfString(attendanceRequest.state));
         attendance.setSpeaker(attendanceRequest.speaker);
+
+        return this.ATTENDANCE_REPOSITORY.save(attendance);
+    }
+
+    public Attendance updatePresence(UUID id, PresenceRequest presenceRequest) throws NotFoundException {
+        Attendance attendance = this.getAttendanceById(id);
+        if(presenceRequest.isPresent) {
+            attendance.setState(AttendanceState.PRESENT);
+        } else {
+            attendance.setState(AttendanceState.NO_SHOW);
+
+        }
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);
     }

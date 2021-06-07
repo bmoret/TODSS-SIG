@@ -4,6 +4,7 @@ import com.snafu.todss.sig.sessies.application.AttendanceService;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.PresenceRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.AttendanceResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import javassist.NotFoundException;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
+import javax.naming.PartialResultException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +21,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/attendances")
-//todo  /sessions/{sessionId} Kan mogelijk beter zijn i.v.m. structuur en logica van REST pathing -jona
 public class AttendanceController {
     private final AttendanceService SERVICE;
 
@@ -76,6 +77,17 @@ public class AttendanceController {
         return new ResponseEntity<>(convertPersonToListResponse(speakers), HttpStatus.OK);
     }
 
+    @RolesAllowed({"ROLE_MANAGER","ROLE_SECRETARY", "ROLE_ORGANIZER","ROLE_ADMINISTRATOR"})
+    @PutMapping("/{id}/presence")
+    public ResponseEntity<AttendanceResponse> updatePresence(
+            @PathVariable UUID id,
+            @Valid @RequestBody PresenceRequest request
+    ) throws NotFoundException {
+        Attendance attendance = this.SERVICE.updatePresence(id, request);
+
+        return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
+    }
+
     @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @PutMapping("/{id}/update")
     public ResponseEntity<AttendanceResponse> updateAttendance(
@@ -109,7 +121,6 @@ public class AttendanceController {
     public ResponseEntity<AttendanceResponse> signUpForAttendance(
             @PathVariable UUID sessionId, @PathVariable UUID personId, @Valid @RequestBody AttendanceRequest request
     ) throws NotFoundException {
-        System.out.println("ssss");
         Attendance attendance = SERVICE.signUpForSession(sessionId, personId, request);
 
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);

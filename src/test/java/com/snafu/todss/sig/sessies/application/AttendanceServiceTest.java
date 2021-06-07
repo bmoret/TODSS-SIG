@@ -11,6 +11,7 @@ import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.PresenceRequest;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -232,6 +233,40 @@ class AttendanceServiceTest {
         when(ATTENDANCE_REPOSITORY.save(any(Attendance.class))).thenReturn(updatedAttendance);
 
         Attendance actualUpdatedAttendance = SERVICE.updateAttendance(UUID.randomUUID(), request);
+
+        assertEquals(PRESENT, actualUpdatedAttendance.getState());
+        verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));
+        verify(ATTENDANCE_REPOSITORY, times(1)).findById(any());
+    }
+
+    @Test
+    @DisplayName("update presence of attendance when attendee does not show up")
+    void updatePresenceToNoSHow() throws Exception {
+        PresenceRequest request = new PresenceRequest();
+        request.isPresent = false;
+        Attendance updatedAttendance = new Attendance(NO_SHOW, false, person, session);
+
+        when(ATTENDANCE_REPOSITORY.findById(any())).thenReturn(Optional.of(attendance));
+        when(ATTENDANCE_REPOSITORY.save(any(Attendance.class))).thenReturn(updatedAttendance);
+
+        Attendance actualUpdatedAttendance = SERVICE.updatePresence(UUID.randomUUID(), request);
+
+        assertEquals(NO_SHOW, actualUpdatedAttendance.getState());
+        verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));
+        verify(ATTENDANCE_REPOSITORY, times(1)).findById(any());
+    }
+
+    @Test
+    @DisplayName("update presence of attendance when attendee does shows up")
+    void updatePresenceToPresent() throws Exception {
+        PresenceRequest request = new PresenceRequest();
+        request.isPresent = true;
+        Attendance updatedAttendance = new Attendance(PRESENT, false, person, session);
+
+        when(ATTENDANCE_REPOSITORY.findById(any())).thenReturn(Optional.of(attendance));
+        when(ATTENDANCE_REPOSITORY.save(any(Attendance.class))).thenReturn(updatedAttendance);
+
+        Attendance actualUpdatedAttendance = SERVICE.updatePresence(UUID.randomUUID(), request);
 
         assertEquals(PRESENT, actualUpdatedAttendance.getState());
         verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));

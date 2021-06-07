@@ -253,6 +253,211 @@ class AttendanceControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("update presence of attendance when attendee is not present as manager")
+    void updatePresenceToNoShowAsManager() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("isPresent", false);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/attendances/{id}/presence", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value(NO_SHOW.toString()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.speaker").exists())
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("update presence of attendance when attendee is not present as secretary")
+    void updatePresenceToNoShowAsSecretary() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("isPresent", false);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/attendances/{id}/presence", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value(NO_SHOW.toString()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.speaker").exists())
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ORGANIZER")
+    @DisplayName("update presence of attendance when attendee is not present as organizer")
+    void updatePresenceToNoShowAsOrganizer() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("isPresent", false);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/attendances/{id}/presence", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value(NO_SHOW.toString()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.speaker").exists())
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("update presence of attendance when attendee is not present as administrator")
+    void updatePresenceToNoShowAsAdministrator() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("isPresent", false);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/attendances/{id}/presence", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value(NO_SHOW.toString()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.speaker").exists())
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("update presence of attendance when attendee is not present as employee")
+    void updatePresenceToNoShowAsEmployee() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("isPresent", false);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/attendances/{id}/presence", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("update presence of attendance when attendee is present as manager")
+    void updatePresenceToPresentAsManager() throws Exception {
+        attendance.setState(NO_SHOW);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("isPresent", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/attendances/{id}/presence", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value(PRESENT.toString()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.speaker").exists())
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "SECRETARY")
+    @DisplayName("update presence of attendance when attendee is present as secretary")
+    void updatePresenceToPresentAsSecretary() throws Exception {
+        attendance.setState(NO_SHOW);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("isPresent", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/attendances/{id}/presence", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value(PRESENT.toString()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.speaker").exists())
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ORGANIZER")
+    @DisplayName("update presence of attendance when attendee is present as organizer")
+    void updatePresenceToPresentAsOrganizer() throws Exception {
+        attendance.setState(NO_SHOW);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("isPresent", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/attendances/{id}/presence", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value(PRESENT.toString()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.speaker").exists())
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("update presence of attendance when attendee is present as administrator")
+    void updatePresenceToPresentAsAdministrator() throws Exception {
+        attendance.setState(NO_SHOW);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("isPresent", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/attendances/{id}/presence", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.state").value(PRESENT.toString()))
+                .andExpect(jsonPath("$.person").exists())
+                .andExpect(jsonPath("$.speaker").exists())
+                .andExpect(jsonPath("$.session").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
+    @DisplayName("update presence of attendance when attendee is present as employee")
+    void updatePresenceToPresentAsEmployee() throws Exception {
+        attendance.setState(NO_SHOW);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("isPresent", true);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/attendances/{id}/presence", attendance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString());
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("delete attendance as manager")
     void deleteAttendanceAsManager() throws Exception {
         mockMvc.perform(
