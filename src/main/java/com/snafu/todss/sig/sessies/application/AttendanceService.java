@@ -4,6 +4,7 @@ import com.snafu.todss.sig.sessies.data.SpringAttendanceRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.PresenceRequest;
@@ -77,11 +78,17 @@ public class AttendanceService {
 
     public Attendance updatePresence(UUID id, PresenceRequest presenceRequest) throws NotFoundException {
         Attendance attendance = this.getAttendanceById(id);
-        if(presenceRequest.isPresent) {
-            attendance.setState(AttendanceState.PRESENT);
-        } else {
-            attendance.setState(AttendanceState.NO_SHOW);
+        Session session = attendance.getSession();
 
+        if (session.getState() == SessionState.ONGOING || session.getState() == SessionState.ENDED) {
+            if (presenceRequest.isPresent) {
+                attendance.setState(AttendanceState.PRESENT);
+            } else {
+                attendance.setState(AttendanceState.NO_SHOW);
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "Cannot change the state of attendance when the session has not begun yet.");
         }
 
         return this.ATTENDANCE_REPOSITORY.save(attendance);

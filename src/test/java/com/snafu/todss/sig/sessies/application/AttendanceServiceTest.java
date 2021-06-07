@@ -43,19 +43,21 @@ class AttendanceServiceTest {
     private static Attendance attendance;
     private static Person person;
     private static Session session;
+    private static SpecialInterestGroup sig;
+
+    private final LocalDateTime now = LocalDateTime.now();
+    private final LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+    private final String subject = "Subjectttt";
+    private final String description = "Description";
+    private final String address = "Address";
 
     @BeforeEach
     @DisplayName("Create mocks for services")
     void setup() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
-        String subject = "Subject";
-        String description = "Description";
-        String address = "Address";
         SpecialInterestGroup sig = new SpecialInterestGroup();
         session = new PhysicalSession(
                 new SessionDetails(now, nowPlusOneHour, subject, description),
-                SessionState.DRAFT,
+                SessionState.ENDED,
                 sig,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -254,6 +256,30 @@ class AttendanceServiceTest {
         assertEquals(NO_SHOW, actualUpdatedAttendance.getState());
         verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));
         verify(ATTENDANCE_REPOSITORY, times(1)).findById(any());
+    }
+
+    @Test
+    @DisplayName("update presence of attendance when has not begun")
+    void updatePresenceWhenSessionNotBegun() throws Exception {
+        Session session1 = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                sig,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address,
+                null
+        );
+        Attendance attendance1 = new Attendance(CANCELED, true, person, session1);
+        session1.addAttendee(attendance1);
+        PresenceRequest request = new PresenceRequest();
+        request.isPresent = false;
+        Attendance updatedAttendance = new Attendance(NO_SHOW, false, person, session1);
+
+        when(ATTENDANCE_REPOSITORY.findById(any())).thenReturn(Optional.of(attendance1));
+        when(ATTENDANCE_REPOSITORY.save(any(Attendance.class))).thenReturn(updatedAttendance);
+
+        assertThrows(IllegalArgumentException.class, () -> SERVICE.updatePresence(UUID.randomUUID(), request));
     }
 
     @Test

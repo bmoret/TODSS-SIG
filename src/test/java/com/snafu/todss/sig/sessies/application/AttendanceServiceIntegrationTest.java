@@ -59,6 +59,13 @@ class AttendanceServiceIntegrationTest {
     private Attendance attendance;
     private Person person;
     private Session session;
+    private SpecialInterestGroup sig;
+
+    private final LocalDateTime now = LocalDateTime.now();
+    private final LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+    private final String subject = "Subjectttt";
+    private final String description = "Description";
+    private final String address = "Address";
 
     @BeforeAll
     static void init() {
@@ -66,7 +73,6 @@ class AttendanceServiceIntegrationTest {
 
     @BeforeEach
     void setup() {
-
         person = PERSON_REPOSITORY.save( new PersonBuilder()
                 .setEmail("t_a")
                 .setFirstname("ttt")
@@ -77,15 +83,10 @@ class AttendanceServiceIntegrationTest {
                 .setRole(MANAGER)
                 .build());
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
-        String subject = "Subjectttt";
-        String description = "Description";
-        String address = "Address";
-        SpecialInterestGroup sig = SIG_REPOSITORY.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
+        sig = SIG_REPOSITORY.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
         session = SESSION_REPOSITORY.save(new PhysicalSession(
                 new SessionDetails(now, nowPlusOneHour, subject, description),
-                SessionState.DRAFT,
+                SessionState.ONGOING,
                 sig,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -253,6 +254,29 @@ class AttendanceServiceIntegrationTest {
                                                                                             request));
 
         assertEquals(NO_SHOW, attendance.getState());
+    }
+
+    @Test
+    @DisplayName("update presence of attendance when session has not begun")
+    void updatePresenceWhenSessionNotBegun() {
+        Session session1 = SESSION_REPOSITORY.save(new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                sig,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address,
+                null
+        ));
+        Attendance attendance1 = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session1));
+        session1.addAttendee(attendance1);
+        this.SESSION_REPOSITORY.save(session1);
+
+        PresenceRequest request = new PresenceRequest();
+        request.isPresent = false;
+
+        assertThrows(IllegalArgumentException.class, () -> ATTENDANCE_SERVICE.updatePresence(attendance1.getId(),
+                request));
     }
 
     @Test
