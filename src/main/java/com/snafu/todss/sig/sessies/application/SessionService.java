@@ -57,8 +57,14 @@ public class SessionService {
                     .getPerson(sessionRequest.contactPerson);
         }
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
-        session = SessionDirector.update(session, sessionRequest, sig, person);
-        return this.SESSION_REPOSITORY.save(session);
+
+        Session updatedSession = SessionDirector.update(session, sessionRequest, sig, person);
+        if (!updatedSession.getClass().isAssignableFrom(session.getClass())) {
+            System.out.println("hey hallo");
+            this.deleteSession(session.getId());
+        }
+        System.out.println("voor: "+updatedSession.getId());
+        return this.SESSION_REPOSITORY.save(updatedSession);
     }
 
     public void deleteSession(UUID sessionId) throws NotFoundException {

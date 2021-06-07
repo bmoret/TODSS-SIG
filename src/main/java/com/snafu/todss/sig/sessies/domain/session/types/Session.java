@@ -6,6 +6,7 @@ import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.List;
@@ -18,7 +19,10 @@ import static com.snafu.todss.sig.sessies.util.InputValidations.inputNotNull;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Session {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    //todo: huidige manier -> @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator="generator")
+    @GenericGenerator(name="generator", strategy="com.snafu.todss.sig.sessies.domain.session.idGenerator.FilterIdentifierGenerator")
+    @Column(unique=true, nullable=false)
     private UUID id;
 
     @Embedded
@@ -58,6 +62,10 @@ public abstract class Session {
         this.contactPerson = contactPerson;
     }
 
+    public SessionDetails getDetails() {
+        return details;
+    }
+
     public void setId(UUID id) {
         this.id = id;
     }
@@ -68,10 +76,6 @@ public abstract class Session {
 
     public void addAllFeedback(List<Feedback> feedbacks) {
         feedbacks.forEach(this::addFeedback);
-    }
-
-    public SessionDetails getDetails() {
-        return details;
     }
 
     public List<Attendance> getAttendances() {

@@ -51,17 +51,14 @@ public class SessionDirector {
     }
 
     public static Session rebuild(Session session, SessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
-        System.out.println("rebuild");
         inputNotNull(request);
         if (PhysicalSessionRequest.class.isAssignableFrom(request.getClass())){
-            System.out.println("Physical");
             Session physicalSession = buildPhysicalSession((PhysicalSessionRequest) request, sig, contactPerson);
             physicalSession.setId(session.getId());
             physicalSession.addAllAttendees(session.getAttendances());
             physicalSession.addAllFeedback(session.getFeedback());
             return physicalSession;
         } else if (OnlineSessionRequest.class.isAssignableFrom(request.getClass())) {
-            System.out.println("Online");
             Session onlineSession = buildOnlineSession((OnlineSessionRequest) request, sig, contactPerson);
             onlineSession.setId(session.getId());
             onlineSession.addAllAttendees(session.getAttendances());
@@ -78,7 +75,6 @@ public class SessionDirector {
             }
             return updatePhysicalSession((PhysicalSession) session, (PhysicalSessionRequest) request, sig, contactPerson);
         } else if (OnlineSessionRequest.class.isAssignableFrom(request.getClass())) {
-            System.out.println(!OnlineSession.class.isAssignableFrom(session.getClass()));
             if (!OnlineSession.class.isAssignableFrom(session.getClass())){
                 return rebuild(session, request, sig, contactPerson);
             }
