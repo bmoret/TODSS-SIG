@@ -452,8 +452,7 @@ class PersonControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("Search person by name as manager")
     void searchPersonAsManager() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
-                .content("{\"searchTerm\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search?name=Test")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -467,8 +466,7 @@ class PersonControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "SECRETARY")
     @DisplayName("Search person by name as secretary")
     void searchPersonAsSecretary() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
-                .content("{\"searchTerm\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search?name=Test")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -482,8 +480,7 @@ class PersonControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
     @DisplayName("Search person by name as administrator")
     void searchPersonAsAdministrator() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get("/person/search")
-                .content("{\"searchTerm\":\"Test\"}")
+        RequestBuilder request = MockMvcRequestBuilders.get("/person/search?name=Test")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -497,8 +494,7 @@ class PersonControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
     @DisplayName("Search person by name as employee is not allowed")
     void searchPersonAsEmployee() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/person/search")
-                .content("{\"firstname\":\"second\"}")
+        RequestBuilder request = MockMvcRequestBuilders.post("/person/search?name=second")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
