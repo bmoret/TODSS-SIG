@@ -43,8 +43,7 @@ public class SessionService {
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
         Person person = null;
         if (sessionRequest.contactPerson != null) {
-            person = personService
-                    .getPerson(sessionRequest.contactPerson);
+            person = personService.getPerson(sessionRequest.contactPerson);
         }
         Session session = SessionDirector.build(sessionRequest, sig, person);
         return this.SESSION_REPOSITORY.save(session);
@@ -54,12 +53,14 @@ public class SessionService {
         Session session = getSessionById(sessionId);
         Person person = null;
         if (sessionRequest.contactPerson != null) {
-            person = personService
-                    .getPerson(sessionRequest.contactPerson);
+            person = personService.getPerson(sessionRequest.contactPerson);
         }
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
-        session = SessionDirector.update(session, sessionRequest, sig, person);
-        return this.SESSION_REPOSITORY.save(session);
+        Session updatedSession = SessionDirector.update(session, sessionRequest, sig, person);
+        if (!updatedSession.getClass().isAssignableFrom(session.getClass())) {
+            this.deleteSession(session.getId());
+        }
+        return this.SESSION_REPOSITORY.save(updatedSession);
     }
 
     public void deleteSession(UUID sessionId) throws NotFoundException {

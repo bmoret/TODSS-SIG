@@ -7,7 +7,6 @@ import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
-import com.snafu.todss.sig.sessies.presentation.dto.request.SearchRequest;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -98,12 +97,10 @@ public class PersonService {
             try {
                 return getPerson(id);
             } catch (NotFoundException e) {
-
-                System.out.println("ss");
                 throw new NotFoundException("The given supervisor id is not related to a person");
             }
         }
-      
+
         return null;
     }
 
@@ -111,38 +108,35 @@ public class PersonService {
         PERSON_REPOSITORY.delete(getPerson(id));
     }
 
-    public List<Person> getBestLevenshteinDistanceValue(List<Person> allPersons, SearchRequest request) {
-        Map<Person, Integer> map = new HashMap<>();
+    public List<Person> searchPerson(String name) {
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("No name given");
+        }
+        List<Person> allPersons = this.PERSON_REPOSITORY.findAll();
 
+        return getBestLevenshteinDistanceValue(allPersons, name);
+    }
+
+    public List<Person> getBestLevenshteinDistanceValue(List<Person> allPersons, String name) {
+        Map<Person, Integer> map = new HashMap<>();
         allPersons.forEach(
                 person -> {
-                    int value = calculateLevenshteinDistance(
-                            request.searchTerm,
-                            person.getDetails().getFirstname()+" "+ person.getDetails().getLastname()
-                    );
-                    int firstnameValue= calculateLevenshteinDistance(
-                            request.searchTerm,
-                            person.getDetails().getFirstname()
-                    );
-                    int lastnameValue= calculateLevenshteinDistance(
-                            request.searchTerm,
-                            person.getDetails().getLastname()
-                    );
-                    if(value > firstnameValue) {
-                        value = firstnameValue;
-                    }
-                    if (value > lastnameValue) {
-                        value= lastnameValue;
-                    }
+                    String firstName = person.getDetails().getFirstname();
+                    String lastname = person.getDetails().getLastname();
+                    int value = calculateLevenshteinDistance(name, firstName+" "+ lastname);
+                    int firstnameValue= calculateLevenshteinDistance(name, firstName);
+                    int lastnameValue= calculateLevenshteinDistance(name, lastname);
+                    value = Math.min(Math.min(value, firstnameValue), lastnameValue);
                     if (value <= 4) {
-                        map.put(
-                                person,
-                                value
-                        );
+                        map.put(person,value);
                     }
                 }
         );
 
+        return mapToList(map);
+    }
+
+    private List<Person> mapToList(Map<Person, Integer> map) {
         return new ArrayList<>(map.entrySet().stream()
                 .sorted(Comparator.comparingInt(Map.Entry::getValue))
                 .collect(Collectors.toMap(

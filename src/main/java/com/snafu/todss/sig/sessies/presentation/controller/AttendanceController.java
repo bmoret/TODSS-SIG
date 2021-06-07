@@ -4,6 +4,7 @@ import com.snafu.todss.sig.sessies.application.AttendanceService;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.AttendanceRequest;
+import com.snafu.todss.sig.sessies.presentation.dto.request.attendance.PresenceRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.AttendanceResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import javassist.NotFoundException;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/attendances")
-//todo  /sessions/{sessionId} Kan mogelijk beter zijn i.v.m. structuur en logica van REST pathing -jona
 public class AttendanceController {
     private final AttendanceService SERVICE;
 
@@ -69,11 +69,20 @@ public class AttendanceController {
     public ResponseEntity<List<PersonResponse>> getSpeakerAttendance(
             @PathVariable UUID id
     ) throws NotFoundException {
-        System.out.println(id);
         List<Person> speakers = this.SERVICE.getSpeakersFromAttendanceSession(id);
-        System.out.println(speakers);
 
         return new ResponseEntity<>(convertPersonToListResponse(speakers), HttpStatus.OK);
+    }
+
+    @RolesAllowed({"ROLE_MANAGER","ROLE_SECRETARY", "ROLE_ORGANIZER","ROLE_ADMINISTRATOR"})
+    @PatchMapping("/{id}/presence")
+    public ResponseEntity<AttendanceResponse> updatePresence(
+            @PathVariable UUID id,
+            @Valid @RequestBody PresenceRequest request
+    ) throws NotFoundException {
+        Attendance attendance = this.SERVICE.updatePresence(id, request);
+
+        return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 
     @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
@@ -95,6 +104,17 @@ public class AttendanceController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @RolesAllowed({"ROLE_MANAGER","ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
+    @GetMapping("/session/{sessionId}")
+    public ResponseEntity<List<AttendanceResponse>> getAllAttendeesFromSession(
+            @PathVariable UUID sessionId
+    ) throws NotFoundException {
+        List<Attendance> attendees = this.SERVICE.getAllAttendeesFromSession(sessionId);
+
+        return new ResponseEntity<>(convertAttendanceToListResponse(attendees), HttpStatus.OK);
+    }
+
+
     @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @GetMapping("/{sessionId}/{personId}")
     public ResponseEntity<Boolean> checkIfAttending(
@@ -105,11 +125,11 @@ public class AttendanceController {
         return new ResponseEntity<>(present, HttpStatus.OK);
     }
 
-    @PutMapping("/{sessionId}/{personId}")
+    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
+    @PatchMapping("/{sessionId}/{personId}")
     public ResponseEntity<AttendanceResponse> signUpForAttendance(
             @PathVariable UUID sessionId, @PathVariable UUID personId, @Valid @RequestBody AttendanceRequest request
     ) throws NotFoundException {
-        System.out.println("ssss");
         Attendance attendance = SERVICE.signUpForSession(sessionId, personId, request);
 
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);

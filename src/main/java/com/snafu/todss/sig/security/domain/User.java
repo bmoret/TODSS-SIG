@@ -44,6 +44,10 @@ public class User implements UserDetails {
         }
     }
 
+    public Person getPerson() {
+        return person;
+    }
+
     public UUID getId() {
         return id;
     }
