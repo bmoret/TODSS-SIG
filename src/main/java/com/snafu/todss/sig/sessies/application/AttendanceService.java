@@ -61,9 +61,11 @@ public class AttendanceService {
         if(getAttendanceBySessionAndPerson(session, person).isPresent()) {
             throw new DuplicateRequestException("Je bent al aangemeld voor deze sessie.");
         }
-        Attendance attendance = new Attendance(state, isSpeaker, person, session);
+        Attendance attendance = this.ATTENDANCE_REPOSITORY.save(new Attendance(state, isSpeaker, person, session));
+        this.SESSION_SERVICE.addAttendeeToSession(session, attendance);
+        this.PERSON_SERVICE.addAttendanceToPerson(person, attendance);
 
-        return this.ATTENDANCE_REPOSITORY.save(attendance);
+        return attendance;
     }
 
     public Attendance updateAttendance(UUID id, AttendanceRequest attendanceRequest) throws NotFoundException {

@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
+import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
@@ -120,6 +121,11 @@ public class SessionService {
         }
         session.nextState();
         return session;
+    }
+
+    public void addAttendeeToSession(Session session, Attendance attendance) {
+        session.addAttendee(attendance);
+        SESSION_REPOSITORY.save(session);
     }
 
     public void removeAttendeeFromSession(Session session, Person person) {

@@ -162,6 +162,11 @@ public class PersonService {
         return getBestLevenshteinDistanceValue(allPersons, request);
     }
 
+    public void addAttendanceToPerson(Person person, Attendance attendance) {
+        person.addAttendance(attendance);
+        PERSON_REPOSITORY.save(person);
+    }
+
     public void removeAttendanceFromPerson(Person person, Attendance attendance) {
         person.removeAttendance(attendance);
         PERSON_REPOSITORY.save(person);
