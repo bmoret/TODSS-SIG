@@ -60,6 +60,13 @@ class SessionControllerIntegrationTest {
     private SpringPersonRepository personRepository;
 
     private Person supervisor;
+    private SpecialInterestGroup sig;
+
+    private final LocalDateTime now = LocalDateTime.now();
+    private final LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+    private final String subject = "Subject";
+    private final String description = "Description";
+    private final String address = "Address";
 
     @BeforeEach
     void beforeEach() throws NotFoundException {
@@ -73,6 +80,32 @@ class SessionControllerIntegrationTest {
         dtoSupervisor.employedSince = "2005-12-01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
+
+        sig = sigRepository.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
+        Session session = repository.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        address,
+                        null
+                )
+        );
+        Session session1 = repository.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        address,
+                        null
+                )
+        );
+
+
     }
 
     @AfterEach
@@ -83,7 +116,7 @@ class SessionControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("Get all sessions returns list sessions")
     void getAllSessions() throws Exception {
         repository.save(new PhysicalSession());
@@ -94,7 +127,8 @@ class SessionControllerIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0]").exists())
-                .andExpect(jsonPath("$[1]").doesNotExist());
+                .andExpect(jsonPath("$[0]").isArray());
+
     }
 
     @Test

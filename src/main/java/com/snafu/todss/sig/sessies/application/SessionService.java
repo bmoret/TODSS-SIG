@@ -1,5 +1,8 @@
 package com.snafu.todss.sig.sessies.application;
 
+import com.snafu.todss.sig.security.application.UserService;
+import org.springframework.security.core.userdetails.User;
+import com.snafu.todss.sig.security.domain.UserRole;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,15 +26,51 @@ public class SessionService {
     private final SessionRepository SESSION_REPOSITORY;
     private final SpecialInterestGroupService SIG_SERVICE;
     private final PersonService personService;
+    private final UserService userService;
 
-    public SessionService(SessionRepository sessionRepository, SpecialInterestGroupService sigService, PersonService personService) {
+    public SessionService(SessionRepository sessionRepository, SpecialInterestGroupService sigService, PersonService personService, UserService userService) {
         this.SESSION_REPOSITORY = sessionRepository;
         this.SIG_SERVICE = sigService;
         this.personService = personService;
+        this.userService = userService;
     }
 
-    public List<Session> getAllSessions() {
-        return this.SESSION_REPOSITORY.findAll();
+    public List<Session> getAllSessions(User user) {
+        com.snafu.todss.sig.security.domain.User correctUser = userService.loadUserByUsername(user.getUsername());
+        Person person = correctUser.getPerson();
+        List<Session> correctSessions = new ArrayList<>();
+        boolean getsAdded = false;
+
+        for(Session session : SESSION_REPOSITORY.findAll()) {
+            if (correctUser.getRole() == UserRole.ROLE_ORGANIZER || correctUser.getRole() == UserRole.ROLE_MANAGER){
+                if ((session.getState() == SessionState.TO_BE_PLANNED || session.getState() == SessionState.DRAFT) &&
+                        person.getOrganisedSpecialInterestGroups().contains(session.getSig())) {
+                    getsAdded = true;
+                } else if ((session.getState() != SessionState.TO_BE_PLANNED || session.getState() != SessionState.DRAFT)) {
+                    getsAdded = true;
+                }
+            }
+            else if (correctUser.getRole() == UserRole.ROLE_SECRETARY) {
+                if (session.getState() != SessionState.DRAFT) {
+                    getsAdded = true;
+                }
+            }
+            else if(correctUser.getRole() == UserRole.ROLE_ADMINISTRATOR) {
+                getsAdded = true;
+            }
+            else {
+                if (session.getState() != SessionState.TO_BE_PLANNED || session.getState() != SessionState.DRAFT) {
+                    getsAdded = true;
+                }
+            }
+
+            if (getsAdded) {
+                correctSessions.add(session);
+            }
+
+        }
+
+        return correctSessions;
     }
 
     public Session getSessionById(UUID sessionId) throws NotFoundException {
