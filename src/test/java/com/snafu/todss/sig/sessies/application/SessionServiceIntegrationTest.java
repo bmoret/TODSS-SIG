@@ -145,7 +145,6 @@ class SessionServiceIntegrationTest {
 
         assertTrue(expectedClass.isInstance(session));
     }
-
     private static Stream<Arguments> provideCreateSessionArgs() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);

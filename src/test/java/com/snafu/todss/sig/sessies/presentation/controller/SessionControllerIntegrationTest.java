@@ -4,7 +4,9 @@ import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.application.SessionService;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
+import com.snafu.todss.sig.sessies.data.SpringAttendanceRepository;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
+import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
@@ -39,6 +41,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -59,7 +62,18 @@ class SessionControllerIntegrationTest {
     @Autowired
     private SpringPersonRepository personRepository;
 
+    @Autowired
+    private SpringAttendanceRepository attendanceRepository;
+
     private Person supervisor;
+    private SpecialInterestGroup sig;
+    private Attendance attendance;
+
+    private final LocalDateTime now = LocalDateTime.now();
+    private final LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+    private final String subject = "Subject";
+    private final String description = "Description";
+    private final String address = "Address";
 
     @BeforeEach
     void beforeEach() throws NotFoundException {
@@ -70,13 +84,47 @@ class SessionControllerIntegrationTest {
         dtoSupervisor.expertise = "none";
         dtoSupervisor.branch = "VIANEN";
         dtoSupervisor.role = "EMPLOYEE";
-        dtoSupervisor.employedSince = "2005-12-01";
+        dtoSupervisor.employedSince = "2021-12-01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
+
+        sig = sigRepository.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
+        Session session = repository.save(
+                new PhysicalSession(
+                        new SessionDetails(LocalDateTime.now().plusMonths(2), nowPlusOneHour, subject, description),
+                        SessionState.PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        address,
+                        null
+                )
+        );
+
+        Session session1 = repository.save(
+                new PhysicalSession(
+                        new SessionDetails(LocalDateTime.now().minusMonths(2), nowPlusOneHour, subject, description),
+                        SessionState.ENDED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        address,
+                        null
+                )
+        );
+        attendance = attendanceRepository.save(new Attendance(PRESENT, true, supervisor, session));
+        Attendance attendance1 = attendanceRepository.save(new Attendance(PRESENT, true, supervisor, session1));
+
+        supervisor.addAttendance(attendance);
+        session.addAttendee(attendance);
+
+        supervisor.addAttendance(attendance1);
+        session1.addAttendee(attendance1);
     }
 
     @AfterEach
     void tearDown() {
+        this.attendanceRepository.deleteAll();
         this.repository.deleteAll();
         this.sigRepository.deleteAll();
         this.personRepository.deleteAll();
@@ -86,6 +134,9 @@ class SessionControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get all sessions returns list sessions")
     void getAllSessions() throws Exception {
+        this.attendanceRepository.deleteAll();
+        repository.deleteAll();
+
         repository.save(new PhysicalSession());
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/sessions")
@@ -99,8 +150,80 @@ class SessionControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
+    @DisplayName("Get all future sessions returns list sessions")
+    void getAllFutureSessions() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sessions/future")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
+    @DisplayName("Get all future sessions of person returns list sessions")
+    void getAllFutureSessionsOfPerson() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sessions/future/"+ supervisor.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Get all past sessions that a user attended returns list sessions as manager")
+    void getHistorySessionsOfUserAsManager() throws Exception {
+        repository.save(new PhysicalSession());
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sessions/history/" + supervisor.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Get all past sessions that a user attended returns list sessions as administrator")
+    void getHistorySessionsOfUserAsAdministrator() throws Exception {
+        repository.save(new PhysicalSession());
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sessions/history/" + supervisor.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ORGANIZER")
+    @DisplayName("Get all past sessions that a user attended returns list sessions as organizer is not allowed")
+    void getHistorySessionsOfUserAsOrganizer() throws Exception {
+        repository.save(new PhysicalSession());
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sessions/history/" + supervisor.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isConflict());
+    }
+
+
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get all sessions returns empty list")
     void getAllSessionsWithNoSessions() throws Exception {
+        this.attendanceRepository.deleteAll();
+        repository.deleteAll();
+
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/sessions")
                 .contentType(MediaType.APPLICATION_JSON);
