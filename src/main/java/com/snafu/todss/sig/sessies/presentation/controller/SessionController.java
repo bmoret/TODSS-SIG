@@ -55,7 +55,7 @@ SessionController {
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }
 
-    @PermitAll
+    @RolesAllowed("ROLE_MANAGER")
     @GetMapping("/history/{personId}")
     public ResponseEntity<List<SessionResponse>> getHistorySessionsOfPerson(@PathVariable UUID personId) throws NotFoundException {
         List<Session> sessions = this.SERVICE.getHistorySessionsOfPerson(personId);
