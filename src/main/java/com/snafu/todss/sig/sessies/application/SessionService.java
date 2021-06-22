@@ -1,6 +1,7 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
+import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
@@ -135,6 +136,18 @@ public class SessionService {
 
         for (Session session : sessions) {
             if (session.getDetails().getStartDate().isAfter(LocalDateTime.now())) futureSessions.add(session);
+        }
+
+        return futureSessions;
+    }
+
+    public List<Session> getFutureSessionsOfPerson(UUID personId) throws NotFoundException {
+        Person person = personService.getPerson(personId);
+        List<Attendance> attendances = person.getAttendance();
+        List<Session> futureSessions = new ArrayList<>();
+
+        for (Attendance attendance : attendances) {
+            futureSessions.add(attendance.getSession());
         }
 
         return futureSessions;

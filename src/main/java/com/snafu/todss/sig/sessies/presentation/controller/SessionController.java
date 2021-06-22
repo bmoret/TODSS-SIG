@@ -1,7 +1,6 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
 import com.snafu.todss.sig.sessies.application.SessionService;
-import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SessionResponse;
@@ -44,6 +43,14 @@ SessionController {
     @GetMapping("/future")
     public ResponseEntity<List<SessionResponse>> getAllFutureSessions() {
         List<Session> sessions = this.SERVICE.getAllFutureSessions();
+
+        return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
+    }
+
+    @PermitAll
+    @GetMapping("/future/{personId}")
+    public ResponseEntity<List<SessionResponse>> getFutureSessionsOfPerson(@PathVariable UUID personId) throws NotFoundException {
+        List<Session> sessions = this.SERVICE.getFutureSessionsOfPerson(personId);
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }
