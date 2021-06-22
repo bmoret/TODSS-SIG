@@ -41,6 +41,14 @@ SessionController {
     }
 
     @PermitAll
+    @GetMapping("/future")
+    public ResponseEntity<List<SessionResponse>> getAllFutureSessions() {
+        List<Session> sessions = this.SERVICE.getAllFutureSessions();
+
+        return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
+    }
+
+    @PermitAll
     @GetMapping
     public ResponseEntity<List<SessionResponse>> getAllSessions() {
         List<Session> sessions = this.SERVICE.getAllSessions();

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -126,5 +127,16 @@ public class SessionService {
     public void removeAttendeeFromSession(Session session, Person person) {
         session.removeAttendee(person);
         SESSION_REPOSITORY.save(session);
+    }
+
+    public List<Session> getAllFutureSessions() {
+        List<Session> sessions = this.getAllSessions();
+        List<Session> futureSessions = new ArrayList<>();
+
+        for (Session session : sessions) {
+            if (session.getDetails().getStartDate().isAfter(LocalDateTime.now())) futureSessions.add(session);
+        }
+
+        return futureSessions;
     }
 }
