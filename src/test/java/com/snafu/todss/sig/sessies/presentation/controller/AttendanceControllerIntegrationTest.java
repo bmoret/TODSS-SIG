@@ -14,10 +14,7 @@ import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -71,6 +68,11 @@ class AttendanceControllerIntegrationTest {
 
     @BeforeEach
     void setup() {
+        ATTENDANCE_REPOSITORY.deleteAll();
+        PERSON_REPOSITORY.deleteAll();
+        SESSION_REPOSITORY.deleteAll();
+        SIG_REPOSITORY.deleteAll();
+
         PersonBuilder pb = new PersonBuilder();
         pb.setEmail("t_a");
         pb.setFirstname("t");
@@ -96,6 +98,14 @@ class AttendanceControllerIntegrationTest {
         attendance = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, true, person, session));
         session.addAttendee(attendance);
     }
+
+//    @AfterEach
+//    void tearDown() {
+//        ATTENDANCE_REPOSITORY.deleteAll();
+//        PERSON_REPOSITORY.deleteAll();
+//        SESSION_REPOSITORY.deleteAll();
+//        SIG_REPOSITORY.deleteAll();
+//    }
 
     @Test
     @WithMockUser(username = "TestUser", roles = "MANAGER")
@@ -546,14 +556,14 @@ class AttendanceControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "TestUser", roles = "MANAGER")
-    @DisplayName("Check if person is attending   when person is attending")
+    @DisplayName("Check if person is attending when person is attending")
     void personIsAttendingCheck() throws Exception {
         UUID sessionId = attendance.getSession().getId();
         UUID personId = attendance.getPerson().getId();
         RequestBuilder request = MockMvcRequestBuilders.get("/attendances/"+sessionId+"/"+personId);
 
         mockMvc.perform(request)
-                .andExpect(content().string("false"))
+                .andExpect(content().string("true"))
                 .andExpect(status().isOk());
     }
 

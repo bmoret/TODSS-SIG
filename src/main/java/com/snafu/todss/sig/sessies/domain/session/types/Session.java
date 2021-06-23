@@ -35,7 +35,7 @@ public abstract class Session {
     @ManyToOne
     private SpecialInterestGroup sig;
 
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
     private List<Attendance> attendanceList;
 
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
