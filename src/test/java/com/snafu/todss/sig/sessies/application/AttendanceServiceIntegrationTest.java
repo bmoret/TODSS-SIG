@@ -73,12 +73,13 @@ class AttendanceServiceIntegrationTest {
 
     @BeforeEach
     void setup() {
-        person = PERSON_REPOSITORY.save( new PersonBuilder()
+
+        person = PERSON_REPOSITORY.save(new PersonBuilder()
                 .setEmail("t_a")
                 .setFirstname("ttt")
                 .setLastname("a")
                 .setExpertise("none")
-                .setEmployedSince(LocalDate.of(2021,1,1))
+                .setEmployedSince(LocalDate.of(2021, 1, 1))
                 .setBranch(VIANEN)
                 .setRole(MANAGER)
                 .build());
@@ -169,7 +170,7 @@ class AttendanceServiceIntegrationTest {
                 .setFirstname("t")
                 .setLastname("a")
                 .setExpertise("none")
-                .setEmployedSince(LocalDate.of(2021,1,1))
+                .setEmployedSince(LocalDate.of(2021, 1, 1))
                 .setBranch(VIANEN)
                 .setRole(MANAGER)
                 .build();
@@ -239,7 +240,7 @@ class AttendanceServiceIntegrationTest {
     void createExistingAttendance_ThrowsDuplicateRequestException() {
         assertThrows(
                 DuplicateRequestException.class,
-                () ->ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, session.getId(), person.getId())
+                () -> ATTENDANCE_SERVICE.createAttendance(NO_SHOW, false, session.getId(), person.getId())
         );
     }
 
@@ -347,7 +348,7 @@ class AttendanceServiceIntegrationTest {
         pb.setFirstname("a");
         pb.setLastname("t");
         pb.setExpertise("none");
-        pb.setEmployedSince(LocalDate.of(2021,1,1));
+        pb.setEmployedSince(LocalDate.of(2021, 1, 1));
         pb.setBranch(VIANEN);
         pb.setRole(MANAGER);
         Person person = PERSON_REPOSITORY.save(pb.build());
@@ -370,7 +371,6 @@ class AttendanceServiceIntegrationTest {
     @Test
     @DisplayName("check if attendance exists for person / session combination and returns true when it does")
     void checkAttendanceBySessionPersonTrue() {
-        session.getAttendances().forEach( e -> System.out.println(e.getPerson().getId()));
         assertTrue(
                 assertDoesNotThrow(
                         () -> ATTENDANCE_SERVICE.checkIfAttending(
@@ -387,7 +387,7 @@ class AttendanceServiceIntegrationTest {
         pb.setFirstname("a");
         pb.setLastname("t");
         pb.setExpertise("none");
-        pb.setEmployedSince(LocalDate.of(2021,1,1));
+        pb.setEmployedSince(LocalDate.of(2021, 1, 1));
         pb.setBranch(VIANEN);
         pb.setRole(MANAGER);
         Person person = PERSON_REPOSITORY.save(pb.build());
@@ -419,7 +419,7 @@ class AttendanceServiceIntegrationTest {
         pb.setFirstname("a");
         pb.setLastname("t");
         pb.setExpertise("none");
-        pb.setEmployedSince(LocalDate.of(2021,1,1));
+        pb.setEmployedSince(LocalDate.of(2021, 1, 1));
         pb.setBranch(VIANEN);
         pb.setRole(MANAGER);
         Person person1 = PERSON_REPOSITORY.save(pb.build());
@@ -438,9 +438,9 @@ class AttendanceServiceIntegrationTest {
         ATTENDANCE_REPOSITORY.deleteAll();
         AttendanceRequest request = new AttendanceRequest();
         request.state = PRESENT.toString();
-        request.speaker= false;
+        request.speaker = false;
 
-                assertDoesNotThrow(
+        assertDoesNotThrow(
                 () -> ATTENDANCE_SERVICE.signUpForSession(attendance.getSession().getId(), attendance.getPerson().getId(), request)
         );
     }
@@ -450,7 +450,7 @@ class AttendanceServiceIntegrationTest {
     void singUpForSessionWithAttendanceAndStateNotPresent() {
         AttendanceRequest request = new AttendanceRequest();
         request.state = PRESENT.toString();
-        request.speaker= false;
+        request.speaker = false;
         attendance.setState(CANCELED);
         ATTENDANCE_REPOSITORY.save(attendance);
 
@@ -459,8 +459,10 @@ class AttendanceServiceIntegrationTest {
         );
         assertEquals(PRESENT,
                 assertDoesNotThrow(
-                    () -> ATTENDANCE_SERVICE.getAttendanceById(attendance.getId()).getState()
+                        () -> ATTENDANCE_SERVICE.getAttendanceById(attendance.getId()).getState()
                 )
         );
     }
 }
+
+
