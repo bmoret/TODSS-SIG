@@ -302,7 +302,7 @@ class SpecialInterestGroupIntegrationTest {
 
         JSONObject json = new JSONObject();
         json.put("subject", "new");
-        json.put("person", person);
+        json.put("managerId", person.getId());
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sig/" + specialInterestGroup.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -334,7 +334,7 @@ class SpecialInterestGroupIntegrationTest {
 
         JSONObject json = new JSONObject();
         json.put("subject", "new");
-        json.put("person", person);
+        json.put("managerId", person.getId());
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sig/" + specialInterestGroup.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -366,7 +366,7 @@ class SpecialInterestGroupIntegrationTest {
 
         JSONObject json = new JSONObject();
         json.put("subject", "new");
-        json.put("person", person);
+        json.put("managerId", person.getId());
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sig/" + specialInterestGroup.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -398,7 +398,7 @@ class SpecialInterestGroupIntegrationTest {
 
         JSONObject json = new JSONObject();
         json.put("subject", "new");
-        json.put("person", person);
+        json.put("managerId", person.getId());
         RequestBuilder request = MockMvcRequestBuilders
                 .put("/sig/" + specialInterestGroup.getId())
                 .contentType(MediaType.APPLICATION_JSON)
