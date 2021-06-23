@@ -1,11 +1,17 @@
 insert into person(id, branch, email, employed_since, expertise, first_name, last_name, role, supervisor_id)
 values ('d4fb562d-e468-431b-ab0f-ba0ad16a2639', 1, 'manager@mail.com', date('2021-02-07'),'Expertise', 'first', 'last', 0, null),
        ('b4ba9d87-41d5-4c56-9c20-5addcf875f86', 1, 'manager2@mail.com', date('2021-02-07'),'Expertise', 'Adam', 'Adams', 0, null),
-       ('b4ba9d87-41d5-4c56-9c20-5addcf875f88', 1, 'mail@mail.com', date('2021-02-07'),'Expertise', 'Manager', 'Lastname', 0, null);
+       ('b4ba9d87-41d5-4c56-9c20-5addcf875f88', 1, 'mail@mail.com', date('2021-02-07'),'Expertise', 'Manager', 'Lastname', 0, null),
+       ('b4ba9d8c-41d5-4c56-9c20-5addcf875f88', 1, 'organiser@mail.com', date('2021-02-02'),'Expertise', 'Organiser', 'Lastname', 0, null),
+       ('b4ba9d1c-41d5-4c56-9c20-5addcf875f88', 1, 'secretary@mail.com', date('2021-02-02'),'Expertise', 'Secretary', 'Lastname', 0, null);
 
 insert into users(id, password, role, username, person_id)
 values ('b4ba9d87-41d5-4c56-9c20-5addcf875fcc', '$2a$10$YLpVJJXejQGnBbZdg1/lGut61ygMFzi1BMEH0FbkAfpd3tBwnjOBK',
-        'ROLE_MANAGER', 'admin', 'b4ba9d87-41d5-4c56-9c20-5addcf875f88');
+        'ROLE_MANAGER', 'admin', 'b4ba9d87-41d5-4c56-9c20-5addcf875f88'),
+       ('b4ba9d87-41d5-4c56-9c20-5addcf87cfcc', '$2a$10$YLpVJJXejQGnBbZdg1/lGut61ygMFzi1BMEH0FbkAfpd3tBwnjOBK',
+        'ROLE_ORGANIZER', 'organiser', 'b4ba9d8c-41d5-4c56-9c20-5addcf875f88'),
+       ('b4ba9d87-41d5-4c56-9c20-5addcf87cfc1', '$2a$10$YLpVJJXejQGnBbZdg1/lGut61ygMFzi1BMEH0FbkAfpd3tBwnjOBK',
+        'ROLE_SECRETARY', 'secretary', 'b4ba9d1c-41d5-4c56-9c20-5addcf875f88');
 
 insert into sig(id, subject, manager_id)
 values ('e4fb562d-e468-431b-ab0f-ba0ad16a2631', 'Sig imusBimus', 'd4fb562d-e468-431b-ab0f-ba0ad16a2639'),

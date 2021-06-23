@@ -5,6 +5,8 @@ import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.Feedback;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
+import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
@@ -19,6 +21,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -55,6 +58,7 @@ class SessionDirectorTest {
 
         assertTrue(expectedClass.isInstance(session));
     }
+
     static Stream<Arguments> provideSessionArgs() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
@@ -65,7 +69,7 @@ class SessionDirectorTest {
                 "Subject",
                 "Description",
                 UUID.randomUUID(),
-               "Address",
+                "Address",
                 UUID.randomUUID().toString()
         );
         OnlineSessionRequest onlineSessionRequest = new OnlineSessionRequest(
@@ -150,7 +154,7 @@ class SessionDirectorTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SessionDirector.update( new PhysicalSession(), request, null, null)
+                () -> SessionDirector.update(new PhysicalSession(), request, null, null)
         );
     }
 
@@ -168,6 +172,7 @@ class SessionDirectorTest {
                 UUID.randomUUID().toString()
         );
     }
+
     private OnlineSessionRequest provideOnlineSessionRequest() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
@@ -206,7 +211,7 @@ class SessionDirectorTest {
         session.addFeedback(new Feedback("leuk!@!@!@!@!@!", session, person));
         session.addFeedback(new Feedback("hallo daaarrrrrrrrrrrr", session, person));
         Session updatedSession = SessionDirector.update(session, providePhysicalSessionRequest(), null, null);
-        for(Feedback feedback : updatedSession.getFeedback()) {
+        for (Feedback feedback : updatedSession.getFeedback()) {
             System.out.println(feedback.getDescription());
         }
         assertEquals(session.getId(), updatedSession.getId());
@@ -231,4 +236,220 @@ class SessionDirectorTest {
                 )
         );
     }
+
+    @ParameterizedTest
+    @MethodSource("provideSessionDateEditable")
+    @DisplayName("Session state DRAFT & TO_BE_PLANNED can change date")
+    void canChangeDateInState(Session session, SessionRequest request) {
+        LocalDateTime startDate = session.getDetails().getStartDate();
+        LocalDateTime endDate = session.getDetails().getEndDate();
+
+        session = SessionDirector.update(session,
+                request,
+                null,
+                null
+        );
+
+        assertNotEquals(startDate, session.getDetails().getStartDate());
+        assertNotEquals(endDate, session.getDetails().getEndDate());
+        assertEquals(request.startDate, session.getDetails().getStartDate());
+        assertEquals(request.endDate, session.getDetails().getEndDate());
+    }
+
+    static Stream<Arguments> provideSessionDateEditable() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        LocalDateTime nowRequest = LocalDateTime.now().plusHours(2);
+        LocalDateTime nowPlusOneHourRequest = LocalDateTime.now().plusHours(3);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+
+        Session physicalSession = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address,
+                null
+        );
+        Session onlineSession = new OnlineSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                "Platform",
+                "join url",
+                null
+        );
+        Session teamsOnlineSession = new TeamsOnlineSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                "join url",
+                null
+        );
+        Session physicalSession2 = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.TO_BE_PLANNED,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address,
+                null
+        );
+        Session onlineSession2 = new OnlineSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.TO_BE_PLANNED,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                "Platform",
+                "join url",
+                null
+        );
+        Session teamsOnlineSession2 = new TeamsOnlineSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.TO_BE_PLANNED,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                "join url",
+                null
+        );
+        PhysicalSessionRequest physicalSessionRequest = new PhysicalSessionRequest(
+                nowRequest,
+                nowPlusOneHourRequest,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Address",
+                UUID.randomUUID().toString()
+        );
+        OnlineSessionRequest onlineSessionRequest = new OnlineSessionRequest(
+                nowRequest,
+                nowPlusOneHourRequest,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Random Platform",
+                "link",
+                UUID.randomUUID().toString()
+        );
+        OnlineSessionRequest teamsOnlineSessionRequest = new OnlineSessionRequest(
+                nowRequest,
+                nowPlusOneHourRequest,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Teams",
+                "link",
+                UUID.randomUUID().toString()
+        );
+        return Stream.of(
+                Arguments.of(physicalSession, physicalSessionRequest),
+                Arguments.of(onlineSession, onlineSessionRequest),
+                Arguments.of(teamsOnlineSession, teamsOnlineSessionRequest),
+                Arguments.of(physicalSession2, physicalSessionRequest),
+                Arguments.of(onlineSession2, onlineSessionRequest),
+                Arguments.of(teamsOnlineSession2, teamsOnlineSessionRequest)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideSessionNotDateEditable")
+    @DisplayName("Session state after To_BE_PLANNED cannot change date")
+    void cannotChangeDateInState(Session session, SessionRequest request) {
+        LocalDateTime startDate = session.getDetails().getStartDate();
+        LocalDateTime endDate = session.getDetails().getEndDate();
+
+        session = SessionDirector.update(session,
+                request,
+                null,
+                null
+        );
+
+
+        assertEquals(startDate, session.getDetails().getStartDate());
+        assertEquals(endDate, session.getDetails().getEndDate());
+    }
+
+    static Stream<Arguments> provideSessionNotDateEditable() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        LocalDateTime nowRequest = LocalDateTime.now().plusHours(2);
+        LocalDateTime nowPlusOneHourRequest = LocalDateTime.now().plusHours(3);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+
+        Session physicalSession = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.PLANNED,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address,
+                null
+        );
+        Session onlineSession = new OnlineSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.PLANNED,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                "Platform",
+                "join url",
+                null
+        );
+        Session teamsOnlineSession = new TeamsOnlineSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.PLANNED,
+                new SpecialInterestGroup(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                "join url",
+                null
+        );
+
+        PhysicalSessionRequest physicalSessionRequest = new PhysicalSessionRequest(
+                nowRequest,
+                nowPlusOneHourRequest,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Address",
+                UUID.randomUUID().toString()
+        );
+        OnlineSessionRequest onlineSessionRequest = new OnlineSessionRequest(
+                nowRequest,
+                nowPlusOneHourRequest,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Random Platform",
+                "link",
+                UUID.randomUUID().toString()
+        );
+        OnlineSessionRequest teamsOnlineSessionRequest = new OnlineSessionRequest(
+                nowRequest,
+                nowPlusOneHourRequest,
+                "Subject",
+                "Description",
+                UUID.randomUUID(),
+                "Teams",
+                "link",
+                UUID.randomUUID().toString()
+        );
+        return Stream.of(
+                Arguments.of(physicalSession, physicalSessionRequest),
+                Arguments.of(onlineSession, onlineSessionRequest),
+                Arguments.of(teamsOnlineSession, teamsOnlineSessionRequest)
+        );
+    }
+
 }
