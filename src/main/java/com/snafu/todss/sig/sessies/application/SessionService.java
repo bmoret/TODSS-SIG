@@ -2,7 +2,6 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
-import com.snafu.todss.sig.sessies.domain.AttendanceState;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
@@ -140,7 +139,6 @@ public class SessionService {
     public List<Session> getFutureSessionsOfPerson(UUID personId) throws NotFoundException {
         Person person = personService.getPerson(personId);
         return person.getAttendance().stream()
-                .filter(attendance -> attendance.getState() == AttendanceState.PRESENT)
                 .map(Attendance::getSession)
                 .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
                 .sorted()
@@ -150,7 +148,6 @@ public class SessionService {
     public List<Session> getHistorySessionsOfPerson(UUID personId) throws NotFoundException {
         Person person = personService.getPerson(personId);
         return person.getAttendance().stream()
-                .filter(attendance -> attendance.getState() == AttendanceState.PRESENT)
                 .map(Attendance::getSession)
                 .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now()))
                 .sorted()
