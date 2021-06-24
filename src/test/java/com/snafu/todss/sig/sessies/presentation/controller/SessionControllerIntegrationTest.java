@@ -1,7 +1,6 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
 import com.snafu.todss.sig.sessies.application.PersonService;
-import com.snafu.todss.sig.sessies.application.SessionService;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
 import com.snafu.todss.sig.sessies.data.SpringAttendanceRepository;
@@ -42,7 +41,8 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.snafu.todss.sig.sessies.domain.AttendanceState.PRESENT;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -201,21 +201,6 @@ class SessionControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0]").exists());
     }
-
-    @Test
-    @WithMockUser(username = "TestUser", roles = "ORGANIZER")
-    @DisplayName("Get all past sessions that a user attended returns list sessions as organizer is not allowed")
-    void getHistorySessionsOfUserAsOrganizer() throws Exception {
-        repository.save(new PhysicalSession());
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions/history/" + supervisor.getId())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isConflict());
-    }
-
-
 
     @Test
     @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")

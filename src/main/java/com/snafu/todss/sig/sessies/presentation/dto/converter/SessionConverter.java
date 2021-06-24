@@ -21,16 +21,17 @@ public class SessionConverter {
     public static List<SessionResponse> convertSessionListToResponse(List<Session> sessions) {
         return sessions.stream().map(session -> {
             SessionResponse res = convertSessionToResponse(session);
-            res.setSpecialInterestGroup(convertSigToSigResponse(session.getSig()));
+            res.setSpecialInterestGroup(session.getSig() == null? null : convertSigToSigResponse(session.getSig()));
             return res;
         }).collect(Collectors.toList());
     }
 
     private static SpecialInterestGroupResponse convertSigToSigResponse(SpecialInterestGroup sig) {
+        PersonCompactResponse manager = sig.getManager() == null? null :  convertPersonToResponse(sig.getManager());
         return new SpecialInterestGroupResponse(
                 sig.getId(),
                 sig.getSubject(),
-                convertPersonToResponse(sig.getManager()),
+                manager,
                 convertPersonToListResponse(sig.getOrganizers())
         );
     }

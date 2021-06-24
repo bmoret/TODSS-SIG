@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -66,7 +66,7 @@ public class SessionService {
     }
 
     public void deleteSession(UUID sessionId) throws NotFoundException {
-        if (!this.SESSION_REPOSITORY.existsById(sessionId)){
+        if (!this.SESSION_REPOSITORY.existsById(sessionId)) {
             throw new NotFoundException("No session found with given id");
         }
         this.SESSION_REPOSITORY.deleteById(sessionId);
@@ -92,7 +92,7 @@ public class SessionService {
     }
 
     private void checkDatesNotNull(LocalDateTime startDate, LocalDateTime endDate) {
-        if (startDate == null || endDate == null ) {
+        if (startDate == null || endDate == null) {
             throw new IllegalArgumentException("Dates cannot be empty");
         }
     }
@@ -111,8 +111,8 @@ public class SessionService {
         }
     }
 
-    private void checkDatesBeforeNow (LocalDateTime startDate, LocalDateTime endDate) {
-        if (startDate.isBefore(LocalDateTime.now()) || endDate.isBefore(LocalDateTime.now()) ) {
+    private void checkDatesBeforeNow(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate.isBefore(LocalDateTime.now()) || endDate.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Dates must be after now");
         }
     }
@@ -132,41 +132,29 @@ public class SessionService {
     }
 
     public List<Session> getAllFutureSessions() {
-        List<Session> sessions = this.getAllSessions();
-        List<Session> futureSessions = new ArrayList<>();
-
-        for (Session session : sessions) {
-            if (session.getDetails().getStartDate().isAfter(LocalDateTime.now())) futureSessions.add(session);
-        }
-
-        return futureSessions;
+        return getAllSessions().stream()
+                .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
+                .collect(Collectors.toList());
     }
 
     public List<Session> getFutureSessionsOfPerson(UUID personId) throws NotFoundException {
         Person person = personService.getPerson(personId);
-        List<Attendance> attendances = person.getAttendance();
-        List<Session> futureSessions = new ArrayList<>();
-
-        for (Attendance attendance : attendances) {
-            Session session = attendance.getSession();
-            if (session.getDetails().getStartDate().isAfter(LocalDateTime.now())
-                    && attendance.getState() == AttendanceState.PRESENT) futureSessions.add(session);
-        }
-
-        return futureSessions;
+        return person.getAttendance().stream()
+                .filter(attendance -> attendance.getState() == AttendanceState.PRESENT)
+                .map(Attendance::getSession)
+                .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     public List<Session> getHistorySessionsOfPerson(UUID personId) throws NotFoundException {
         Person person = personService.getPerson(personId);
-        List<Attendance> attendances = person.getAttendance();
-        List<Session> futureSessions = new ArrayList<>();
-
-        for (Attendance attendance : attendances) {
-            Session session = attendance.getSession();
-            if (session.getDetails().getStartDate().isBefore(LocalDateTime.now())
-                    & attendance.getState() == AttendanceState.PRESENT) futureSessions.add(session);
-        }
-
-        return futureSessions;
+        return person.getAttendance().stream()
+                .filter(attendance -> attendance.getState() == AttendanceState.PRESENT)
+                .map(Attendance::getSession)
+                .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now()))
+                .sorted()
+                .collect(Collectors.toList());
     }
+
 }
