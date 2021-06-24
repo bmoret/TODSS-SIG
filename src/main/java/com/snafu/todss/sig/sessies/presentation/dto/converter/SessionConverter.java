@@ -1,10 +1,14 @@
 package com.snafu.todss.sig.sessies.presentation.dto.converter;
 
+import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
+import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.domain.session.types.TeamsOnlineSession;
+import com.snafu.todss.sig.sessies.presentation.dto.response.PersonCompactResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SessionResponse;
+import com.snafu.todss.sig.sessies.presentation.dto.response.SpecialInterestGroupResponse;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;
@@ -15,9 +19,31 @@ public class SessionConverter {
     }
 
     public static List<SessionResponse> convertSessionListToResponse(List<Session> sessions) {
-        return sessions.stream()
-                .map(SessionConverter::convertSessionToResponse)
-                .collect(Collectors.toList());
+        return sessions.stream().map(session -> {
+            SessionResponse res = convertSessionToResponse(session);
+            res.setSpecialInterestGroup(convertSigToSigResponse(session.getSig()));
+            return res;
+        }).collect(Collectors.toList());
+    }
+
+    private static SpecialInterestGroupResponse convertSigToSigResponse(SpecialInterestGroup sig) {
+        return new SpecialInterestGroupResponse(
+                sig.getId(),
+                sig.getSubject(),
+                convertPersonToResponse(sig.getManager()),
+                convertPersonToListResponse(sig.getOrganizers())
+        );
+    }
+
+    private static List<PersonCompactResponse> convertPersonToListResponse(List<Person> people) {
+        return people.stream().map(SessionConverter::convertPersonToResponse).collect(Collectors.toList());
+    }
+
+    private static PersonCompactResponse convertPersonToResponse(Person person) {
+        return new PersonCompactResponse(
+                person.getId(),
+                person.getDetails().getLastname() + ", " + person.getDetails().getFirstname()
+        );
     }
 
     public static SessionResponse convertSessionToResponse(Session session) {
