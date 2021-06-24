@@ -1,7 +1,6 @@
 package com.snafu.todss.sig.sessies.application;
 
-import com.snafu.todss.sig.security.application.UserService;
-import org.springframework.security.core.userdetails.User;
+import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.security.domain.UserRole;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
@@ -26,40 +25,49 @@ public class SessionService {
     private final SessionRepository SESSION_REPOSITORY;
     private final SpecialInterestGroupService SIG_SERVICE;
     private final PersonService personService;
-    private final UserService userService;
 
-    public SessionService(SessionRepository sessionRepository, SpecialInterestGroupService sigService, PersonService personService, UserService userService) {
+    public SessionService(SessionRepository sessionRepository, SpecialInterestGroupService sigService, PersonService personService) {
         this.SESSION_REPOSITORY = sessionRepository;
         this.SIG_SERVICE = sigService;
         this.personService = personService;
-        this.userService = userService;
     }
 
     public List<Session> getAllSessions(User user) {
-        com.snafu.todss.sig.security.domain.User correctUser = userService.loadUserByUsername(user.getUsername());
-        Person person = correctUser.getPerson();
+        Person person = user.getPerson();
         List<Session> correctSessions = new ArrayList<>();
         boolean getsAdded = false;
 
         for(Session session : SESSION_REPOSITORY.findAll()) {
-            if (correctUser.getRole() == UserRole.ROLE_ORGANIZER || correctUser.getRole() == UserRole.ROLE_MANAGER){
-                if ((session.getState() == SessionState.TO_BE_PLANNED || session.getState() == SessionState.DRAFT) &&
-                        person.getOrganisedSpecialInterestGroups().contains(session.getSig())) {
-                    getsAdded = true;
+            if (user.getRole() == UserRole.ROLE_ORGANIZER || user.getRole() == UserRole.ROLE_MANAGER){
+                if ((session.getState() == SessionState.TO_BE_PLANNED) || (session.getState() == SessionState.DRAFT) ) {
+                    System.out.println("they are manager or organizer");
+                    if (person.getOrganisedSpecialInterestGroups().contains(session.getSig()) ||
+                        person.getManagedSpecialInterestGroups().contains(session.getSig())) {
+                        System.out.println("they managing or organizing shiz");
+
+                        getsAdded = true;
+                    }
                 } else if ((session.getState() != SessionState.TO_BE_PLANNED || session.getState() != SessionState.DRAFT)) {
+                    System.out.println("manager 2");
+
                     getsAdded = true;
                 }
             }
-            else if (correctUser.getRole() == UserRole.ROLE_SECRETARY) {
+            else if (user.getRole() == UserRole.ROLE_SECRETARY) {
                 if (session.getState() != SessionState.DRAFT) {
+                    System.out.println("secretary");
+
                     getsAdded = true;
                 }
             }
-            else if(correctUser.getRole() == UserRole.ROLE_ADMINISTRATOR) {
+            else if(user.getRole() == UserRole.ROLE_ADMINISTRATOR) {
+                System.out.println("admin");
+
                 getsAdded = true;
             }
             else {
-                if (session.getState() != SessionState.TO_BE_PLANNED || session.getState() != SessionState.DRAFT) {
+                if (!(session.getState().equals(SessionState.TO_BE_PLANNED)) && !(session.getState().equals(SessionState.DRAFT))) {
+                    System.out.println("employee n guest");
                     getsAdded = true;
                 }
             }
