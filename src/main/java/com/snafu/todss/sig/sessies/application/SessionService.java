@@ -1,5 +1,7 @@
 package com.snafu.todss.sig.sessies.application;
 
+import com.snafu.todss.sig.security.application.UserService;
+import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,11 +26,13 @@ import java.util.stream.Collectors;
 public class SessionService {
     private final SessionRepository SESSION_REPOSITORY;
     private final SpecialInterestGroupService SIG_SERVICE;
+    private final UserService USER_SERVICE;
     private final PersonService personService;
 
-    public SessionService(SessionRepository sessionRepository, SpecialInterestGroupService sigService, PersonService personService) {
+    public SessionService(SessionRepository sessionRepository, SpecialInterestGroupService sigService, UserService userService, PersonService personService) {
         this.SESSION_REPOSITORY = sessionRepository;
         this.SIG_SERVICE = sigService;
+        this.USER_SERVICE = userService;
         this.personService = personService;
     }
 
@@ -130,9 +135,14 @@ public class SessionService {
         SESSION_REPOSITORY.save(session);
     }
 
-    public List<Session> getAllFutureSessions() {
+    public List<Session> getAllFutureSessions(String username) throws NotFoundException {
+        User user = this.USER_SERVICE.getUserByUsername(username);
+        List<SpecialInterestGroup> relatedSigs = new ArrayList<>(user.getPerson().getOrganisedSpecialInterestGroups());
+        relatedSigs.addAll(user.getPerson().getManagedSpecialInterestGroups());
         return getAllSessions().stream()
-                .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
+                .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now())
+                        || relatedSigs.contains(session.getSig())
+                )
                 .collect(Collectors.toList());
     }
 
