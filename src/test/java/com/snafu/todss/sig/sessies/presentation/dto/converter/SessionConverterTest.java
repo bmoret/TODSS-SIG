@@ -2,6 +2,9 @@ package com.snafu.todss.sig.sessies.presentation.dto.converter;
 
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.person.PersonDetails;
+import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
+import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
@@ -16,6 +19,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -130,6 +134,7 @@ class SessionConverterTest {
         assertEquals(expectedResponse.getJoinUrl(), sessionResponse.getJoinUrl());
         assertEquals(expectedResponse.getPlatform(), sessionResponse.getPlatform());
     }
+
     static Stream<Arguments> provideSessions() {
         return Stream.of(
                 Arguments.of(mockSession, mockSessionResponse),
@@ -162,11 +167,50 @@ class SessionConverterTest {
             assertEquals(expectedResponse.getPlatform(), response.getPlatform());
         }
     }
+
     static Stream<Arguments> provideSessionsList() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
+        String subject = "Subject";
+        String description = "Description";
+        String address = "Address";
+        PhysicalSession s = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                new SpecialInterestGroup(
+                        "",
+                        new Person(
+                                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.EMPLOYEE),
+                                null, null, null, null
+                        ),
+                        List.of(new Person(
+                                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.EMPLOYEE),
+                                null, null, null, null)),
+                        new ArrayList<>()
+                ),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address,
+                null
+        );
+        SessionResponse physicalSResponse = new SessionResponse();
+        physicalSResponse.setType("PHYSICAL");
+        physicalSResponse.setDetails(s.getDetails());
+        physicalSResponse.setState(s.getState());
+        physicalSResponse.setAddress(s.getAddress());
+
         return Stream.of(
                 Arguments.of(
                         List.of(mockSession, physicalSession, onlineSession, teamsOnlineSession),
                         List.of(mockSessionResponse, physicalSessionResponse, onlineSessionResponse, teamsOnlineSessionResponse)
+                ),
+                Arguments.of(
+                        List.of(s),
+                        List.of(physicalSResponse)
+                ),
+                Arguments.of(
+                        List.of(),
+                        List.of()
                 )
         );
     }

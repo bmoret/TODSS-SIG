@@ -28,11 +28,12 @@ public class SessionConverter {
 
     private static SpecialInterestGroupResponse convertSigToSigResponse(SpecialInterestGroup sig) {
         PersonCompactResponse manager = sig.getManager() == null? null :  convertPersonToResponse(sig.getManager());
+        List<PersonCompactResponse> organizers = sig.getOrganizers() == null? null : convertPersonToListResponse(sig.getOrganizers());
         return new SpecialInterestGroupResponse(
                 sig.getId(),
                 sig.getSubject(),
                 manager,
-                convertPersonToListResponse(sig.getOrganizers())
+                organizers
         );
     }
 
