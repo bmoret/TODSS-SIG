@@ -52,16 +52,18 @@ SessionController {
 
     @PermitAll
     @GetMapping("/future/{personId}")
-    public ResponseEntity<List<SessionResponse>> getFutureSessionsOfPerson(@PathVariable UUID personId) throws NotFoundException {
-        List<Session> sessions = this.SERVICE.getFutureSessionsOfPerson(personId);
+    public ResponseEntity<List<SessionResponse>> getFutureSessionsOfPerson(@PathVariable UUID personId, Authentication authentication) throws NotFoundException, IllegalAccessException {
+        UserProfile profile = (UserProfile) authentication.getPrincipal();
+        List<Session> sessions = this.SERVICE.getFutureSessionsOfPerson(profile.getUsername(), personId);
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }
 
     @PermitAll
     @GetMapping("/history/{personId}")
-    public ResponseEntity<List<SessionResponse>> getHistorySessionsOfPerson(@PathVariable UUID personId) throws NotFoundException {
-        List<Session> sessions = this.SERVICE.getHistorySessionsOfPerson(personId);
+    public ResponseEntity<List<SessionResponse>> getHistorySessionsOfPerson(@PathVariable UUID personId, Authentication authentication) throws NotFoundException, IllegalAccessException {
+        UserProfile profile = (UserProfile) authentication.getPrincipal();
+        List<Session> sessions = this.SERVICE.getHistorySessionsOfPerson(profile.getUsername(), personId);
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }

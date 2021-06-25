@@ -146,8 +146,17 @@ public class SessionService {
                 .collect(Collectors.toList());
     }
 
-    public List<Session> getFutureSessionsOfPerson(UUID personId) throws NotFoundException {
+    private boolean isAuthorizedToUserResources(String username, Person person) throws NotFoundException {
+        User user = this.USER_SERVICE.getUserByUsername(username);
+        UUID userPersonId = user.getPerson().getId();
+        Person supervisor = person.getSupervisor();
+        return person.getId().equals(userPersonId)
+                || supervisor != null && supervisor.getId().equals(userPersonId);
+    }
+
+    public List<Session> getFutureSessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
         Person person = personService.getPerson(personId);
+        if (!isAuthorizedToUserResources(username,person)) throw new IllegalAccessException("User is not allowed to access resources");
         return person.getAttendance().stream()
                 .map(Attendance::getSession)
                 .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
@@ -155,8 +164,9 @@ public class SessionService {
                 .collect(Collectors.toList());
     }
 
-    public List<Session> getHistorySessionsOfPerson(UUID personId) throws NotFoundException {
+    public List<Session> getHistorySessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
         Person person = personService.getPerson(personId);
+        if (!isAuthorizedToUserResources(username,person)) throw new IllegalAccessException("User is not allowed to access resources");
         return person.getAttendance().stream()
                 .map(Attendance::getSession)
                 .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now()))
