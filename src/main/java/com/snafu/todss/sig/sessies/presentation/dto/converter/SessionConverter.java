@@ -50,6 +50,7 @@ public class SessionConverter {
 
     public static SessionResponse convertSessionToResponse(Session session) {
         SessionResponse response = new ModelMapper().map(session, SessionResponse.class);
+        response.setAttendeeAmount(session.getAttendances().size());
         return setSessionType(session, response);
     }
 

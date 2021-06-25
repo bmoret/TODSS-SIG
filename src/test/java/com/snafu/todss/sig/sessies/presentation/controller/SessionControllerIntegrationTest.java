@@ -221,7 +221,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.subject").value(session.getDetails().getSubject()))
                 .andExpect(jsonPath("$.details.description").value(session.getDetails().getDescription()))
                 .andExpect(jsonPath("$.address").value(session.getAddress()))
-                .andExpect(jsonPath("$.contactPerson").exists());
+                .andExpect(jsonPath("$.contactPerson").exists())
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
 
     @Test
@@ -260,7 +261,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.description").value(description))
                 .andExpect(jsonPath("$.address").value(address))
                 .andExpect(jsonPath("$.type").value("PHYSICAL"))
-                .andExpect(jsonPath("$.contactPerson").exists());
+                .andExpect(jsonPath("$.contactPerson").exists())
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
 
     @Test
@@ -299,7 +301,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.description").value(description))
                 .andExpect(jsonPath("$.address").value(address))
                 .andExpect(jsonPath("$.type").value("PHYSICAL"))
-                .andExpect(jsonPath("$.contactPerson").exists());
+                .andExpect(jsonPath("$.contactPerson").exists())
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
 
     @Test
@@ -338,7 +341,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.description").value(description))
                 .andExpect(jsonPath("$.address").value(address))
                 .andExpect(jsonPath("$.type").value("PHYSICAL"))
-                .andExpect(jsonPath("$.contactPerson").exists());
+                .andExpect(jsonPath("$.contactPerson").exists())
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
 
     @Test
@@ -377,7 +381,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.description").value(description))
                 .andExpect(jsonPath("$.address").value(address))
                 .andExpect(jsonPath("$.type").value("PHYSICAL"))
-                .andExpect(jsonPath("$.contactPerson").exists());
+                .andExpect(jsonPath("$.contactPerson").exists())
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
 
     @Test
@@ -446,7 +451,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.platform").value(expectedPlatform))
                 .andExpect(jsonPath("$.joinUrl").value(joinUrl))
                 .andExpect(jsonPath("$.type").value(expectedType))
-                .andExpect(jsonPath("$.contactPerson").exists());
+                .andExpect(jsonPath("$.contactPerson").exists())
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
 
     static Stream<Arguments> provideOnlineRequests() {
@@ -500,7 +506,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.endDate").exists())
                 .andExpect(jsonPath("$.details.subject").value(subject))
                 .andExpect(jsonPath("$.details.description").value(description))
-                .andExpect(jsonPath("$.address").value(address));
+                .andExpect(jsonPath("$.address").value(address))
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
 
     @Test
@@ -547,7 +554,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.endDate").exists())
                 .andExpect(jsonPath("$.details.subject").value(subject))
                 .andExpect(jsonPath("$.details.description").value(description))
-                .andExpect(jsonPath("$.address").value(address));
+                .andExpect(jsonPath("$.address").value(address))
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
 
     @Test
@@ -594,7 +602,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.endDate").exists())
                 .andExpect(jsonPath("$.details.subject").value(subject))
                 .andExpect(jsonPath("$.details.description").value(description))
-                .andExpect(jsonPath("$.address").value(address));
+                .andExpect(jsonPath("$.address").value(address))
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
 
     @Test
@@ -641,7 +650,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.endDate").exists())
                 .andExpect(jsonPath("$.details.subject").value(subject))
                 .andExpect(jsonPath("$.details.description").value(description))
-                .andExpect(jsonPath("$.address").value(address));
+                .andExpect(jsonPath("$.address").value(address))
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
 
     @Test
@@ -715,7 +725,8 @@ class SessionControllerIntegrationTest {
                 .andExpect(jsonPath("$.details.subject").value(session.getDetails().getSubject()))
                 .andExpect(jsonPath("$.details.description").value(session.getDetails().getDescription()))
                 .andExpect(jsonPath("$.platform").value(expectedPlatform))
-                .andExpect(jsonPath("$.joinUrl").value(joinUrl));
+                .andExpect(jsonPath("$.joinUrl").value(joinUrl))
+                .andExpect(jsonPath("$.attendeeAmount").exists());
     }
     static Stream<Arguments> provideUpdateOnlineRequests() {
         LocalDateTime now = LocalDateTime.now();
