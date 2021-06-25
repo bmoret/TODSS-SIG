@@ -1,5 +1,7 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.security.data.SpringUserRepository;
+import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
@@ -63,6 +65,9 @@ class SessionControllerIntegrationTest {
     private SpringPersonRepository personRepository;
 
     @Autowired
+    private SpringUserRepository userRepository;
+
+    @Autowired
     private SpringAttendanceRepository attendanceRepository;
 
     private Person supervisor;
@@ -77,6 +82,7 @@ class SessionControllerIntegrationTest {
 
     @BeforeEach
     void beforeEach() throws NotFoundException {
+
         PersonRequest dtoSupervisor = new PersonRequest();
         dtoSupervisor.email = "test2@email.com";
         dtoSupervisor.firstname = "fourth";
@@ -87,6 +93,8 @@ class SessionControllerIntegrationTest {
         dtoSupervisor.employedSince = "2021-12-01";
         dtoSupervisor.supervisorId = null;
         supervisor = personService.createPerson(dtoSupervisor);
+
+        userRepository.save(new User("TestUser", "password", supervisor));
 
         sig = sigRepository.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
         Session session = repository.save(
@@ -127,6 +135,7 @@ class SessionControllerIntegrationTest {
         this.attendanceRepository.deleteAll();
         this.repository.deleteAll();
         this.sigRepository.deleteAll();
+        this.userRepository.deleteAll();
         this.personRepository.deleteAll();
     }
 
@@ -1095,5 +1104,60 @@ class SessionControllerIntegrationTest {
                 Arguments.of(LocalDateTime.now().minusHours(1).toString(), ""),
                 Arguments.of("", "")
         );
+    }
+
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
+    @DisplayName("Get all future sessions returns list sessions")
+    void getAllFutureSessions() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sessions/future")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
+    @DisplayName("Get all future sessions of person returns list sessions")
+    void getAllFutureSessionsOfPerson() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sessions/future/"+ supervisor.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "MANAGER")
+    @DisplayName("Get all past sessions that a user attended returns list sessions as manager")
+    void getHistorySessionsOfUserAsManager() throws Exception {
+        repository.save(new PhysicalSession());
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sessions/history/" + supervisor.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
+    @DisplayName("Get all past sessions that a user attended returns list sessions as administrator")
+    void getHistorySessionsOfUserAsAdministrator() throws Exception {
+        repository.save(new PhysicalSession());
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sessions/history/" + supervisor.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
     }
 }

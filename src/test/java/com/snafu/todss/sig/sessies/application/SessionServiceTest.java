@@ -1,8 +1,14 @@
 package com.snafu.todss.sig.sessies.application;
 
+import com.snafu.todss.sig.security.application.UserService;
+import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
+import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.person.PersonDetails;
+import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
+import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.domain.session.SessionDetails;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
@@ -18,7 +24,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +41,11 @@ class SessionServiceTest {
     private static final SessionRepository repository = mock(SessionRepository.class);
     private static final SpecialInterestGroupService sigService = mock(SpecialInterestGroupService.class);
     private static final PersonService personService = mock(PersonService.class);
+    private static final UserService userService = mock(UserService.class);
     private static SessionService service;
     private static Session session;
     private static PhysicalSessionRequest physicalSessionRequest;
-    private static Person supervisor = mock(Person.class);
+    private static Person supervisor;
 
     @BeforeAll
     static void init() throws NotFoundException {
@@ -45,13 +54,13 @@ class SessionServiceTest {
     }
 
     @BeforeEach
-    void setup() {
+    void setup(){
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
         String subject = "Subject";
         String description = "Description";
         String address = "Address";
-        service = new SessionService(repository, sigService, null, personService);
+        service = new SessionService(repository, sigService, userService, personService);
         physicalSessionRequest.startDate = now;
         physicalSessionRequest.endDate = nowPlusOneHour;
         physicalSessionRequest.subject = subject;
@@ -61,7 +70,7 @@ class SessionServiceTest {
         physicalSessionRequest.contactPerson = UUID.randomUUID();
 
         session = new PhysicalSession(
-                new SessionDetails(now, nowPlusOneHour, subject, description),
+                new SessionDetails(now.plusHours(1), nowPlusOneHour.plusHours(2), subject, description),
                 SessionState.DRAFT,
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
@@ -69,12 +78,20 @@ class SessionServiceTest {
                 address,
                 supervisor
         );
-
+        supervisor = new Person(
+                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                null,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
+        ReflectionTestUtils.setField(supervisor, "id", UUID.randomUUID());
+        supervisor.addAttendance(Attendance.of(supervisor, session));
     }
 
     @AfterEach
     void tearDown() {
-        Mockito.clearInvocations(repository, sigService);
+        Mockito.clearInvocations(repository, sigService, userService, personService);
     }
 
 
@@ -347,5 +364,173 @@ class SessionServiceTest {
                 Arguments.of(LocalDateTime.now().plusHours(1), LocalDateTime.now().plusYears(1)),
                 Arguments.of(LocalDateTime.now().minusYears(1), LocalDateTime.now().plusHours(1))
         );
+    }
+
+    @Test
+    @DisplayName("get future sessions")
+    void futureSessions() throws NotFoundException {
+        User user = new User("TestUser", "password", supervisor);
+        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+        when(service.getAllSessions()).thenReturn(List.of(session));
+
+        List<Session> sessions = service.getAllFutureSessions("user");
+
+        assertTrue(sessions.contains(session));
+        verify(userService, times(1)).getUserByUsername(any(String.class));
+    }
+
+    @Test
+    @DisplayName("get historical related sessions")
+    void historicalRelatedSessions() throws NotFoundException {
+        session.getDetails().setStartDate(LocalDateTime.now().minusHours(1));
+        session.getDetails().setEndDate(LocalDateTime.now().minusHours(2));
+        supervisor.addManager(session.getSig());
+        User user = new User("TestUser", "password", supervisor);
+        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+        when(service.getAllSessions()).thenReturn(List.of(session));
+
+        List<Session> sessions = service.getAllFutureSessions("user");
+
+        assertTrue(sessions.contains(session));
+        verify(userService, times(1)).getUserByUsername(any(String.class));
+    }
+
+    @Test
+    @DisplayName("get future sessions none")
+    void futureSessionsNone() throws NotFoundException {
+        session.getDetails().setStartDate(LocalDateTime.now().minusHours(1));
+        session.getDetails().setEndDate(LocalDateTime.now().minusHours(2));
+        User user = new User("TestUser", "password", supervisor);
+        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+        when(service.getAllSessions()).thenReturn(List.of(session));
+
+        List<Session> sessions = service.getAllFutureSessions("user");
+
+        assertFalse(sessions.contains(session));
+        verify(userService, times(1)).getUserByUsername(any(String.class));
+    }
+
+    @Test
+    @DisplayName("get future sessions of person")
+    void futureSessionsOfPerson() throws NotFoundException, IllegalAccessException {
+        User user = new User("TestUser", "password", supervisor);
+        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+        when(personService.getPerson(supervisor.getId())).thenReturn(supervisor);
+
+        List<Session> sessions = service.getFutureSessionsOfPerson(user.getUsername(), supervisor.getId());
+
+        assertTrue(sessions.contains(session));
+        verify(userService, times(1)).getUserByUsername(any(String.class));
+    }
+
+    @Test
+    @DisplayName("get future sessions of person")
+    void futureSessionsOfPersonAsManager() throws NotFoundException, IllegalAccessException {
+        Person person = new Person(
+                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                null,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
+        ReflectionTestUtils.setField(person, "id", UUID.randomUUID());
+        person.setSupervisor(supervisor);
+        User user = new User("TestUser", "password", person);
+        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+        when(personService.getPerson(supervisor.getId())).thenReturn(supervisor);
+
+        List<Session> sessions = service.getFutureSessionsOfPerson(user.getUsername(), supervisor.getId());
+
+        assertTrue(sessions.contains(session));
+        verify(userService, times(1)).getUserByUsername(any(String.class));
+    }
+
+    @Test
+    @DisplayName("get future sessions of person not related")
+    void futureSessionsOfPersonAsManagerNotRelated() throws NotFoundException {
+        Person person = new Person(
+                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                null,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
+        ReflectionTestUtils.setField(person, "id", UUID.randomUUID());
+        User user = new User("TestUser", "password", person);
+        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+        when(personService.getPerson(supervisor.getId())).thenReturn(supervisor);
+
+        assertThrows(
+                IllegalAccessException.class,
+                () -> service.getFutureSessionsOfPerson(user.getUsername(), supervisor.getId())
+        );
+
+        verify(userService, times(1)).getUserByUsername(any(String.class));
+    }
+
+
+
+
+    @Test
+    @DisplayName("get historical sessions of person")
+    void historicalSessionsOfPerson() throws NotFoundException, IllegalAccessException {
+        session.getDetails().setStartDate(LocalDateTime.now().minusHours(2));
+        session.getDetails().setEndDate(LocalDateTime.now().minusHours(1));
+        User user = new User("TestUser", "password", supervisor);
+        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+        when(personService.getPerson(supervisor.getId())).thenReturn(supervisor);
+        List<Session> sessions = service.getHistorySessionsOfPerson(user.getUsername(), supervisor.getId());
+
+        assertTrue(sessions.contains(session));
+        verify(userService, times(1)).getUserByUsername(any(String.class));
+    }
+
+    @Test
+    @DisplayName("get historical sessions of person")
+    void historicalSessionsOfPersonAsManager() throws NotFoundException, IllegalAccessException {
+        session.getDetails().setStartDate(LocalDateTime.now().minusHours(2));
+        session.getDetails().setEndDate(LocalDateTime.now().minusHours(1));
+        Person person = new Person(
+                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                null,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
+        ReflectionTestUtils.setField(person, "id", UUID.randomUUID());
+        person.setSupervisor(supervisor);
+        User user = new User("TestUser", "password", person);
+        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+        when(personService.getPerson(supervisor.getId())).thenReturn(supervisor);
+
+        List<Session> sessions = service.getHistorySessionsOfPerson(user.getUsername(), supervisor.getId());
+
+        assertTrue(sessions.contains(session));
+        verify(userService, times(1)).getUserByUsername(any(String.class));
+    }
+
+    @Test
+    @DisplayName("get future sessions of person not related")
+    void historicalSessionsOfPersonAsManagerNotRelated() throws NotFoundException {
+        session.getDetails().setStartDate(LocalDateTime.now().minusHours(2));
+        session.getDetails().setEndDate(LocalDateTime.now().minusHours(1));
+        Person person = new Person(
+                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                null,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
+        ReflectionTestUtils.setField(person, "id", UUID.randomUUID());
+        User user = new User("TestUser", "password", person);
+        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+        when(personService.getPerson(supervisor.getId())).thenReturn(supervisor);
+
+        assertThrows(
+                IllegalAccessException.class,
+                () -> service.getHistorySessionsOfPerson(user.getUsername(), supervisor.getId())
+        );
+
+        verify(userService, times(1)).getUserByUsername(any(String.class));
     }
 }

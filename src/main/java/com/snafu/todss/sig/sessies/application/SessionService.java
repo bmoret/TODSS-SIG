@@ -148,10 +148,11 @@ public class SessionService {
 
     private boolean isAuthorizedToUserResources(String username, Person person) throws NotFoundException {
         User user = this.USER_SERVICE.getUserByUsername(username);
-        UUID userPersonId = user.getPerson().getId();
-        Person supervisor = person.getSupervisor();
-        return person.getId().equals(userPersonId)
-                || supervisor != null && supervisor.getId().equals(userPersonId);
+       Person userPerson = user.getPerson();
+        Person userPersonManager = userPerson.getSupervisor();
+        return userPerson.equals(person)
+                || userPersonManager != null && userPersonManager.equals(person);
+
     }
 
     public List<Session> getFutureSessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
