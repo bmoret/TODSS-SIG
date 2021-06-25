@@ -171,9 +171,9 @@ public class SessionService {
     private boolean isNotAuthorizedToUserResources(String username, Person person) throws NotFoundException {
         User user = this.USER_SERVICE.getUserByUsername(username);
         Person userPerson = user.getPerson();
-        Person userPersonManager = userPerson.getSupervisor();
+        Person personManager = person.getSupervisor();
         return !userPerson.equals(person)
-                && (userPersonManager == null || !userPersonManager.equals(person));
+                && (personManager == null || !personManager.equals(person));
 
     }
 
