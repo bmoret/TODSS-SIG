@@ -11,7 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.PermitAll;
@@ -44,7 +44,7 @@ SessionController {
     @PermitAll
     @GetMapping("/future")
     public ResponseEntity<List<SessionResponse>> getAllFutureSessions(Authentication authentication) throws NotFoundException {
-        User profile = (User) authentication.getPrincipal();
+        UserDetails profile = (UserDetails) authentication.getPrincipal();
         List<Session> sessions = this.SERVICE.getAllFutureSessions(profile.getUsername());
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
@@ -53,7 +53,7 @@ SessionController {
     @PermitAll
     @GetMapping("/future/{personId}")
     public ResponseEntity<List<SessionResponse>> getFutureSessionsOfPerson(@PathVariable UUID personId, Authentication authentication) throws NotFoundException, IllegalAccessException {
-        User profile = (User) authentication.getPrincipal();
+        UserDetails profile = (UserDetails) authentication.getPrincipal();
         List<Session> sessions = this.SERVICE.getFutureSessionsOfPerson(profile.getUsername(), personId);
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
@@ -62,7 +62,7 @@ SessionController {
     @PermitAll
     @GetMapping("/history/{personId}")
     public ResponseEntity<List<SessionResponse>> getHistorySessionsOfPerson(@PathVariable UUID personId, Authentication authentication) throws NotFoundException, IllegalAccessException {
-        User profile = (User) authentication.getPrincipal();
+        UserDetails profile = (UserDetails) authentication.getPrincipal();
         List<Session> sessions = this.SERVICE.getHistorySessionsOfPerson(profile.getUsername(), personId);
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
