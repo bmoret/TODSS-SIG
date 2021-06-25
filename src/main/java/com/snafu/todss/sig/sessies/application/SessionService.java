@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -199,7 +200,7 @@ public class SessionService {
         return person.getAttendance().stream()
                 .map(Attendance::getSession)
                 .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now())
-                        && session.getDetails().getStartDate().isAfter(LocalDateTime.now().minusYears(1)))
+                        && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.YEARS)))
                 .sorted()
                 .collect(Collectors.toList());
     }
