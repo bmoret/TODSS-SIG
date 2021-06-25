@@ -198,7 +198,8 @@ public class SessionService {
 
         return person.getAttendance().stream()
                 .map(Attendance::getSession)
-                .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now()))
+                .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now())
+                        && session.getDetails().getStartDate().isAfter(LocalDateTime.now().minusYears(1)))
                 .sorted()
                 .collect(Collectors.toList());
     }
