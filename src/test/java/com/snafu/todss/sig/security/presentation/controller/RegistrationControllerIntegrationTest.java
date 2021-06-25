@@ -281,7 +281,7 @@ class RegistrationControllerIntegrationTest {
         Map<String, String> tokens = getTokensFromLogin();
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions")
+                .get("/sig")
                 .contentType("application/json")
                 .header("Access-Token", tokens.get("access_token"));
 

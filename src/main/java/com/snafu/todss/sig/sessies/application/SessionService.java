@@ -40,34 +40,24 @@ public class SessionService {
         for(Session session : SESSION_REPOSITORY.findAll()) {
             if (user.getRole() == UserRole.ROLE_ORGANIZER || user.getRole() == UserRole.ROLE_MANAGER){
                 if ((session.getState() == SessionState.TO_BE_PLANNED) || (session.getState() == SessionState.DRAFT) ) {
-                    System.out.println("they are manager or organizer");
                     if (person.getOrganisedSpecialInterestGroups().contains(session.getSig()) ||
                         person.getManagedSpecialInterestGroups().contains(session.getSig())) {
-                        System.out.println("they managing or organizing shiz");
-
                         getsAdded = true;
                     }
                 } else if ((session.getState() != SessionState.TO_BE_PLANNED || session.getState() != SessionState.DRAFT)) {
-                    System.out.println("manager 2");
-
                     getsAdded = true;
                 }
             }
             else if (user.getRole() == UserRole.ROLE_SECRETARY) {
                 if (session.getState() != SessionState.DRAFT) {
-                    System.out.println("secretary");
-
                     getsAdded = true;
                 }
             }
             else if(user.getRole() == UserRole.ROLE_ADMINISTRATOR) {
-                System.out.println("admin");
-
                 getsAdded = true;
             }
             else {
                 if (!(session.getState().equals(SessionState.TO_BE_PLANNED)) && !(session.getState().equals(SessionState.DRAFT))) {
-                    System.out.println("employee n guest");
                     getsAdded = true;
                 }
             }
