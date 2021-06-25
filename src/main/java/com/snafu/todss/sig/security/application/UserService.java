@@ -35,20 +35,15 @@ public class UserService implements UserDetailsService {
     }
 
     private void checkIfUserAlreadyExists(String username) {
-        if (username != null) {
-            USER_REPOSITORY.findByUsername(username).ifPresent(error -> {
-                throw new DuplicateRequestException(String.format("User with username '%s' already exists", username));
-            });
+        if (username == null || USER_REPOSITORY.findByUsername(username).isPresent()) {
+            throw new DuplicateRequestException(String.format("User with username '%s' already exists", username));
         }
     }
 
     public void register(String username, String password, Person person) {
         checkIfUserAlreadyExists(username);
-
         String encodedPassword = this.PASSSWORD_ENCODER.encode(password);
-
         User user = new User(username, encodedPassword, person);
-
         this.USER_REPOSITORY.save(user);
     }
 
