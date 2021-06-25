@@ -71,7 +71,7 @@ class SessionServiceTest {
 
         session = new PhysicalSession(
                 new SessionDetails(now.plusHours(1), nowPlusOneHour.plusHours(2), subject, description),
-                SessionState.DRAFT,
+                SessionState.PLANNED,
                 new SpecialInterestGroup(),
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -373,7 +373,7 @@ class SessionServiceTest {
         session.getDetails().setEndDate(LocalDateTime.now().minusHours(1));
         when(service.getAllSessions()).thenReturn(List.of(session));
 
-        List<Session> sessions = service.getAllHistoricalSessions();
+        List<Session> sessions = service.getAllHistoricalSessions("user");
 
         assertTrue(sessions.contains(session));
     }
@@ -383,7 +383,7 @@ class SessionServiceTest {
     void futureSessions() {
         when(service.getAllSessions()).thenReturn(List.of(session));
 
-        List<Session> sessions = service.getAllFutureSessions();
+        List<Session> sessions = service.getAllFutureSessions("user");
 
         assertTrue(sessions.contains(session));
     }
@@ -395,7 +395,7 @@ class SessionServiceTest {
         session.getDetails().setEndDate(LocalDateTime.now().minusHours(2));
         when(service.getAllSessions()).thenReturn(List.of(session));
 
-        List<Session> sessions = service.getAllFutureSessions();
+        List<Session> sessions = service.getAllFutureSessions("user");
 
         assertFalse(sessions.contains(session));
     }

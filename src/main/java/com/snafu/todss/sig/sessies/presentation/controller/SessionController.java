@@ -43,16 +43,18 @@ SessionController {
 
     @PermitAll
     @GetMapping("/future")
-    public ResponseEntity<List<SessionResponse>> getAllFutureSessions() {
-        List<Session> sessions = this.SERVICE.getAllFutureSessions();
+    public ResponseEntity<List<SessionResponse>> getAllFutureSessions(Authentication authentication) {
+        UserDetails profile = (UserDetails) authentication.getPrincipal();
+        List<Session> sessions = this.SERVICE.getAllFutureSessions(profile.getUsername());
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }
 
     @PermitAll
     @GetMapping("/history")
-    public ResponseEntity<List<SessionResponse>> getAllHistoricalSessions() {
-        List<Session> sessions = this.SERVICE.getAllHistoricalSessions();
+    public ResponseEntity<List<SessionResponse>> getAllHistoricalSessions(Authentication authentication) {
+        UserDetails profile = (UserDetails) authentication.getPrincipal();
+        List<Session> sessions = this.SERVICE.getAllHistoricalSessions(profile.getUsername());
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }

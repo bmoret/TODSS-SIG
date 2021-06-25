@@ -2,6 +2,7 @@ package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.security.application.UserService;
 import com.snafu.todss.sig.security.domain.User;
+import com.snafu.todss.sig.security.domain.UserRole;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -134,15 +136,35 @@ public class SessionService {
         SESSION_REPOSITORY.save(session);
     }
 
-    public List<Session> getAllFutureSessions() {
+    private boolean isAuthorizedForSession(String username, Session session) {
+        User user;
+        try {
+            user = this.USER_SERVICE.getUserByUsername(username);
+        } catch (NotFoundException e) {
+            return false;
+        }
+        List<SpecialInterestGroup> relatedSigs = new ArrayList<>(user.getPerson().getOrganisedSpecialInterestGroups());
+        relatedSigs.addAll(user.getPerson().getManagedSpecialInterestGroups());
+        return relatedSigs.stream().anyMatch(session.getSig()::equals)
+                || session.getState().equals(SessionState.TO_BE_PLANNED)
+                && (user.getRole().equals(UserRole.ROLE_SECRETARY) || user.getRole().equals(UserRole.ROLE_ADMINISTRATOR));
+    }
+
+    public List<Session> getAllFutureSessions(String username) {
         return getAllSessions().stream()
-                .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
+                .filter(session -> (session.getDetails().getStartDate().isAfter(LocalDateTime.now())
+                        && (session.getState().equals(SessionState.PLANNED) || session.getState().equals(SessionState.ONGOING)))
+                        || isAuthorizedForSession(username, session)
+                        && (session.getState().equals(SessionState.TO_BE_PLANNED) || session.getState().equals(SessionState.DRAFT)))
                 .collect(Collectors.toList());
     }
 
-    public List<Session> getAllHistoricalSessions() {
+    public List<Session> getAllHistoricalSessions(String username) {
         return getAllSessions().stream()
                 .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now()))
+                .filter(session -> !(session.getState().equals(SessionState.DRAFT)
+                        || session.getState().equals(SessionState.TO_BE_PLANNED))
+                        || isAuthorizedForSession(username, session))
                 .collect(Collectors.toList());
     }
 
