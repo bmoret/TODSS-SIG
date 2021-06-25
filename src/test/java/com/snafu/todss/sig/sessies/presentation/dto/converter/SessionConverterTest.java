@@ -167,10 +167,6 @@ class SessionConverterTest {
                 Arguments.of(
                         List.of(mockSession, physicalSession, onlineSession, teamsOnlineSession),
                         List.of(mockSessionResponse, physicalSessionResponse, onlineSessionResponse, teamsOnlineSessionResponse)
-                ),
-                Arguments.of(
-                        List.of(),
-                        List.of()
                 )
         );
     }

@@ -150,60 +150,6 @@ class SessionControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
-    @DisplayName("Get all future sessions returns list sessions")
-    void getAllFutureSessions() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions/future")
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0]").exists());
-    }
-
-    @Test
-    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
-    @DisplayName("Get all future sessions of person returns list sessions")
-    void getAllFutureSessionsOfPerson() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions/future/"+ supervisor.getId())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0]").exists());
-    }
-
-    @Test
-    @WithMockUser(username = "TestUser", roles = "MANAGER")
-    @DisplayName("Get all past sessions that a user attended returns list sessions as manager")
-    void getHistorySessionsOfUserAsManager() throws Exception {
-        repository.save(new PhysicalSession());
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions/history/" + supervisor.getId())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0]").exists());
-    }
-
-    @Test
-    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
-    @DisplayName("Get all past sessions that a user attended returns list sessions as administrator")
-    void getHistorySessionsOfUserAsAdministrator() throws Exception {
-        repository.save(new PhysicalSession());
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions/history/" + supervisor.getId())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0]").exists());
-    }
-
-    @Test
-    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get all sessions returns empty list")
     void getAllSessionsWithNoSessions() throws Exception {
         this.attendanceRepository.deleteAll();
