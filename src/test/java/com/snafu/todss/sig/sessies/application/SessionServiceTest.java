@@ -51,7 +51,7 @@ class SessionServiceTest {
         String subject = "Subject";
         String description = "Description";
         String address = "Address";
-        service = new SessionService(repository, sigService, personService);
+        service = new SessionService(repository, sigService, null, personService);
         physicalSessionRequest.startDate = now;
         physicalSessionRequest.endDate = nowPlusOneHour;
         physicalSessionRequest.subject = subject;
