@@ -43,9 +43,16 @@ SessionController {
 
     @PermitAll
     @GetMapping("/future")
-    public ResponseEntity<List<SessionResponse>> getAllFutureSessions(Authentication authentication) throws NotFoundException {
-        UserDetails profile = (UserDetails) authentication.getPrincipal();
-        List<Session> sessions = this.SERVICE.getAllFutureSessions(profile.getUsername());
+    public ResponseEntity<List<SessionResponse>> getAllFutureSessions() {
+        List<Session> sessions = this.SERVICE.getAllFutureSessions();
+
+        return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
+    }
+
+    @PermitAll
+    @GetMapping("/history")
+    public ResponseEntity<List<SessionResponse>> getAllHistoricalSessions() {
+        List<Session> sessions = this.SERVICE.getAllHistoricalSessions();
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }

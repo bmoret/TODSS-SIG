@@ -367,47 +367,37 @@ class SessionServiceTest {
     }
 
     @Test
-    @DisplayName("get future sessions")
-    void futureSessions() throws NotFoundException {
-        User user = new User("TestUser", "password", supervisor);
-        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+    @DisplayName("get historical sessions")
+    void historicalSessions(){
+        session.getDetails().setStartDate(LocalDateTime.now().minusHours(2));
+        session.getDetails().setEndDate(LocalDateTime.now().minusHours(1));
         when(service.getAllSessions()).thenReturn(List.of(session));
 
-        List<Session> sessions = service.getAllFutureSessions("user");
+        List<Session> sessions = service.getAllHistoricalSessions();
 
         assertTrue(sessions.contains(session));
-        verify(userService, times(1)).getUserByUsername(any(String.class));
     }
 
     @Test
-    @DisplayName("get historical related sessions")
-    void historicalRelatedSessions() throws NotFoundException {
-        session.getDetails().setStartDate(LocalDateTime.now().minusHours(1));
-        session.getDetails().setEndDate(LocalDateTime.now().minusHours(2));
-        supervisor.addManager(session.getSig());
-        User user = new User("TestUser", "password", supervisor);
-        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
+    @DisplayName("get future sessions")
+    void futureSessions() {
         when(service.getAllSessions()).thenReturn(List.of(session));
 
-        List<Session> sessions = service.getAllFutureSessions("user");
+        List<Session> sessions = service.getAllFutureSessions();
 
         assertTrue(sessions.contains(session));
-        verify(userService, times(1)).getUserByUsername(any(String.class));
     }
 
     @Test
     @DisplayName("get future sessions none")
-    void futureSessionsNone() throws NotFoundException {
+    void futureSessionsNone() {
         session.getDetails().setStartDate(LocalDateTime.now().minusHours(1));
         session.getDetails().setEndDate(LocalDateTime.now().minusHours(2));
-        User user = new User("TestUser", "password", supervisor);
-        when(userService.getUserByUsername(any(String.class))).thenReturn(user);
         when(service.getAllSessions()).thenReturn(List.of(session));
 
-        List<Session> sessions = service.getAllFutureSessions("user");
+        List<Session> sessions = service.getAllFutureSessions();
 
         assertFalse(sessions.contains(session));
-        verify(userService, times(1)).getUserByUsername(any(String.class));
     }
 
     @Test

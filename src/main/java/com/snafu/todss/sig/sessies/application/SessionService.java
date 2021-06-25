@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -135,29 +134,33 @@ public class SessionService {
         SESSION_REPOSITORY.save(session);
     }
 
-    public List<Session> getAllFutureSessions(String username) throws NotFoundException {
-        User user = this.USER_SERVICE.getUserByUsername(username);
-        List<SpecialInterestGroup> relatedSigs = new ArrayList<>(user.getPerson().getOrganisedSpecialInterestGroups());
-        relatedSigs.addAll(user.getPerson().getManagedSpecialInterestGroups());
+    public List<Session> getAllFutureSessions() {
         return getAllSessions().stream()
-                .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now())
-                        || relatedSigs.contains(session.getSig())
-                )
+                .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
                 .collect(Collectors.toList());
     }
 
-    private boolean isAuthorizedToUserResources(String username, Person person) throws NotFoundException {
+    public List<Session> getAllHistoricalSessions() {
+        return getAllSessions().stream()
+                .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now()))
+                .collect(Collectors.toList());
+    }
+
+    private boolean isNotAuthorizedToUserResources(String username, Person person) throws NotFoundException {
         User user = this.USER_SERVICE.getUserByUsername(username);
-       Person userPerson = user.getPerson();
+        Person userPerson = user.getPerson();
         Person userPersonManager = userPerson.getSupervisor();
-        return userPerson.equals(person)
-                || userPersonManager != null && userPersonManager.equals(person);
+        return !userPerson.equals(person)
+                && (userPersonManager == null || !userPersonManager.equals(person));
 
     }
 
     public List<Session> getFutureSessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
         Person person = personService.getPerson(personId);
-        if (!isAuthorizedToUserResources(username,person)) throw new IllegalAccessException("User is not allowed to access resources");
+        if (isNotAuthorizedToUserResources(username, person)) {
+            throw new IllegalAccessException("User is not allowed to access resources");
+        }
+
         return person.getAttendance().stream()
                 .map(Attendance::getSession)
                 .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
@@ -167,12 +170,16 @@ public class SessionService {
 
     public List<Session> getHistorySessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
         Person person = personService.getPerson(personId);
-        if (!isAuthorizedToUserResources(username,person)) throw new IllegalAccessException("User is not allowed to access resources");
+        if (isNotAuthorizedToUserResources(username, person)) {
+            throw new IllegalAccessException("User is not allowed to access resources");
+        }
+
         return person.getAttendance().stream()
                 .map(Attendance::getSession)
                 .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now()))
                 .sorted()
                 .collect(Collectors.toList());
     }
+
 
 }

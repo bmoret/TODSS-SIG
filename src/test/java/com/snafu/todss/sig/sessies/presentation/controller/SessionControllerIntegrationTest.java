@@ -1133,6 +1133,19 @@ class SessionControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
+    @DisplayName("Get all historical sessions returns list sessions")
+    void getAllHistoricalSessions() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/sessions/history")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get all future sessions of person returns list sessions")
     void getAllFutureSessionsOfPerson() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders
