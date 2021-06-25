@@ -1,5 +1,6 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.security.application.UserService;
 import com.snafu.todss.sig.sessies.application.SessionService;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
@@ -10,6 +11,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.PermitAll;
@@ -27,9 +30,11 @@ import static com.snafu.todss.sig.sessies.presentation.dto.converter.SessionConv
 public class
 SessionController {
     private final SessionService SERVICE;
+    private final UserService userService;
 
-    public SessionController(SessionService sessionService) {
+    public SessionController(SessionService sessionService, UserService userService) {
         this.SERVICE = sessionService;
+        this.userService = userService;
     }
 
     private SessionResponse convertToSessionResponse(Session session) {
@@ -49,16 +54,24 @@ SessionController {
 
     @PermitAll
     @GetMapping("/future/{personId}")
-    public ResponseEntity<List<SessionResponse>> getFutureSessionsOfPerson(@PathVariable UUID personId) throws NotFoundException {
-        List<Session> sessions = this.SERVICE.getFutureSessionsOfPerson(personId);
+    public ResponseEntity<List<SessionResponse>> getFutureSessionsOfPerson(
+            Authentication authentication, @PathVariable UUID personId) throws NotFoundException {
+        User user = (User) authentication.getPrincipal();
+        com.snafu.todss.sig.security.domain.User correctUser = userService.loadUserByUsername(user.getUsername());
+
+        List<Session> sessions = this.SERVICE.getFutureSessionsOfPerson(correctUser, personId);
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }
 
     @PermitAll
     @GetMapping("/history/{personId}")
-    public ResponseEntity<List<SessionResponse>> getHistorySessionsOfPerson(@PathVariable UUID personId) throws NotFoundException {
-        List<Session> sessions = this.SERVICE.getHistorySessionsOfPerson(personId);
+    public ResponseEntity<List<SessionResponse>> getHistorySessionsOfPerson(
+            Authentication authentication, @PathVariable UUID personId) throws NotFoundException {
+        User user = (User) authentication.getPrincipal();
+        com.snafu.todss.sig.security.domain.User correctUser = userService.loadUserByUsername(user.getUsername());
+
+        List<Session> sessions = this.SERVICE.getHistorySessionsOfPerson(correctUser, personId);
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }

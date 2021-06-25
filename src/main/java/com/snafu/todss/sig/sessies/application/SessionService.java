@@ -1,9 +1,12 @@
 package com.snafu.todss.sig.sessies.application;
 
+import com.snafu.todss.sig.security.domain.User;
+import com.snafu.todss.sig.security.domain.UserRole;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;
 import com.snafu.todss.sig.sessies.domain.person.Person;
+import com.snafu.todss.sig.sessies.domain.person.enums.Role;
 import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.builder.SessionDirector;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -136,22 +140,33 @@ public class SessionService {
                 .collect(Collectors.toList());
     }
 
-    public List<Session> getFutureSessionsOfPerson(UUID personId) throws NotFoundException {
+    public List<Session> getFutureSessionsOfPerson(User user, UUID personId) throws NotFoundException {
         Person person = personService.getPerson(personId);
-        return person.getAttendance().stream()
-                .map(Attendance::getSession)
-                .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
-                .sorted()
-                .collect(Collectors.toList());
+
+        if(user.getPerson().getId() == personId || (user.getRole() == UserRole.ROLE_MANAGER
+                && (user.getPerson().getId() == personId ||
+                person.getSupervisor() == user.getPerson())) || user.getRole() == UserRole.ROLE_ADMINISTRATOR) {
+
+            return person.getAttendance().stream()
+                    .map(Attendance::getSession)
+                    .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
+                    .sorted()
+                    .collect(Collectors.toList());
+        } else return Collections.emptyList();
     }
 
-    public List<Session> getHistorySessionsOfPerson(UUID personId) throws NotFoundException {
+    public List<Session> getHistorySessionsOfPerson(User user, UUID personId) throws NotFoundException {
         Person person = personService.getPerson(personId);
+
+        if(user.getPerson().getId() == personId || (user.getRole() == UserRole.ROLE_MANAGER
+                && (user.getPerson().getId() == personId ||
+                person.getSupervisor() == user.getPerson())) || user.getRole() == UserRole.ROLE_ADMINISTRATOR) {
         return person.getAttendance().stream()
                 .map(Attendance::getSession)
                 .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now()))
                 .sorted()
                 .collect(Collectors.toList());
+        } else return Collections.emptyList();
     }
 
 }
