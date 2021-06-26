@@ -1,7 +1,5 @@
 package com.snafu.todss.sig.sessies.presentation.dto.request.session;
 
-import com.snafu.todss.sig.sessies.domain.person.Person;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -11,7 +9,7 @@ public class OnlineSessionRequest extends SessionRequest{
     @NotBlank
     public String platform;
 
-    @NotBlank
+    @NotNull
     public String joinUrl;
 
     public OnlineSessionRequest() {

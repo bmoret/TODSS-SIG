@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.List;
@@ -115,7 +116,7 @@ public class AttendanceController {
     }
 
 
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
+    @PermitAll
     @GetMapping("/{sessionId}/{personId}")
     public ResponseEntity<Boolean> checkIfAttending(
             @PathVariable UUID sessionId, @PathVariable UUID personId
@@ -125,7 +126,7 @@ public class AttendanceController {
         return new ResponseEntity<>(present, HttpStatus.OK);
     }
 
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
+    @PermitAll
     @PatchMapping("/{sessionId}/{personId}")
     public ResponseEntity<AttendanceResponse> signUpForAttendance(
             @PathVariable UUID sessionId, @PathVariable UUID personId, @Valid @RequestBody AttendanceRequest request
