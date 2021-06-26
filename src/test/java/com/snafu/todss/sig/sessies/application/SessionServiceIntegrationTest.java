@@ -1,5 +1,8 @@
 package com.snafu.todss.sig.sessies.application;
 
+import com.snafu.todss.sig.security.data.SpringUserRepository;
+import com.snafu.todss.sig.security.domain.User;
+import com.snafu.todss.sig.security.domain.UserRole;
 import com.snafu.todss.sig.sessies.data.SessionRepository;
 import com.snafu.todss.sig.sessies.data.SpecialInterestGroupRepository;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
@@ -55,9 +58,21 @@ class SessionServiceIntegrationTest {
     @Autowired
     private SpringPersonRepository personRepository;
 
+    @Autowired
+    private SpringUserRepository userRepository;
+
     private Session testSession;
 
+    private Session testSession2;
+
+    private Session testSession3;
+
     private Person supervisor;
+
+    private User user;
+
+    private SpecialInterestGroup sig;
+
 
     @BeforeEach
     void setup() throws NotFoundException {
@@ -77,7 +92,7 @@ class SessionServiceIntegrationTest {
         String subject = "Subject";
         String description = "Description";
         String address = "Address";
-        SpecialInterestGroup sig = sigRepository.save(new SpecialInterestGroup());
+        sig = sigRepository.save(new SpecialInterestGroup());
         this.testSession = this.repository.save(
                 new PhysicalSession(
                         new SessionDetails(now, nowPlusOneHour, subject, description),
@@ -89,33 +104,139 @@ class SessionServiceIntegrationTest {
                         supervisor
                 )
         );
+
+        testSession2 = repository.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.TO_BE_PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        address,
+                        null
+                )
+        );
+
+        testSession3 = repository.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.PLANNED,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        address,
+                        null
+                )
+        );
+
+        user = userRepository.save(new User("TestUser", "TestPassword", supervisor));
     }
 
     @AfterEach
     void tearDown() {
         this.repository.deleteAll();
         this.personRepository.deleteAll();
+        this.userRepository.deleteAll();
+        this.sigRepository.deleteAll();
     }
 
-    @ParameterizedTest
-    @MethodSource("provideAllSessionsList")
-    @DisplayName("Get all sessions")
-    void getAllSessions_ReturnsCorrectSessions(List<Session> expectedResult) {
-        this.repository.delete(testSession);
-        expectedResult = this.repository.saveAll(expectedResult);
+    @Test
+    @DisplayName("Get all sessions as a manager when the SIG he is managing has 3 sessions")
+    void getAllSessionsWhenManagingSIG_AsManager(){
+        user.setRole(UserRole.ROLE_MANAGER);
+        user.getPerson().addManager(sig);
+        List<Session> sessions = sessionService.getAllSessions(user);
 
-        List<Session> sessions = sessionService.getAllSessions();
-
-        assertEquals(expectedResult.size(), sessions.size());
-        assertTrue(sessions.containsAll(expectedResult));
+        assertEquals(3, sessions.size());
     }
-    private static Stream<Arguments> provideAllSessionsList() {
-        return Stream.of(
-                Arguments.of(List.of()),
-                Arguments.of(List.of(new PhysicalSession())),
-                Arguments.of(List.of(new PhysicalSession(), new OnlineSession())),
-                Arguments.of(List.of(new PhysicalSession(), new OnlineSession(), new TeamsOnlineSession()))
-        );
+
+    @Test
+    @DisplayName("Get all sessions as a manager when they are not managing a SIG")
+    void getAllSessionsWhenNotManaging_AsManager(){
+        user.setRole(UserRole.ROLE_MANAGER);
+        List<Session> sessions = sessionService.getAllSessions(user);
+
+        assertEquals(1, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as an organizer when the SIG they are organizing has 3 sessions")
+    void getAllSessionsWhenOrganizingSIG_AsOrganizer(){
+        user.setRole(UserRole.ROLE_ORGANIZER);
+        user.getPerson().addOrganizer(sig);
+        List<Session> sessions = sessionService.getAllSessions(user);
+
+        assertEquals(3, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as a manager when they are not organizing a SIG")
+    void getAllSessionsWhenNotOrganizingSIG_AsOrganizer(){
+        user.setRole(UserRole.ROLE_ORGANIZER);
+        List<Session> sessions = sessionService.getAllSessions(user);
+
+        assertEquals(1, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as a manager when they are both organizing and managing a SIG that has three sessions")
+    void getAllSessionsWhenOrganizingAndManagingSIG_AsManager(){
+        user.setRole(UserRole.ROLE_MANAGER);
+        user.getPerson().addOrganizer(sig);
+        user.getPerson().addManager(sig);
+
+        List<Session> sessions = sessionService.getAllSessions(user);
+
+        assertEquals(3, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as a manager when managing multiple SIGs")
+    void getAllSessionsWhenManagingMultipleSIG_AsManager(){
+        user.setRole(UserRole.ROLE_ORGANIZER);
+        user.getPerson().addManager(sig);
+        SpecialInterestGroup sig1 = sigRepository.save(new SpecialInterestGroup());
+        user.getPerson().addManager(sig1);
+
+        List<Session> sessions = sessionService.getAllSessions(user);
+
+        assertEquals(3, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as a secretary")
+    void getAllSessions_AsSecretary(){
+        user.setRole(UserRole.ROLE_SECRETARY);
+        List<Session> sessions = sessionService.getAllSessions(user);
+
+        assertEquals(2, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as an administrator")
+    void getAllSessions_AsAdministrator(){
+        user.setRole(UserRole.ROLE_ADMINISTRATOR);
+        List<Session> sessions = sessionService.getAllSessions(user);
+
+        assertEquals(3, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as an employee")
+    void getAllSessions_AsEmployee(){
+        user.setRole(UserRole.ROLE_EMPLOYEE);
+        List<Session> sessions = sessionService.getAllSessions(user);
+
+        assertEquals(1, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as a guest")
+    void getAllSessions_AsGuest(){
+        user.setRole(UserRole.ROLE_GUEST);
+        List<Session> sessions = sessionService.getAllSessions(user);
+
+        assertEquals(1, sessions.size());
     }
 
     @Test
@@ -301,7 +422,7 @@ class SessionServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("Updating sessiontype from online to physical")
+    @DisplayName("Updating session type from online to physical")
     void updateSessionFromOnlineToPhysical() {
         Session onlineSession = assertDoesNotThrow(
                 () -> sessionService.createSession(provideOnlineSessionRequest())
@@ -322,6 +443,9 @@ class SessionServiceIntegrationTest {
     @DisplayName("Deleting session deletes session")
     void deleteSession_DeletesSession() throws NotFoundException {
         sessionService.deleteSession(testSession.getId());
+        sessionService.deleteSession(testSession2.getId());
+        sessionService.deleteSession(testSession3.getId());
+
         assertEquals(Collections.emptyList(), repository.findAll());
     }
 

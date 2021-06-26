@@ -1,5 +1,6 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.security.application.UserService;
 import com.snafu.todss.sig.sessies.application.SessionService;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
@@ -29,9 +30,11 @@ import static com.snafu.todss.sig.sessies.presentation.dto.converter.SessionConv
 public class
 SessionController {
     private final SessionService SERVICE;
+    private final UserService userService;
 
-    public SessionController(SessionService sessionService) {
+    public SessionController(SessionService sessionService, UserService userService) {
         this.SERVICE = sessionService;
+        this.userService = userService;
     }
 
     private SessionResponse convertToSessionResponse(Session session) {
@@ -79,8 +82,11 @@ SessionController {
 
     @PermitAll
     @GetMapping
-    public ResponseEntity<List<SessionResponse>> getAllSessions() {
-        List<Session> sessions = this.SERVICE.getAllSessions();
+    public ResponseEntity<List<SessionResponse>> getAllSessions(Authentication authentication) {
+        UserDetails user = (UserDetails) authentication.getPrincipal();
+        com.snafu.todss.sig.security.domain.User correctUser = userService.loadUserByUsername(user.getUsername());
+
+        List<Session> sessions = this.SERVICE.getAllSessions(correctUser);
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }

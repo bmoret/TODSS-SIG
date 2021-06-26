@@ -39,8 +39,43 @@ public class SessionService {
         this.personService = personService;
     }
 
-    public List<Session> getAllSessions() {
-        return this.SESSION_REPOSITORY.findAll();
+    public List<Session> getAllSessions(User user) {
+        Person person = user.getPerson();
+        List<Session> correctSessions = new ArrayList<>();
+        boolean getsAdded = false;
+
+        for(Session session : SESSION_REPOSITORY.findAll()) {
+            if (user.getRole() == UserRole.ROLE_ORGANIZER || user.getRole() == UserRole.ROLE_MANAGER){
+                if ((session.getState() == SessionState.TO_BE_PLANNED) || (session.getState() == SessionState.DRAFT) ) {
+                    if (person.getOrganisedSpecialInterestGroups().contains(session.getSig()) ||
+                        person.getManagedSpecialInterestGroups().contains(session.getSig())) {
+                        getsAdded = true;
+                    }
+                } else if ((session.getState() != SessionState.TO_BE_PLANNED || session.getState() != SessionState.DRAFT)) {
+                    getsAdded = true;
+                }
+            }
+            else if (user.getRole() == UserRole.ROLE_SECRETARY) {
+                if (session.getState() != SessionState.DRAFT) {
+                    getsAdded = true;
+                }
+            }
+            else if(user.getRole() == UserRole.ROLE_ADMINISTRATOR) {
+                getsAdded = true;
+            }
+            else {
+                if (!(session.getState().equals(SessionState.TO_BE_PLANNED)) && !(session.getState().equals(SessionState.DRAFT))) {
+                    getsAdded = true;
+                }
+            }
+
+            if (getsAdded) {
+                correctSessions.add(session);
+            }
+
+        }
+
+        return correctSessions;
     }
 
     public Session getSessionById(UUID sessionId) throws NotFoundException {
@@ -158,7 +193,7 @@ public class SessionService {
     }
 
     public List<Session> getAllFutureSessions(String username) {
-        List<Session> sessions =  getAllSessions().stream()
+        List<Session> sessions =  this.SESSION_REPOSITORY.findAll().stream()
                 .filter(session -> (session.getDetails().getStartDate().isAfter(LocalDateTime.now())
                         && (session.getState().equals(SessionState.PLANNED) || session.getState().equals(SessionState.ONGOING)))
                         || isAuthorizedForSession(username, session)
@@ -169,7 +204,7 @@ public class SessionService {
     }
 
     public List<Session> getAllHistoricalSessions(String username) {
-        return getAllSessions().stream()
+        return this.SESSION_REPOSITORY.findAll().stream()
                 .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now())
                         && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).withMonth(1)))
                 .filter(session -> !(session.getState().equals(SessionState.DRAFT)

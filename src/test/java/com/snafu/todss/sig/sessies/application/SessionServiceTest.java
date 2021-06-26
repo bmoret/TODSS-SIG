@@ -15,7 +15,6 @@ import com.snafu.todss.sig.sessies.domain.session.SessionState;
 import com.snafu.todss.sig.sessies.domain.session.types.OnlineSession;
 import com.snafu.todss.sig.sessies.domain.session.types.PhysicalSession;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
-import com.snafu.todss.sig.sessies.domain.session.types.TeamsOnlineSession;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.OnlineSessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.PhysicalSessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
@@ -46,8 +45,17 @@ class SessionServiceTest {
     private static final UserService userService = mock(UserService.class);
     private static SessionService service;
     private static Session testSession;
+    private static Session session;
+    private static Session session2;
+    private static Session session3;
     private static PhysicalSessionRequest physicalSessionRequest;
     private static Person testPerson;
+    private final static Person supervisor = mock(Person.class);
+    private final static PersonDetails details = mock(PersonDetails.class);
+    private User user;
+    private SpecialInterestGroup sig = new SpecialInterestGroup();
+
+    private List<Session> sessions = new ArrayList<>();
 
     @BeforeAll
     static void init() throws NotFoundException {
@@ -78,6 +86,24 @@ class SessionServiceTest {
                 new ArrayList<>(),
                 new ArrayList<>(),
                 address,
+                supervisor
+        );
+        session = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.DRAFT,
+                sig,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address,
+                supervisor
+        );
+        session2 = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.TO_BE_PLANNED,
+                sig,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address,
                 testPerson
         );
         testPerson = new Person(
@@ -89,6 +115,24 @@ class SessionServiceTest {
         );
         ReflectionTestUtils.setField(testPerson, "id", UUID.randomUUID());
         testPerson.addAttendance(Attendance.of(testPerson, testSession));
+        session3 = new PhysicalSession(
+                new SessionDetails(now, nowPlusOneHour, subject, description),
+                SessionState.PLANNED,
+                sig,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                address,
+                supervisor
+        );
+        sessions.add(session);
+        sessions.add(session2);
+        sessions.add(session3);
+
+        when(supervisor.getDetails()).thenReturn(details);
+        when(details.getRole()).thenReturn(Role.MANAGER);
+
+        user = new User("TestUser", "TestPassword", supervisor);
+
     }
 
     @AfterEach
@@ -96,26 +140,92 @@ class SessionServiceTest {
         Mockito.clearInvocations(repository, sigService, userService, personService);
     }
 
+    @Test
+    @DisplayName("Get all sessions as manager when not managing SIG")
+    void getAllSessionsWhenNotManaging_AsManager(){
+        when(repository.findAll()).thenReturn((sessions));
+        when(supervisor.getManagedSpecialInterestGroups()).thenReturn((List.of()));
 
-    @ParameterizedTest
-    @MethodSource("provideAllSessionsList")
-    @DisplayName("Get all sessions")
-    void getAllSessions_ReturnsCorrectSessions(List<Session> expectedResult) {
-        when(repository.findAll()).thenReturn(expectedResult);
+        user.setRole(UserRole.ROLE_MANAGER);
 
-        List<Session> sessions = service.getAllSessions();
+        List<Session> sessions = service.getAllSessions(user);
 
-        assertEquals(expectedResult, sessions);
-        verify(repository, times(1)).findAll();
+        assertEquals(1, sessions.size());
     }
 
-    private static Stream<Arguments> provideAllSessionsList() {
-        return Stream.of(
-                Arguments.of(List.of()),
-                Arguments.of(List.of(new PhysicalSession())),
-                Arguments.of(List.of(new PhysicalSession(), new OnlineSession())),
-                Arguments.of(List.of(new PhysicalSession(), new OnlineSession(), new TeamsOnlineSession()))
-        );
+    @Test
+    @DisplayName("Get all sessions as manager when the SIG they are managing has three sessions")
+    void getAllSessionsWhenManaging_AsManager(){
+        when(repository.findAll()).thenReturn((sessions));
+        when(supervisor.getManagedSpecialInterestGroups()).thenReturn((List.of(sig)));
+
+        user.setRole(UserRole.ROLE_MANAGER);
+
+        List<Session> sessions = service.getAllSessions(user);
+
+        assertEquals(3, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as organizer when not organizing SIG")
+    void getAllSessionsWhenNotOrganizing_AsOrganizer(){
+        when(repository.findAll()).thenReturn((sessions));
+        when(supervisor.getManagedSpecialInterestGroups()).thenReturn((List.of()));
+
+        user.setRole(UserRole.ROLE_ORGANIZER);
+
+        List<Session> sessions = service.getAllSessions(user);
+
+        assertEquals(1, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as organizer when the SIG they are organizing has three sessions")
+    void getAllSessionsWhenOrganizing_AsOrganizer(){
+        when(repository.findAll()).thenReturn((sessions));
+        when(supervisor.getOrganisedSpecialInterestGroups()).thenReturn((List.of(sig)));
+
+        user.setRole(UserRole.ROLE_MANAGER);
+
+        List<Session> sessions = service.getAllSessions(user);
+
+        assertEquals(3, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as secretary")
+    void getAllSessions_AsSecretary(){
+        when(repository.findAll()).thenReturn((sessions));
+
+        user.setRole(UserRole.ROLE_SECRETARY);
+
+        List<Session> sessions = service.getAllSessions(user);
+
+        assertEquals(2, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as employee")
+    void getAllSessions_AsEmployee(){
+        when(repository.findAll()).thenReturn((sessions));
+
+        user.setRole(UserRole.ROLE_EMPLOYEE);
+
+        List<Session> sessions = service.getAllSessions(user);
+
+        assertEquals(1, sessions.size());
+    }
+
+    @Test
+    @DisplayName("Get all sessions as guest")
+    void getAllSessions_AsGuest(){
+        when(repository.findAll()).thenReturn((sessions));
+
+        user.setRole(UserRole.ROLE_EMPLOYEE);
+
+        List<Session> sessions = service.getAllSessions(user);
+
+        assertEquals(1, sessions.size());
     }
 
     @Test
@@ -381,7 +491,7 @@ class SessionServiceTest {
         User user = new User("TestUser", "password", testPerson);
         testPerson.addManager(testSession.getSig());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
-        when(service.getAllSessions()).thenReturn(List.of(testSession));
+        when(repository.findAll()).thenReturn(List.of(testSession));
 
         List<Session> sessions = service.getAllHistoricalSessions("user");
 
@@ -401,7 +511,7 @@ class SessionServiceTest {
                 testPerson
         );
         testPerson.addManager(testSession.getSig());
-        when(service.getAllSessions()).thenReturn(List.of(testSession));
+        when(repository.findAll()).thenReturn(List.of(testSession));
     }
 
     @ParameterizedTest
@@ -422,7 +532,7 @@ class SessionServiceTest {
     @MethodSource("historicalSessionsSessions")
     @DisplayName("get historical sessions")
     void historicalSessions(List<Session> sessionsResponses, boolean doesContain) {
-        when(service.getAllSessions()).thenReturn(sessionsResponses);
+        when(repository.findAll()).thenReturn(sessionsResponses);
 
         List<Session> sessions = service.getAllHistoricalSessions("user");
 
@@ -457,7 +567,7 @@ class SessionServiceTest {
     @MethodSource("futureSessionsSessions")
     @DisplayName("get future sessions")
     void futureSessions(Session sessionsResponse, boolean doesContain) {
-        when(service.getAllSessions()).thenReturn(List.of(sessionsResponse));
+        when(repository.findAll()).thenReturn(List.of(sessionsResponse));
 
         List<Session> sessions = service.getAllFutureSessions("user");
 
@@ -487,7 +597,7 @@ class SessionServiceTest {
                 "address",
                 testPerson
         );
-        when(service.getAllSessions()).thenReturn(List.of(session));
+        when(repository.findAll()).thenReturn(List.of(testSession));
         testPerson.addManager(session.getSig());
         return session;
     }
@@ -522,7 +632,7 @@ class SessionServiceTest {
     @Test
     @DisplayName("get future sessions")
     void futureSessions() {
-        when(service.getAllSessions()).thenReturn(List.of(testSession));
+        when(repository.findAll()).thenReturn(List.of(testSession));
 
         List<Session> sessions = service.getAllFutureSessions("user");
 
@@ -539,7 +649,7 @@ class SessionServiceTest {
                 testSession, testSession, testSession, testSession, testSession,
                 testSession, testSession, testSession, testSession, testSession
         );
-        when(service.getAllSessions()).thenReturn(mockSessions);
+        when(repository.findAll()).thenReturn(mockSessions);
 
         List<Session> sessions = service.getAllFutureSessions("user");
 
@@ -551,7 +661,7 @@ class SessionServiceTest {
     void futureSessionsNone() {
         testSession.getDetails().setStartDate(LocalDateTime.now().minusHours(1));
         testSession.getDetails().setEndDate(LocalDateTime.now().minusHours(2));
-        when(service.getAllSessions()).thenReturn(List.of(testSession));
+        when(repository.findAll()).thenReturn(List.of(testSession));
 
         List<Session> sessions = service.getAllFutureSessions("user");
 
@@ -563,7 +673,7 @@ class SessionServiceTest {
     void futureSessionsNoUserExisting() throws NotFoundException {
         testSession.getDetails().setStartDate(LocalDateTime.now().minusHours(1));
         testSession.getDetails().setEndDate(LocalDateTime.now().minusHours(2));
-        when(service.getAllSessions()).thenReturn(List.of(testSession));
+        when(repository.findAll()).thenReturn(List.of(testSession));
         when(userService.getUserByUsername(any(String.class))).thenThrow(NotFoundException.class);
 
         List<Session> sessions = service.getAllFutureSessions("user");
