@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -157,12 +158,15 @@ public class SessionService {
                         && (session.getState().equals(SessionState.PLANNED) || session.getState().equals(SessionState.ONGOING)))
                         || isAuthorizedForSession(username, session)
                         && (session.getState().equals(SessionState.TO_BE_PLANNED) || session.getState().equals(SessionState.DRAFT)))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(session -> session.getDetails().getStartDate()))
+                .collect(Collectors.toList())
+                .subList(0, 15);
     }
 
     public List<Session> getAllHistoricalSessions(String username) {
         return getAllSessions().stream()
-                .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now()))
+                .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now())
+                        && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.YEARS)))
                 .filter(session -> !(session.getState().equals(SessionState.DRAFT)
                         || session.getState().equals(SessionState.TO_BE_PLANNED))
                         || isAuthorizedForSession(username, session))

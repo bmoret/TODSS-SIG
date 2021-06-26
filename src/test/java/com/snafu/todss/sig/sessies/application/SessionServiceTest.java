@@ -54,7 +54,7 @@ class SessionServiceTest {
     }
 
     @BeforeEach
-    void setup(){
+    void setup() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
         String subject = "Subject";
@@ -234,10 +234,11 @@ class SessionServiceTest {
         when(repository.findById(any())).thenReturn(Optional.of(session));
         when(repository.save(any(Session.class))).thenReturn(new OnlineSession());
         when(sigService.getSpecialInterestGroupById(request.sigId)).thenReturn(new SpecialInterestGroup());
+        UUID id = UUID.randomUUID();
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.updateSession(UUID.randomUUID(), request)
+                () -> service.updateSession(id, request)
         );
 
         verify(sigService, times(1)).getSpecialInterestGroupById(any(UUID.class));
@@ -298,10 +299,11 @@ class SessionServiceTest {
         when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusHour = LocalDateTime.now().plusHours(1);
+        UUID id = UUID.randomUUID();
 
         assertThrows(
                 IllegalStateException.class,
-                () -> service.planSession(UUID.randomUUID(), now, nowPlusHour)
+                () -> service.planSession(id, now, nowPlusHour)
         );
 
         verify(repository, times(1)).findById(any(UUID.class));
@@ -344,13 +346,16 @@ class SessionServiceTest {
                 null
         );
         when(repository.findById(any(UUID.class))).thenReturn(Optional.of(session));
+        UUID id = UUID.randomUUID();
+
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.planSession(UUID.randomUUID(), now, nowPlusHour)
+                () -> service.planSession(id, now, nowPlusHour)
         );
 
         verify(repository, times(1)).findById(any(UUID.class));
     }
+
     private static Stream<Arguments> provideWrongDates() {
         return Stream.of(
                 Arguments.of(LocalDateTime.now().minusHours(1), LocalDateTime.now().minusHours(2)),
@@ -368,7 +373,7 @@ class SessionServiceTest {
 
     @Test
     @DisplayName("get historical sessions")
-    void historicalSessions(){
+    void historicalSessions() {
         session.getDetails().setStartDate(LocalDateTime.now().minusHours(2));
         session.getDetails().setEndDate(LocalDateTime.now().minusHours(1));
         when(service.getAllSessions()).thenReturn(List.of(session));
@@ -386,6 +391,23 @@ class SessionServiceTest {
         List<Session> sessions = service.getAllFutureSessions("user");
 
         assertTrue(sessions.contains(session));
+    }
+
+    @Test
+    @DisplayName("get future sessions is max length 15")
+    void futureSessionsMaxLength() {
+        List<Session> mockSessions = List.of(
+                session, session, session, session, session,
+                session, session, session, session, session,
+                session, session, session, session, session,
+                session, session, session, session, session,
+                session, session, session, session, session
+        );
+        when(service.getAllSessions()).thenReturn(mockSessions);
+
+        List<Session> sessions = service.getAllFutureSessions("user");
+
+        assertEquals(15, sessions.size());
     }
 
     @Test
@@ -457,8 +479,6 @@ class SessionServiceTest {
 
         verify(userService, times(1)).getUserByUsername(any(String.class));
     }
-
-
 
 
     @Test
