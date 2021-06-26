@@ -1,7 +1,7 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.security.application.UserService;
 import com.snafu.todss.sig.sessies.application.SessionService;
-import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.session.types.Session;
 import com.snafu.todss.sig.sessies.presentation.dto.request.session.SessionRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SessionResponse;
@@ -11,6 +11,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.PermitAll;
@@ -28,9 +30,11 @@ import static com.snafu.todss.sig.sessies.presentation.dto.converter.SessionConv
 public class
 SessionController {
     private final SessionService SERVICE;
+    private final UserService userService;
 
-    public SessionController(SessionService sessionService) {
+    public SessionController(SessionService sessionService, UserService userService) {
         this.SERVICE = sessionService;
+        this.userService = userService;
     }
 
     private SessionResponse convertToSessionResponse(Session session) {
@@ -42,8 +46,11 @@ SessionController {
 
     @PermitAll
     @GetMapping
-    public ResponseEntity<List<SessionResponse>> getAllSessions() {
-        List<Session> sessions = this.SERVICE.getAllSessions();
+    public ResponseEntity<List<SessionResponse>> getAllSessions(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        com.snafu.todss.sig.security.domain.User correctUser = userService.loadUserByUsername(user.getUsername());
+
+        List<Session> sessions = this.SERVICE.getAllSessions(correctUser);
 
         return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
     }
