@@ -17,10 +17,10 @@ public class Attendance {
 
     private boolean isSpeaker;
 
-    @ManyToOne(optional = false, cascade = CascadeType.DETACH)
+    @ManyToOne(optional = false, cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     private Person person;
 
-    @ManyToOne(optional = false, cascade = CascadeType.DETACH)
+    @ManyToOne(optional = false, cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     private Session session;
 
     public static Attendance of(Person person, Session session) {

@@ -133,6 +133,11 @@ public class SessionService {
         return session;
     }
 
+    public void addAttendeeToSession(Session session, Attendance attendance) {
+        session.addAttendee(attendance);
+        SESSION_REPOSITORY.save(session);
+    }
+
     public void removeAttendeeFromSession(Session session, Person person) {
         session.removeAttendee(person);
         SESSION_REPOSITORY.save(session);

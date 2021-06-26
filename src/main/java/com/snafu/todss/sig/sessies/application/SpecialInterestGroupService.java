@@ -57,7 +57,9 @@ public class SpecialInterestGroupService {
 
     public SpecialInterestGroup updateSpecialInterestGroup(UUID id, SpecialInterestGroupRequest specialInterestGroupRequest) throws NotFoundException {
         SpecialInterestGroup specialInterestGroup = getSpecialInterestGroupById(id);
+        Person manager = this.PERSON_SERVICE.getPerson(specialInterestGroupRequest.managerId);
         specialInterestGroup.setSubject(specialInterestGroupRequest.subject);
+        specialInterestGroup.setManager(manager);
         return this.SIG_REPOSITORY.save(specialInterestGroup);
     }
 
