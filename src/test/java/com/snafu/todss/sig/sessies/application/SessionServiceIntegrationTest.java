@@ -138,6 +138,8 @@ class SessionServiceIntegrationTest {
     void tearDown() {
         this.repository.deleteAll();
         this.personRepository.deleteAll();
+        this.userRepository.deleteAll();
+        this.sigRepository.deleteAll();
     }
 
     @Test
