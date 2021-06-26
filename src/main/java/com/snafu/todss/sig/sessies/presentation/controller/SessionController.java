@@ -12,7 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.PermitAll;
@@ -45,9 +45,45 @@ SessionController {
     }
 
     @PermitAll
+    @GetMapping("/future")
+    public ResponseEntity<List<SessionResponse>> getAllFutureSessions(Authentication authentication) {
+        UserDetails profile = (UserDetails) authentication.getPrincipal();
+        List<Session> sessions = this.SERVICE.getAllFutureSessions(profile.getUsername());
+
+        return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
+    }
+
+    @PermitAll
+    @GetMapping("/history")
+    public ResponseEntity<List<SessionResponse>> getAllHistoricalSessions(Authentication authentication) {
+        UserDetails profile = (UserDetails) authentication.getPrincipal();
+        List<Session> sessions = this.SERVICE.getAllHistoricalSessions(profile.getUsername());
+
+        return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
+    }
+
+    @PermitAll
+    @GetMapping("/future/{personId}")
+    public ResponseEntity<List<SessionResponse>> getFutureSessionsOfPerson(@PathVariable UUID personId, Authentication authentication) throws NotFoundException, IllegalAccessException {
+        UserDetails profile = (UserDetails) authentication.getPrincipal();
+        List<Session> sessions = this.SERVICE.getFutureSessionsOfPerson(profile.getUsername(), personId);
+
+        return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
+    }
+
+    @PermitAll
+    @GetMapping("/history/{personId}")
+    public ResponseEntity<List<SessionResponse>> getHistorySessionsOfPerson(@PathVariable UUID personId, Authentication authentication) throws NotFoundException, IllegalAccessException {
+        UserDetails profile = (UserDetails) authentication.getPrincipal();
+        List<Session> sessions = this.SERVICE.getHistorySessionsOfPerson(profile.getUsername(), personId);
+
+        return new ResponseEntity<>(convertSessionListToResponse(sessions), HttpStatus.OK);
+    }
+
+    @PermitAll
     @GetMapping
     public ResponseEntity<List<SessionResponse>> getAllSessions(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        UserDetails user = (UserDetails) authentication.getPrincipal();
         com.snafu.todss.sig.security.domain.User correctUser = userService.loadUserByUsername(user.getUsername());
 
         List<Session> sessions = this.SERVICE.getAllSessions(correctUser);

@@ -15,12 +15,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.transaction.Transactional;
-
-
 import java.util.Collections;
 import java.util.List;
 
@@ -87,21 +84,13 @@ class UserServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("Creating a user")
+    @DisplayName("Creating a user iwth username null throws DRE")
     void createUserGuest() {
         supervisor.getDetails().setRole(Role.GUEST);
-        userService.register("TestUser1", "TestPassword", supervisor);
-
-        assertEquals(2, userRepository.findAll().size());
-    }
-
-    @Test
-    @DisplayName("Creating a user")
-    void createUserSecretary() {
-        supervisor.getDetails().setRole(Role.SECRETARY);
-        userService.register("TestUser1", "TestPassword", supervisor);
-
-        assertEquals(2, userRepository.findAll().size());
+        assertThrows(
+                DuplicateRequestException.class,
+                () -> userService.register(null, "TestPassword", supervisor)
+        );
     }
 
     @Test

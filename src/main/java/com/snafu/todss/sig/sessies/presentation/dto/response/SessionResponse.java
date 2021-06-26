@@ -17,6 +17,7 @@ public class SessionResponse {
     private String address;
     private String platform;
     private String joinUrl;
+    private SessionAttendanceInformationResponse attendanceInfo;
 
     private PersonCompactResponse contactPerson;
 
@@ -96,5 +97,13 @@ public class SessionResponse {
 
     public void setSpecialInterestGroup(SpecialInterestGroupResponse specialInterestGroup) {
         this.specialInterestGroup = specialInterestGroup;
+    }
+
+    public SessionAttendanceInformationResponse getAttendanceInfo() {
+        return attendanceInfo;
+    }
+
+    public void setAttendanceInfo(SessionAttendanceInformationResponse attendanceInfo) {
+        this.attendanceInfo = attendanceInfo;
     }
 }

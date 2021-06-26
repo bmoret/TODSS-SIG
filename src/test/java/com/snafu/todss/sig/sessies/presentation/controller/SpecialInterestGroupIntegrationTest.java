@@ -502,5 +502,7 @@ class SpecialInterestGroupIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
     }
+
+
 }
 

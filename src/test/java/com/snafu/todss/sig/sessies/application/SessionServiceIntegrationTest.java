@@ -1,6 +1,5 @@
 package com.snafu.todss.sig.sessies.application;
 
-import com.snafu.todss.sig.security.application.UserService;
 import com.snafu.todss.sig.security.data.SpringUserRepository;
 import com.snafu.todss.sig.security.domain.User;
 import com.snafu.todss.sig.security.domain.UserRole;
@@ -29,7 +28,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -268,7 +266,6 @@ class SessionServiceIntegrationTest {
 
         assertTrue(expectedClass.isInstance(session));
     }
-
     private static Stream<Arguments> provideCreateSessionArgs() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
