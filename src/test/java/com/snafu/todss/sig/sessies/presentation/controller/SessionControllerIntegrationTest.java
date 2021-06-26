@@ -141,23 +141,6 @@ class SessionControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
-    @DisplayName("Get all sessions returns list sessions")
-    void getAllSessions() throws Exception {
-        this.attendanceRepository.deleteAll();
-        repository.deleteAll();
-
-        repository.save(new PhysicalSession());
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/sessions")
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk());
-    }
-
-
-    @Test
-    @WithMockUser(username = "TestUser", roles = "{MANAGER, SECRETARY, EMPLOYEE, ADMINISTRATOR}")
     @DisplayName("Get all sessions returns empty list")
     void getAllSessionsWithNoSessions() throws Exception {
         this.attendanceRepository.deleteAll();
