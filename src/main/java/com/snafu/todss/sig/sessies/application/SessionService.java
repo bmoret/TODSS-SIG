@@ -153,20 +153,20 @@ public class SessionService {
     }
 
     public List<Session> getAllFutureSessions(String username) {
-        return getAllSessions().stream()
+        List<Session> sessions =  getAllSessions().stream()
                 .filter(session -> (session.getDetails().getStartDate().isAfter(LocalDateTime.now())
                         && (session.getState().equals(SessionState.PLANNED) || session.getState().equals(SessionState.ONGOING)))
                         || isAuthorizedForSession(username, session)
                         && (session.getState().equals(SessionState.TO_BE_PLANNED) || session.getState().equals(SessionState.DRAFT)))
                 .sorted(Comparator.comparing(session -> session.getDetails().getStartDate()))
-                .collect(Collectors.toList())
-                .subList(0, 15);
+                .collect(Collectors.toList());
+        return sessions.subList(0, Math.min(sessions.size(), 15));
     }
 
     public List<Session> getAllHistoricalSessions(String username) {
         return getAllSessions().stream()
                 .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now())
-                        && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.YEARS)))
+                        && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).withMonth(1)))
                 .filter(session -> !(session.getState().equals(SessionState.DRAFT)
                         || session.getState().equals(SessionState.TO_BE_PLANNED))
                         || isAuthorizedForSession(username, session))
@@ -177,8 +177,10 @@ public class SessionService {
         User user = this.USER_SERVICE.getUserByUsername(username);
         Person userPerson = user.getPerson();
         Person personManager = person.getSupervisor();
-        return !userPerson.equals(person)
-                && (personManager == null || !personManager.equals(person));
+        return !(
+                userPerson.equals(person)
+                || (personManager != null && personManager.equals(userPerson))
+        );
 
     }
 
@@ -204,7 +206,7 @@ public class SessionService {
         return person.getAttendance().stream()
                 .map(Attendance::getSession)
                 .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now())
-                        && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.YEARS)))
+                        && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).withMonth(1)))
                 .sorted()
                 .collect(Collectors.toList());
     }
