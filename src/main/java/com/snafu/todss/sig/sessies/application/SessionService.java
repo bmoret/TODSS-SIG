@@ -18,10 +18,8 @@ import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,26 +42,23 @@ public class SessionService {
         List<Session> correctSessions = new ArrayList<>();
         boolean getsAdded = false;
 
-        for(Session session : SESSION_REPOSITORY.findAll()) {
-            if (user.getRole() == UserRole.ROLE_ORGANIZER || user.getRole() == UserRole.ROLE_MANAGER){
-                if ((session.getState() == SessionState.TO_BE_PLANNED) || (session.getState() == SessionState.DRAFT) ) {
+        for (Session session : SESSION_REPOSITORY.findAll()) {
+            if (user.getRole() == UserRole.ROLE_ORGANIZER || user.getRole() == UserRole.ROLE_MANAGER) {
+                if ((session.getState() == SessionState.TO_BE_PLANNED) || (session.getState() == SessionState.DRAFT)) {
                     if (person.getOrganisedSpecialInterestGroups().contains(session.getSig()) ||
-                        person.getManagedSpecialInterestGroups().contains(session.getSig())) {
+                            person.getManagedSpecialInterestGroups().contains(session.getSig())) {
                         getsAdded = true;
                     }
                 } else if ((session.getState() != SessionState.TO_BE_PLANNED || session.getState() != SessionState.DRAFT)) {
                     getsAdded = true;
                 }
-            }
-            else if (user.getRole() == UserRole.ROLE_SECRETARY) {
+            } else if (user.getRole() == UserRole.ROLE_SECRETARY) {
                 if (session.getState() != SessionState.DRAFT) {
                     getsAdded = true;
                 }
-            }
-            else if(user.getRole() == UserRole.ROLE_ADMINISTRATOR) {
+            } else if (user.getRole() == UserRole.ROLE_ADMINISTRATOR) {
                 getsAdded = true;
-            }
-            else {
+            } else {
                 if (!(session.getState().equals(SessionState.TO_BE_PLANNED)) && !(session.getState().equals(SessionState.DRAFT))) {
                     getsAdded = true;
                 }
@@ -193,7 +188,7 @@ public class SessionService {
     }
 
     public List<Session> getAllFutureSessions(String username) {
-        List<Session> sessions =  this.SESSION_REPOSITORY.findAll().stream()
+        List<Session> sessions = this.SESSION_REPOSITORY.findAll().stream()
                 .filter(session -> (session.getDetails().getStartDate().isAfter(LocalDateTime.now())
                         && (session.getState().equals(SessionState.PLANNED) || session.getState().equals(SessionState.ONGOING)))
                         || isAuthorizedForSession(username, session)
@@ -217,11 +212,11 @@ public class SessionService {
         User user = this.USER_SERVICE.getUserByUsername(username);
         Person userPerson = user.getPerson();
         Person personManager = person.getSupervisor();
+
         return !(
                 userPerson.equals(person)
-                || (personManager != null && personManager.equals(userPerson))
+                        || (personManager != null && personManager.equals(userPerson))
         );
-
     }
 
     public List<Session> getFutureSessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
@@ -229,12 +224,9 @@ public class SessionService {
         if (isNotAuthorizedToUserResources(username, person)) {
             throw new IllegalAccessException("User is not allowed to access resources");
         }
+        Predicate<Session> predicate = session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now());
 
-        return person.getAttendance().stream()
-                .map(Attendance::getSession)
-                .filter(session -> session.getDetails().getStartDate().isAfter(LocalDateTime.now()))
-                .sorted()
-                .collect(Collectors.toList());
+        return filterPersonsSessions(person, predicate);
     }
 
     public List<Session> getHistorySessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
@@ -242,14 +234,27 @@ public class SessionService {
         if (isNotAuthorizedToUserResources(username, person)) {
             throw new IllegalAccessException("User is not allowed to access resources");
         }
+        Predicate<Session> predicate = session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now())
+                && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).withMonth(1));
 
-        return person.getAttendance().stream()
-                .map(Attendance::getSession)
-                .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now())
-                        && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).withMonth(1)))
-                .sorted()
-                .collect(Collectors.toList());
+        return filterPersonsSessions(person, predicate);
     }
 
+    private List<Session> filterPersonsSessions(Person person, Predicate<Session> predicate) {
+        List<Session> sessions = person.getAttendance().stream()
+                .map(Attendance::getSession)
+                .collect(Collectors.toList());
+        sessions.addAll(getPersonSigsSessions(person.getManagedSpecialInterestGroups()));
+        sessions.addAll(getPersonSigsSessions(person.getOrganisedSpecialInterestGroups()));
+        return sessions.stream()
+                .filter(predicate)
+                .collect(Collectors.toList());
+    }
+    private List<Session> getPersonSigsSessions(List<SpecialInterestGroup> sigs) {
+        return sigs.stream()
+                .map(SpecialInterestGroup::getSessions)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
 
+    }
 }
