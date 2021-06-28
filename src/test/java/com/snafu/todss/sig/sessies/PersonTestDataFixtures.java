@@ -44,7 +44,7 @@ public class PersonTestDataFixtures implements CommandLineRunner {
         pb.setExpertise("none");
         pb.setEmployedSince(LocalDate.of(2000,1,1));
         pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
-        pb.setRole(Role.EMPLOYEE);
+        pb.setRole(Role.SECRETARY);
 
         this.repository.save(pb.build());
 
@@ -54,7 +54,7 @@ public class PersonTestDataFixtures implements CommandLineRunner {
         pb.setExpertise("all");
         pb.setEmployedSince(LocalDate.of(2000,1,1));
         pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
-        pb.setRole(Role.EMPLOYEE);
+        pb.setRole(Role.ORGANIZER);
 
         this.repository.save(pb.build());
 
@@ -64,7 +64,7 @@ public class PersonTestDataFixtures implements CommandLineRunner {
         pb.setExpertise("all");
         pb.setEmployedSince(LocalDate.of(2000,1,1));
         pb.setBranch(com.snafu.todss.sig.sessies.domain.person.enums.Branch.VIANEN);
-        pb.setRole(Role.EMPLOYEE);
+        pb.setRole(Role.ADMINISTRATOR);
 
         this.repository.save(pb.build());
 

@@ -60,60 +60,6 @@ class PersonControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "TestUser", roles = "MANAGER")
-    @DisplayName("Get person by id as manager")
-    void getPersonAsManager() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/person/"+ supervisor.getId().toString())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email", is("test2@email.com")))
-                .andExpect(jsonPath("$.role", is("EMPLOYEE")));
-    }
-
-    @Test
-    @WithMockUser(username = "TestUser", roles = "SECRETARY")
-    @DisplayName("Get person by id as secretary")
-    void getPersonAsSecretary() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/person/"+ supervisor.getId().toString())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email", is("test2@email.com")))
-                .andExpect(jsonPath("$.role", is("EMPLOYEE")));
-    }
-
-    @Test
-    @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
-    @DisplayName("Get person by id as administrator")
-    void getPersonAsAdministrator() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/person/"+ supervisor.getId().toString())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email", is("test2@email.com")))
-                .andExpect(jsonPath("$.role", is("EMPLOYEE")));
-    }
-
-    @Test
-    @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
-    @DisplayName("Get person by id as employee is not allowed")
-    void getPersonAsEmployee() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders
-                .get("/person/"+ supervisor.getId())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isConflict());
-    }
-
-    @Test
-    @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("Get person by email as manager")
     void getPersonByEmailAsManager() throws Exception {
         RequestBuilder request = MockMvcRequestBuilders

@@ -1,6 +1,9 @@
 package com.snafu.todss.sig.sessies.application;
 
 import com.snafu.todss.sig.CiTestConfiguration;
+import com.snafu.todss.sig.security.data.SpringUserRepository;
+import com.snafu.todss.sig.security.domain.User;
+import com.snafu.todss.sig.security.domain.UserRole;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
+import javax.naming.directory.SearchControls;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
@@ -36,10 +40,101 @@ class PersonServiceTest {
     @Autowired
     private SpringPersonRepository repo;
 
+    @Autowired
+    private SpringUserRepository userRepository;
+
+    private User user;
+
+    private Person manager;
+
+    private Person secretary;
+
+    private Person organizer;
+
+    private Person administrator;
+
+    private Person employee;
+
     @BeforeEach
     void beforeEach() throws NotFoundException {
+        userRepository.deleteAll();
         service.getPersonByEmail("email2@email.com").setSupervisor(service.getPersonByEmail("email@email.com"));
+
+        user = new User("TestUser", "TestPassword", service.getPersonByEmail("email@email.com"));
+
+        manager = service.getPersonByEmail("email@email.com");
+        secretary = service.getPersonByEmail("email3@email.com");
+        organizer = service.getPersonByEmail("tom@email.com");
+        administrator = service.getPersonByEmail("tom1@email.com");
+        employee = service.getPersonByEmail("email2@email.com");
+
     }
+
+    @Test
+    @DisplayName("getPerson as manager getting subordinate")
+    void getPerson_AsManagerGettingSubordinate() throws NotFoundException {
+        assertDoesNotThrow( ()
+                -> service.getPerson(employee.getId(), user));
+
+        Person person = service.getPerson(employee.getId(), user);
+
+        assertEquals(employee, person);
+    }
+
+    @Test
+    @DisplayName("getPerson as manager getting non subordinate")
+    void getPerson_AsManagerGettingNonSubordinate() {
+        assertThrows(NotFoundException.class, ()
+                -> service.getPerson(secretary.getId(), user));
+    }
+
+    @Test
+    @DisplayName("getPerson as secretary")
+    void getPerson_AsSecretary() throws NotFoundException {
+        user.setRole(UserRole.ROLE_SECRETARY);
+        assertDoesNotThrow( ()
+                -> service.getPerson(employee.getId(), user));
+
+        Person person = service.getPerson(employee.getId(), user);
+
+        assertEquals(employee, person);
+    }
+
+    @Test
+    @DisplayName("getPerson as organizer getting other employee")
+    void getPerson_AsOrganizerGettingOtherEmployee() throws NotFoundException {
+        user.setRole(UserRole.ROLE_ORGANIZER);
+        assertThrows(NotFoundException.class, ()
+                -> service.getPerson(secretary.getId(), user));
+    }
+
+    @Test
+    @DisplayName("getPerson as employee getting itself")
+    void getPerson_AsEmployeeGettingItself() throws NotFoundException {
+        User user2 = new User("TestUser2", "TestPassword", employee);
+        assertDoesNotThrow( ()
+                -> service.getPerson(employee.getId(), user2));
+
+        Person person = service.getPerson(employee.getId(), user2);
+
+        assertEquals(employee, person);
+    }
+
+    @Test
+    @DisplayName("getPerson as administrator")
+    void getPerson_AsAdministrator() throws NotFoundException {
+        user.setRole(UserRole.ROLE_ADMINISTRATOR);
+        assertDoesNotThrow( ()
+                -> service.getPerson(employee.getId(), user));
+
+        Person person = service.getPerson(employee.getId(), user);
+
+        assertEquals(employee, person);
+    }
+
+
+
+
 
     @Test
     @DisplayName("getPersonByEmail returns person")
