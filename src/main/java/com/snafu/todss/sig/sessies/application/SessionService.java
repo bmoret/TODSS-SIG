@@ -82,7 +82,7 @@ public class SessionService {
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
         Person person = null;
         if (sessionRequest.contactPerson != null) {
-            person = personService.getPerson(sessionRequest.contactPerson);
+            person = personService.getPersonById(sessionRequest.contactPerson);
         }
         Session session = SessionDirector.build(sessionRequest, sig, person);
         return this.SESSION_REPOSITORY.save(session);
@@ -92,7 +92,7 @@ public class SessionService {
         Session session = getSessionById(sessionId);
         Person person = null;
         if (sessionRequest.contactPerson != null) {
-            person = personService.getPerson(sessionRequest.contactPerson);
+            person = personService.getPersonById(sessionRequest.contactPerson);
         }
         SpecialInterestGroup sig = this.SIG_SERVICE.getSpecialInterestGroupById(sessionRequest.sigId);
         Session updatedSession = SessionDirector.update(session, sessionRequest, sig, person);
@@ -220,7 +220,7 @@ public class SessionService {
     }
 
     public List<Session> getFutureSessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
-        Person person = personService.getPerson(personId);
+        Person person = personService.getPersonById(personId);
         if (isNotAuthorizedToUserResources(username, person)) {
             throw new IllegalAccessException("User is not allowed to access resources");
         }
@@ -230,7 +230,7 @@ public class SessionService {
     }
 
     public List<Session> getHistorySessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
-        Person person = personService.getPerson(personId);
+        Person person = personService.getPersonById(personId);
         if (isNotAuthorizedToUserResources(username, person)) {
             throw new IllegalAccessException("User is not allowed to access resources");
         }

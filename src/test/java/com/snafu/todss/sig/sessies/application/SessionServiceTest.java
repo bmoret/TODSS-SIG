@@ -60,7 +60,7 @@ class SessionServiceTest {
     @BeforeAll
     static void init() throws NotFoundException {
         physicalSessionRequest = new PhysicalSessionRequest();
-        when(personService.getPerson(any())).thenReturn((testPerson));
+        when(personService.getPersonById(any())).thenReturn((testPerson));
     }
 
     @BeforeEach
@@ -686,7 +686,7 @@ class SessionServiceTest {
     void futureSessionsOfPerson() throws NotFoundException, IllegalAccessException {
         User user = new User("TestUser", "password", testPerson);
         when(userService.getUserByUsername(any(String.class))).thenReturn(user);
-        when(personService.getPerson(testPerson.getId())).thenReturn(testPerson);
+        when(personService.getPersonById(testPerson.getId())).thenReturn(testPerson);
 
         List<Session> sessions = service.getFutureSessionsOfPerson(user.getUsername(), testPerson.getId());
 
@@ -708,7 +708,7 @@ class SessionServiceTest {
         testPerson.setSupervisor(person);
         User user = new User("TestUser", "password", person);
         when(userService.getUserByUsername(any(String.class))).thenReturn(user);
-        when(personService.getPerson(testPerson.getId())).thenReturn(testPerson);
+        when(personService.getPersonById(testPerson.getId())).thenReturn(testPerson);
 
         List<Session> sessions = service.getFutureSessionsOfPerson(user.getUsername(), testPerson.getId());
 
@@ -729,7 +729,7 @@ class SessionServiceTest {
         ReflectionTestUtils.setField(person, "id", UUID.randomUUID());
         User user = new User("TestUser", "password", person);
         when(userService.getUserByUsername(any(String.class))).thenReturn(user);
-        when(personService.getPerson(testPerson.getId())).thenReturn(testPerson);
+        when(personService.getPersonById(testPerson.getId())).thenReturn(testPerson);
 
         assertThrows(
                 IllegalAccessException.class,
@@ -762,7 +762,7 @@ class SessionServiceTest {
 
         User user = new User("TestUser", "password", person);
         when(userService.getUserByUsername(any(String.class))).thenReturn(user);
-        when(personService.getPerson(testPerson.getId())).thenReturn(testPerson);
+        when(personService.getPersonById(testPerson.getId())).thenReturn(testPerson);
 
         assertThrows(
                 IllegalAccessException.class,
@@ -789,7 +789,7 @@ class SessionServiceTest {
     private User setupHistorySessionsOfUser() throws NotFoundException {
         User user = new User("TestUser", "password", testPerson);
         when(userService.getUserByUsername(any(String.class))).thenReturn(user);
-        when(personService.getPerson(testPerson.getId())).thenReturn(testPerson);
+        when(personService.getPersonById(testPerson.getId())).thenReturn(testPerson);
         return user;
     }
 
@@ -822,7 +822,7 @@ class SessionServiceTest {
         testPerson.setSupervisor(person);
         User user = new User("TestUser", "password", person);
         when(userService.getUserByUsername(any(String.class))).thenReturn(user);
-        when(personService.getPerson(testPerson.getId())).thenReturn(testPerson);
+        when(personService.getPersonById(testPerson.getId())).thenReturn(testPerson);
 
         List<Session> sessions = service.getHistorySessionsOfPerson(user.getUsername(), testPerson.getId());
 
@@ -845,7 +845,7 @@ class SessionServiceTest {
         ReflectionTestUtils.setField(person, "id", UUID.randomUUID());
         User user = new User("TestUser", "password", person);
         when(userService.getUserByUsername(any(String.class))).thenReturn(user);
-        when(personService.getPerson(testPerson.getId())).thenReturn(testPerson);
+        when(personService.getPersonById(testPerson.getId())).thenReturn(testPerson);
 
         assertThrows(
                 IllegalAccessException.class,
@@ -871,7 +871,7 @@ class SessionServiceTest {
         User user = new User("TestUser", "password", person);
         testPerson.setSupervisor(null);
         when(userService.getUserByUsername(any(String.class))).thenReturn(user);
-        when(personService.getPerson(testPerson.getId())).thenReturn(testPerson);
+        when(personService.getPersonById(testPerson.getId())).thenReturn(testPerson);
 
         assertThrows(
                 IllegalAccessException.class,

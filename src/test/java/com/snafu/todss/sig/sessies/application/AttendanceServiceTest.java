@@ -139,7 +139,7 @@ class AttendanceServiceTest {
 
         assertSame(PRESENT, createdAttendance.getState());
         assertTrue(createdAttendance.isSpeaker());
-        verify(PERSON_SERVICE, times(1)).getPerson(any());
+        verify(PERSON_SERVICE, times(1)).getPersonById(any());
         verify(SESSION_SERVICE, times(1)).getSessionById(any());
         verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));
     }
@@ -150,7 +150,7 @@ class AttendanceServiceTest {
         UUID personId = UUID.randomUUID();
         UUID sessionId = UUID.randomUUID();
 
-        when(PERSON_SERVICE.getPerson(personId)).thenThrow(NotFoundException.class);
+        when(PERSON_SERVICE.getPersonById(personId)).thenThrow(NotFoundException.class);
         when(SESSION_SERVICE.getSessionById(sessionId)).thenThrow(NotFoundException.class);
 
         assertThrows(
@@ -158,7 +158,7 @@ class AttendanceServiceTest {
                 () -> SERVICE.createAttendance(PRESENT, true, sessionId, personId)
         );
 
-        verify(PERSON_SERVICE, times(1)).getPerson(personId);
+        verify(PERSON_SERVICE, times(1)).getPersonById(personId);
         verify(SESSION_SERVICE, times(0)).getSessionById(sessionId);
     }
 
@@ -168,7 +168,7 @@ class AttendanceServiceTest {
         UUID personId = UUID.randomUUID();
         UUID sessionId = UUID.randomUUID();
 
-        when(PERSON_SERVICE.getPerson(personId)).thenThrow(NotFoundException.class);
+        when(PERSON_SERVICE.getPersonById(personId)).thenThrow(NotFoundException.class);
         when(SESSION_SERVICE.getSessionById(sessionId)).thenReturn(session);
 
         assertThrows(
@@ -176,7 +176,7 @@ class AttendanceServiceTest {
                 () -> SERVICE.createAttendance(PRESENT, true, sessionId, personId)
         );
 
-        verify(PERSON_SERVICE, times(1)).getPerson(personId);
+        verify(PERSON_SERVICE, times(1)).getPersonById(personId);
         verify(SESSION_SERVICE, times(0)).getSessionById(sessionId);
     }
 
@@ -186,7 +186,7 @@ class AttendanceServiceTest {
         UUID personId = UUID.randomUUID();
         UUID sessionId = UUID.randomUUID();
 
-        when(PERSON_SERVICE.getPerson(personId)).thenReturn(person);
+        when(PERSON_SERVICE.getPersonById(personId)).thenReturn(person);
         when(SESSION_SERVICE.getSessionById(sessionId)).thenThrow(NotFoundException.class);
 
         assertThrows(
@@ -194,7 +194,7 @@ class AttendanceServiceTest {
                 () -> SERVICE.createAttendance(PRESENT, true, sessionId, personId)
         );
 
-        verify(PERSON_SERVICE, times(1)).getPerson(any());
+        verify(PERSON_SERVICE, times(1)).getPersonById(any());
         verify(SESSION_SERVICE, times(1)).getSessionById(sessionId);
     }
 

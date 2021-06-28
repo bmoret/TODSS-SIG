@@ -65,7 +65,7 @@ class FeedbackServiceTest {
     @DisplayName("Create feedback, creates feedback")
     void createFeedback_CreatesInstance() throws NotFoundException {
         when(SESSION_SERVICE.getSessionById(any(UUID.class))).thenReturn(session);
-        when(PERSON_SERVICE.getPerson(any(UUID.class))).thenReturn(person);
+        when(PERSON_SERVICE.getPersonById(any(UUID.class))).thenReturn(person);
 
         FeedbackRequest feedbackRequest = new FeedbackRequest();
         feedbackRequest.description = "This is an example of a description!";

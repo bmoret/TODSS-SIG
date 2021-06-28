@@ -50,7 +50,7 @@ public class AttendanceService {
             UUID personId,
             AttendanceRequest request
     ) throws DuplicateRequestException, NotFoundException {
-        Person person = this.PERSON_SERVICE.getPerson(personId);
+        Person person = this.PERSON_SERVICE.getPersonById(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
         Optional<Attendance> attendance = getAttendanceBySessionAndPerson(session, person);
         if(attendance.isPresent()) {
@@ -64,7 +64,7 @@ public class AttendanceService {
                                        UUID sessionId,
                                        UUID personId
     ) throws DuplicateRequestException, NotFoundException {
-        Person person = this.PERSON_SERVICE.getPerson(personId);
+        Person person = this.PERSON_SERVICE.getPersonById(personId);
         Session session = this.SESSION_SERVICE.getSessionById(sessionId);
         if(getAttendanceBySessionAndPerson(session, person).isPresent()) {
             throw new DuplicateRequestException("Je bent al aangemeld voor deze sessie.");

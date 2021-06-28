@@ -41,7 +41,7 @@ public class FeedbackService {
 
     public Feedback createFeedback(FeedbackRequest feedbackRequest) throws NotFoundException {
         Session session = this.SESSION_SERVICE.getSessionById(feedbackRequest.sessionId);
-        Person person = this.PERSON_SERVICE.getPerson(feedbackRequest.personId);
+        Person person = this.PERSON_SERVICE.getPersonById(feedbackRequest.personId);
         Feedback feedback = new Feedback(feedbackRequest.description, session, person);
 
         FEEDBACK_REPOSITORY.save(feedback);

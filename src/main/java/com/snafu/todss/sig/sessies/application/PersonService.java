@@ -1,5 +1,7 @@
 package com.snafu.todss.sig.sessies.application;
 
+import com.snafu.todss.sig.security.domain.User;
+import com.snafu.todss.sig.security.domain.UserRole;
 import com.snafu.todss.sig.sessies.data.SpringPersonRepository;
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.person.Person;
@@ -29,9 +31,24 @@ public class PersonService {
         PERSON_REPOSITORY = repository;
     }
 
-    public Person getPerson(UUID id) throws NotFoundException {
+    public Person getPersonById(UUID id) throws NotFoundException{
         return PERSON_REPOSITORY.findById(id)
                 .orElseThrow(() -> new NotFoundException("The given id is not related to a person"));
+    }
+
+    public Person getPerson(UUID id, User user) throws NotFoundException {
+        Person person = user.getPerson();
+        Person searchedPerson = getPersonById(id);
+
+        if(user.getRole() == UserRole.ROLE_SECRETARY ||
+                user.getRole() == UserRole.ROLE_ADMINISTRATOR ||
+                (person.getId() == id) ||
+                (searchedPerson.getSupervisor() == person)
+            ) {
+            return searchedPerson;
+        }
+
+        throw new NotFoundException("The given id is not related to a person");
     }
 
     public Person getPersonByEmail(String email) throws NotFoundException {
@@ -62,7 +79,7 @@ public class PersonService {
     }
 
     public Person editPerson(UUID id, PersonRequest request) throws NotFoundException {
-        Person person = getPerson(id);
+        Person person = getPersonById(id);
         person.getDetails().setEmail(request.email);
         person.getDetails().setFirstname(request.firstname);
         person.getDetails().setLastname(request.lastname);
@@ -71,7 +88,7 @@ public class PersonService {
         person.getDetails().setRole(getRoleOfString(request.role));
         LocalDate employedSince = LocalDate.parse(request.employedSince, DATE_TIME_FORMATTER);
         person.getDetails().setEmployedSince(employedSince);
-        Person supervisor = getPerson(request.supervisorId);
+        Person supervisor = getPersonById(request.supervisorId);
         person.setSupervisor(supervisor);
         return PERSON_REPOSITORY.save(person);
     }
@@ -95,7 +112,7 @@ public class PersonService {
     private Person getSupervisorById(UUID id) throws NotFoundException {
         if (id != null) {
             try {
-                return getPerson(id);
+                return getPersonById(id);
             } catch (NotFoundException e) {
                 throw new NotFoundException("The given supervisor id is not related to a person");
             }
@@ -105,7 +122,7 @@ public class PersonService {
     }
 
     public void removePerson(UUID id) throws NotFoundException {
-        PERSON_REPOSITORY.delete(getPerson(id));
+        PERSON_REPOSITORY.delete(getPersonById(id));
     }
 
     public List<Person> searchPerson(String name) {

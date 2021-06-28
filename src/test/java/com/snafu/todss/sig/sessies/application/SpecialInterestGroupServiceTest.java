@@ -51,7 +51,7 @@ class SpecialInterestGroupServiceTest {
         when(personService.getPersonByEmail(any()))
                 .thenReturn(person);
 
-        when(personService.getPerson(any()))
+        when(personService.getPersonById(any()))
                 .thenReturn(person);
 
         specialInterestGroup = new SpecialInterestGroup(
@@ -162,7 +162,7 @@ class SpecialInterestGroupServiceTest {
         SpecialInterestGroup specialInterestGroup = service.createSpecialInterestGroup(request);
 
         assertNotNull(specialInterestGroup);
-        verify(personService, times(2)).getPerson(any());
+        verify(personService, times(2)).getPersonById(any());
         verify(repository, times(1)).save(any(SpecialInterestGroup.class));
     }
 
