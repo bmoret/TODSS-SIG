@@ -53,7 +53,15 @@ class SessionTest {
         doCallRealMethod().when(session).addFeedback(any());
 
         testPerson = new Person(
-                new PersonDetails("mail", "first", "last", "expertise", LocalDate.now(), Branch.VIANEN, Role.EMPLOYEE),
+                new PersonDetails(
+                        "mail",
+                        "first",
+                        "last",
+                        "expertise",
+                        LocalDate.now(),
+                        Branch.VIANEN,
+                        Role.EMPLOYEE
+                ),
                 null,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -189,14 +197,26 @@ class SessionTest {
     @ParameterizedTest
     @MethodSource("provideRemoveAttendeeArgs")
     @DisplayName("Removing person's attendance should return boolean")
-    void removePersonFromAttendances_ShouldReturnBoolean(Attendance addedAttendance, Person toBeRemovedAttendance, boolean shouldReturn) {
+    void removePersonFromAttendances_ShouldReturnBoolean(
+            Attendance addedAttendance,
+            Person toBeRemovedAttendance,
+            boolean shouldReturn
+    ) {
         session.addAttendee(addedAttendance);
 
         assertEquals(shouldReturn, session.removeAttendee(toBeRemovedAttendance));
     }
     static Stream<Arguments> provideRemoveAttendeeArgs() {
         testPerson = new Person(
-                new PersonDetails("mail", "first", "last", "expertise", LocalDate.now(), Branch.VIANEN, Role.EMPLOYEE),
+                new PersonDetails(
+                        "mail",
+                        "first",
+                        "last",
+                        "expertise",
+                        LocalDate.now(),
+                        Branch.VIANEN,
+                        Role.EMPLOYEE
+                ),
                 null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()
         );
         testAttendance =  new Attendance(PRESENT, false, testPerson, session);
@@ -228,14 +248,14 @@ class SessionTest {
     @ParameterizedTest
     @MethodSource("provideRemoveAttendeeArgs")
     @DisplayName("Remove a person from attendances removes attendance of person")
-    void removePersonFromAttendances_RemovesAttendance(Attendance addedAttendance, Person toBeRemovedAttendance, boolean shouldReturn) {
-
-        System.out.println(session.getAttendances());
+    void removePersonFromAttendances_RemovesAttendance(
+            Attendance addedAttendance,
+            Person toBeRemovedAttendance,
+            boolean shouldReturn
+    ) {
         session.addAttendee(addedAttendance);
-        System.out.println(session.getAttendances());
 
         session.removeAttendee(toBeRemovedAttendance);
-        System.out.println(session.getAttendances());
 
         assertEquals(shouldReturn, session.getAttendances().isEmpty());
     }
@@ -273,12 +293,16 @@ class SessionTest {
         Feedback secondFeedback = new Feedback("leuke les", session, testPerson);
         feedbackList.add(secondFeedback);
         session.addAllFeedback(feedbackList);
-        for (Feedback feedback : session.getFeedback()) {
-            System.out.println(feedback.getDescription());
-        }
+
         assertEquals(2, session.getFeedback().size());
-        assertEquals(testFeedback.getDescription(), session.getFeedback().get(feedbackList.indexOf(testFeedback)).getDescription());
-        assertEquals(secondFeedback.getDescription(), session.getFeedback().get(feedbackList.indexOf(secondFeedback)).getDescription());
+        assertEquals(
+                testFeedback.getDescription(),
+                session.getFeedback().get(feedbackList.indexOf(testFeedback)).getDescription()
+        );
+        assertEquals(
+                secondFeedback.getDescription(),
+                session.getFeedback().get(feedbackList.indexOf(secondFeedback)).getDescription()
+        );
     }
 
     @Test
@@ -295,14 +319,27 @@ class SessionTest {
     @ParameterizedTest
     @MethodSource("provideRemoveFeedbackArgs")
     @DisplayName("Remove a feedback from feedback list removes the feedback")
-    void removeFeedback_ShouldReturnBoolean(Feedback addedFeedback, Feedback toBeRemovedFeedback, boolean shouldReturn) {
+    void removeFeedback_ShouldReturnBoolean(
+            Feedback addedFeedback,
+            Feedback toBeRemovedFeedback,
+            boolean shouldReturn
+    ) {
         session.addFeedback(addedFeedback);
 
         assertEquals(shouldReturn, session.removeFeedback(toBeRemovedFeedback));
     }
+
     static Stream<Arguments> provideRemoveFeedbackArgs() {
         testPerson = new Person(
-                new PersonDetails("mail", "first", "last", "expertise", LocalDate.now(), Branch.VIANEN, Role.EMPLOYEE),
+                new PersonDetails(
+                        "mail",
+                        "first",
+                        "last",
+                        "expertise",
+                        LocalDate.now(),
+                        Branch.VIANEN,
+                        Role.EMPLOYEE
+                ),
                 null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()
         );
         session = mock(Session.class,
@@ -375,8 +412,6 @@ class SessionTest {
     @MethodSource("provideSessionEquals")
     @DisplayName("Test Equals")
     void equalsTest(Session session, Session equalsSession, boolean isEquals) {
-        System.out.println("test");
-        System.out.println(session.equals(equalsSession));
         assertEquals(isEquals, session.equals(equalsSession));
         if (equalsSession != null) {
             assertEquals(isEquals, session.hashCode() == equalsSession.hashCode());
@@ -427,7 +462,12 @@ class SessionTest {
         doCallRealMethod().when(session).addAttendee(any());
         doCallRealMethod().when(session).addFeedback(any());
 
-        SessionDetails sessionDetails = new SessionDetails(LocalDateTime.now(), LocalDateTime.now(), "tests", "test");
+        SessionDetails sessionDetails = new SessionDetails(
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                "tests",
+                "test"
+        );
         Session session2 = mock(Session.class,
                 Mockito.withSettings()
                         .useConstructor(
@@ -438,14 +478,12 @@ class SessionTest {
                                 new ArrayList<>(),
                                 null
 
-                        )
-                        .defaultAnswer(CALLS_REAL_METHODS));
+                        ).defaultAnswer(CALLS_REAL_METHODS));
         doCallRealMethod().when(session2).addAttendee(any());
         doCallRealMethod().when(session2).addFeedback(any());
 
         Session session3 = session2;
         session3.setSig(new SpecialInterestGroup());
-
 
         return Stream.of(
 

@@ -27,7 +27,11 @@ public class SessionDirector {
         throw new IllegalArgumentException("Cannot create session");
     }
 
-    private static PhysicalSession buildPhysicalSession(PhysicalSessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
+    private static PhysicalSession buildPhysicalSession(
+            PhysicalSessionRequest request,
+            SpecialInterestGroup sig,
+            Person contactPerson
+    ) {
         return new PhysicalSessionBuilder()
                 .setEndDate(request.endDate)
                 .setStartDate(request.startDate)
@@ -39,7 +43,11 @@ public class SessionDirector {
                 .build();
     }
 
-    private static OnlineSession buildOnlineSession(OnlineSessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
+    private static OnlineSession buildOnlineSession(
+            OnlineSessionRequest request,
+            SpecialInterestGroup sig,
+            Person contactPerson
+    ) {
         return new OnlineSessionBuilder()
                 .setEndDate(request.endDate)
                 .setStartDate(request.startDate)
@@ -52,7 +60,12 @@ public class SessionDirector {
                 .build();
     }
 
-    public static Session rebuild(Session session, SessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
+    public static Session rebuild(
+            Session session,
+            SessionRequest request,
+            SpecialInterestGroup sig,
+            Person contactPerson
+    ) {
         inputNotNull(request);
         if (!session.getState().equals(SessionState.DRAFT)
                 || !session.getState().equals(SessionState.TO_BE_PLANNED)) {
@@ -78,22 +91,42 @@ public class SessionDirector {
 
 
 
-    public static Session update(Session session, SessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
+    public static Session update(
+            Session session,
+            SessionRequest request,
+            SpecialInterestGroup sig,
+            Person contactPerson
+    ) {
         if (PhysicalSessionRequest.class.isAssignableFrom(request.getClass())) {
             if (!PhysicalSession.class.isAssignableFrom(session.getClass())){
                 return rebuild(session, request, sig, contactPerson);
             }
-            return updatePhysicalSession((PhysicalSession) session, (PhysicalSessionRequest) request, sig, contactPerson);
+            return updatePhysicalSession(
+                    (PhysicalSession) session,
+                    (PhysicalSessionRequest) request,
+                    sig,
+                    contactPerson
+            );
         } else if (OnlineSessionRequest.class.isAssignableFrom(request.getClass())) {
             if (!OnlineSession.class.isAssignableFrom(session.getClass())){
                 return rebuild(session, request, sig, contactPerson);
             }
-            return updateOnlineSession((OnlineSession) session, (OnlineSessionRequest) request, sig, contactPerson);
+            return updateOnlineSession(
+                    (OnlineSession) session,
+                    (OnlineSessionRequest) request,
+                    sig,
+                    contactPerson
+            );
         }
         throw new IllegalArgumentException("Cannot update session");
     }
 
-    private static Session updateSession(Session session, SessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
+    private static Session updateSession(
+            Session session,
+            SessionRequest request,
+            SpecialInterestGroup sig,
+            Person contactPerson
+    ) {
         SessionDetails details = session.getDetails();
         details.setSubject(request.subject);
         details.setDescription(request.description);
@@ -110,13 +143,22 @@ public class SessionDirector {
         return session;
     }
 
-    private static Session updatePhysicalSession(PhysicalSession session, PhysicalSessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
+    private static Session updatePhysicalSession(
+            PhysicalSession session,
+            PhysicalSessionRequest request,
+            SpecialInterestGroup sig,
+            Person contactPerson
+    ) {
         updateSession(session, request, sig, contactPerson);
         session.setAddress(request.address);
         return session;
     }
 
-    private static Session updateOnlineSession(OnlineSession session, OnlineSessionRequest request, SpecialInterestGroup sig, Person contactPerson) {
+    private static Session updateOnlineSession(
+            OnlineSession session,
+            OnlineSessionRequest request,
+            SpecialInterestGroup sig,
+            Person contactPerson) {
         updateSession(session, request, sig, contactPerson);
         session.setJoinUrl(request.joinUrl);
         if (!session.getPlatform().equalsIgnoreCase("Teams")) {

@@ -189,5 +189,4 @@ class UserControllerIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isConflict());
     }
-
 }

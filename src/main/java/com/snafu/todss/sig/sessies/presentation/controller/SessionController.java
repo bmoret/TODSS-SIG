@@ -64,7 +64,10 @@ SessionController {
 
     @PermitAll
     @GetMapping("/future/{personId}")
-    public ResponseEntity<List<SessionResponse>> getFutureSessionsOfPerson(@PathVariable UUID personId, Authentication authentication) throws NotFoundException, IllegalAccessException {
+    public ResponseEntity<List<SessionResponse>> getFutureSessionsOfPerson(
+            @PathVariable UUID personId,
+            Authentication authentication
+    ) throws NotFoundException, IllegalAccessException {
         UserDetails profile = (UserDetails) authentication.getPrincipal();
         List<Session> sessions = this.SERVICE.getFutureSessionsOfPerson(profile.getUsername(), personId);
 
@@ -73,7 +76,10 @@ SessionController {
 
     @PermitAll
     @GetMapping("/history/{personId}")
-    public ResponseEntity<List<SessionResponse>> getHistorySessionsOfPerson(@PathVariable UUID personId, Authentication authentication) throws NotFoundException, IllegalAccessException {
+    public ResponseEntity<List<SessionResponse>> getHistorySessionsOfPerson(
+            @PathVariable UUID personId,
+            Authentication authentication
+    ) throws NotFoundException, IllegalAccessException {
         UserDetails profile = (UserDetails) authentication.getPrincipal();
         List<Session> sessions = this.SERVICE.getHistorySessionsOfPerson(profile.getUsername(), personId);
 
@@ -101,7 +107,9 @@ SessionController {
 
     @RolesAllowed({"ROLE_MANAGER","ROLE_SECRETARY", "ROLE_ORGANIZER", "ROLE_ADMINISTRATOR"})
     @PostMapping
-    public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody SessionRequest sessionRequest) throws NotFoundException {
+    public ResponseEntity<SessionResponse> createSession(
+            @Valid @RequestBody SessionRequest sessionRequest
+    ) throws NotFoundException {
         Session session = this.SERVICE.createSession(sessionRequest);
 
         return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);
@@ -130,8 +138,10 @@ SessionController {
     @PutMapping("/{sessionId}/plan")
     public ResponseEntity<SessionResponse> planSession(
             @PathVariable UUID sessionId,
-            @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+            @RequestParam(value = "startDate")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(value = "endDate")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
     ) throws NotFoundException {
         Session session = this.SERVICE.planSession(sessionId, startDate, endDate);
 
@@ -140,7 +150,8 @@ SessionController {
 
     @RolesAllowed({"ROLE_MANAGER", "ROLE_ADMINISTRATOR"})
     @PutMapping("/{sessionId}/request")
-    public ResponseEntity<SessionResponse> requestSessionToBePlanned(@PathVariable UUID sessionId) throws NotFoundException {
+    public ResponseEntity<SessionResponse> requestSessionToBePlanned(
+            @PathVariable UUID sessionId) throws NotFoundException {
         Session session = this.SERVICE.requestSessionToBePlanned(sessionId);
 
         return new ResponseEntity<>(convertToSessionResponse(session), HttpStatus.OK);

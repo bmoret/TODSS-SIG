@@ -8,7 +8,10 @@ import org.hibernate.id.UUIDGenerator;
 import java.io.Serializable;
 
 public class FilterIdentifierGenerator extends UUIDGenerator implements IdentifierGenerator {
-    public Serializable generate(SharedSessionContractImplementor sessionImplementor, Object object) throws HibernateException {
+    public Serializable generate(
+            SharedSessionContractImplementor sessionImplementor,
+            Object object
+    ) throws HibernateException {
         Serializable id = sessionImplementor.getEntityPersister(null, object)
                 .getClassMetadata().getIdentifier(object, sessionImplementor);
         return id != null ? id : super.generate(sessionImplementor, object);

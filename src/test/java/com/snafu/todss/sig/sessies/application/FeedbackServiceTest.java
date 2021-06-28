@@ -31,7 +31,6 @@ class FeedbackServiceTest {
     private static Person person;
     private static Session session;
 
-
     @BeforeEach
     void setUp() {
         feedbackService = new FeedbackService(FEEDBACK_REPOSITORY, SESSION_SERVICE, PERSON_SERVICE);
@@ -91,7 +90,10 @@ class FeedbackServiceTest {
     @ParameterizedTest
     @MethodSource("provideSessionAndFeedbackList")
     @DisplayName("Get feedback by session id, returns list of feedback")
-    void getFeedbackBySession_ReturnsListFeedback(Session session, List<Feedback> expectedResult) throws NotFoundException {
+    void getFeedbackBySession_ReturnsListFeedback(
+            Session session,
+            List<Feedback> expectedResult
+    ) throws NotFoundException {
         when(SESSION_SERVICE.getSessionById(any(UUID.class))).thenReturn(session);
         when(FEEDBACK_REPOSITORY.findBySession(any())).thenReturn(expectedResult);
 
@@ -107,5 +109,4 @@ class FeedbackServiceTest {
                 Arguments.of(mock(Session.class), List.of(testFeedback, testFeedback))
         );
     }
-
 }

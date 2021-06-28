@@ -67,10 +67,6 @@ class AttendanceServiceIntegrationTest {
     private final String description = "Description";
     private final String address = "Address";
 
-    @BeforeAll
-    static void init() {
-    }
-
     @BeforeEach
     void setup() {
 
@@ -84,7 +80,9 @@ class AttendanceServiceIntegrationTest {
                 .setRole(MANAGER)
                 .build());
 
-        sig = SIG_REPOSITORY.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
+        sig = SIG_REPOSITORY.save(
+                new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>())
+        );
         session = SESSION_REPOSITORY.save(new PhysicalSession(
                 new SessionDetails(now, nowPlusOneHour, subject, description),
                 SessionState.ONGOING,
@@ -151,7 +149,12 @@ class AttendanceServiceIntegrationTest {
         clearAttendancesFromRepository();
 
         assertDoesNotThrow(
-                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getSession().getId(), attendance.getPerson().getId())
+                () -> ATTENDANCE_SERVICE.createAttendance(
+                        PRESENT,
+                        false,
+                        attendance.getSession().getId(),
+                        attendance.getPerson().getId()
+                )
         );
     }
 
@@ -160,7 +163,12 @@ class AttendanceServiceIntegrationTest {
     void createAttendanceThrowsWhenAlreadyExists() {
         assertThrows(
                 DuplicateRequestException.class,
-                () -> ATTENDANCE_SERVICE.createAttendance(PRESENT, false, attendance.getSession().getId(), attendance.getPerson().getId())
+                () -> ATTENDANCE_SERVICE.createAttendance(
+                        PRESENT,
+                        false,
+                        attendance.getSession().getId(),
+                        attendance.getPerson().getId()
+                )
         );
     }
 
@@ -190,8 +198,8 @@ class AttendanceServiceIntegrationTest {
                 address,
                 null
         );
-        SpecialInterestGroup sig = new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>());
-
+        SpecialInterestGroup sig =
+                new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>());
 
         return Stream.of(
                 Arguments.of(
@@ -212,10 +220,12 @@ class AttendanceServiceIntegrationTest {
     @ParameterizedTest
     @MethodSource("createIncorrectAttendanceExamples")
     @DisplayName("create attendance throws when info is incorrect")
-    void createAttendanceThrowsWhenIncorrectInfo(AttendanceState attendanceState,
-                                                 Person person,
-                                                 Session session,
-                                                 SpecialInterestGroup sig) {
+    void createAttendanceThrowsWhenIncorrectInfo(
+            AttendanceState attendanceState,
+            Person person,
+            Session session,
+            SpecialInterestGroup sig
+    ) {
         UUID personId = UUID.randomUUID();
         UUID sessionId = UUID.randomUUID();
         sig = SIG_REPOSITORY.save(sig);
@@ -236,7 +246,7 @@ class AttendanceServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("Create existing attendance")
+    @DisplayName("Create existing attendance throws duplicate exception")
     void createExistingAttendance_ThrowsDuplicateRequestException() {
         assertThrows(
                 DuplicateRequestException.class,
@@ -251,7 +261,9 @@ class AttendanceServiceIntegrationTest {
         request.state = PRESENT.toString();
         request.speaker = true;
 
-        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request));
+        Attendance attendance = assertDoesNotThrow(
+                () -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request)
+        );
 
         assertTrue(attendance.isSpeaker());
     }
@@ -261,8 +273,10 @@ class AttendanceServiceIntegrationTest {
     void updatePresenceToNoShow() {
         PresenceRequest request = new PresenceRequest();
         request.isPresent = false;
-        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updatePresence(this.attendance.getId(),
-                                                                                            request));
+        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updatePresence(
+                this.attendance.getId(),
+                request)
+        );
 
         assertEquals(NO_SHOW, attendance.getState());
     }
@@ -270,15 +284,17 @@ class AttendanceServiceIntegrationTest {
     @Test
     @DisplayName("update presence of attendance when session has not begun")
     void updatePresenceWhenSessionNotBegun() {
-        Session session1 = SESSION_REPOSITORY.save(new PhysicalSession(
-                new SessionDetails(now, nowPlusOneHour, subject, description),
-                SessionState.DRAFT,
-                sig,
-                new ArrayList<>(),
-                new ArrayList<>(),
-                address,
-                null
-        ));
+        Session session1 = SESSION_REPOSITORY.save(
+                new PhysicalSession(
+                        new SessionDetails(now, nowPlusOneHour, subject, description),
+                        SessionState.DRAFT,
+                        sig,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        address,
+                        null
+                )
+        );
         Attendance attendance1 = ATTENDANCE_REPOSITORY.save(new Attendance(PRESENT, false, person, session1));
         session1.addAttendee(attendance1);
         this.SESSION_REPOSITORY.save(session1);
@@ -286,8 +302,13 @@ class AttendanceServiceIntegrationTest {
         PresenceRequest request = new PresenceRequest();
         request.isPresent = false;
 
-        assertThrows(IllegalArgumentException.class, () -> ATTENDANCE_SERVICE.updatePresence(attendance1.getId(),
-                request));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ATTENDANCE_SERVICE.updatePresence(
+                        attendance1.getId(),
+                        request
+                )
+        );
     }
 
     @Test
@@ -318,7 +339,9 @@ class AttendanceServiceIntegrationTest {
         AttendanceRequest request = new AttendanceRequest();
         request.state = NO_SHOW.toString();
 
-        Attendance attendance = assertDoesNotThrow(() -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request));
+        Attendance attendance = assertDoesNotThrow(
+                () -> ATTENDANCE_SERVICE.updateAttendance(this.attendance.getId(), request)
+        );
 
         assertEquals(NO_SHOW, attendance.getState());
     }
@@ -334,7 +357,7 @@ class AttendanceServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("delete attendance does not throw and ")
+    @DisplayName("delete attendance removes attendance")
     void deleteAttendance() {
         assertDoesNotThrow(() -> ATTENDANCE_SERVICE.deleteAttendance(attendance.getId()));
         assertEquals(Collections.emptyList(), ATTENDANCE_REPOSITORY.findAll());
@@ -441,7 +464,11 @@ class AttendanceServiceIntegrationTest {
         request.speaker = false;
 
         assertDoesNotThrow(
-                () -> ATTENDANCE_SERVICE.signUpForSession(attendance.getSession().getId(), attendance.getPerson().getId(), request)
+                () -> ATTENDANCE_SERVICE.signUpForSession(
+                        attendance.getSession().getId(),
+                        attendance.getPerson().getId(),
+                        request
+                )
         );
     }
 
@@ -455,7 +482,9 @@ class AttendanceServiceIntegrationTest {
         ATTENDANCE_REPOSITORY.save(attendance);
 
         assertDoesNotThrow(
-                () -> ATTENDANCE_SERVICE.signUpForSession(attendance.getSession().getId(), attendance.getPerson().getId(), request)
+                () -> ATTENDANCE_SERVICE.signUpForSession(
+                        attendance.getSession().getId(),
+                        attendance.getPerson().getId(), request)
         );
         assertEquals(PRESENT,
                 assertDoesNotThrow(

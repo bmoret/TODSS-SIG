@@ -46,7 +46,8 @@ class TeamsOnlineSessionTest {
 
     @ParameterizedTest
     @EnumSource(SessionState.class)
-    @DisplayName("Testing constructor of online session, the created instance returns all initial constructed parameters through getters")
+    @DisplayName("Testing constructor of online session," +
+            "the created instance returns all initial constructed parameters through getters")
     void onlineSessionConstructor_CreatesInstance(SessionState state) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);

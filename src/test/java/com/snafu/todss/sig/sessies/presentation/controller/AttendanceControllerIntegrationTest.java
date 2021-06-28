@@ -99,14 +99,6 @@ class AttendanceControllerIntegrationTest {
         session.addAttendee(attendance);
     }
 
-//    @AfterEach
-//    void tearDown() {
-//        ATTENDANCE_REPOSITORY.deleteAll();
-//        PERSON_REPOSITORY.deleteAll();
-//        SESSION_REPOSITORY.deleteAll();
-//        SIG_REPOSITORY.deleteAll();
-//    }
-
     @Test
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("get attendance by id as manager")
@@ -162,7 +154,10 @@ class AttendanceControllerIntegrationTest {
                 get("/attendances/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.Error").value("Aanwezigheid met id '"+id+"' bestaat niet."));
+                .andExpect(
+                        jsonPath("$.Error")
+                        .value("Aanwezigheid met id '"+id+"' bestaat niet.")
+                );
     }
 
     @Test
@@ -222,7 +217,10 @@ class AttendanceControllerIntegrationTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.Error").value("Aanwezigheid met id '"+id+"' bestaat niet."));
+                .andExpect(
+                        jsonPath("$.Error")
+                                .value("Aanwezigheid met id '"+id+"' bestaat niet.")
+                );
     }
 
     @Test
@@ -253,7 +251,10 @@ class AttendanceControllerIntegrationTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.Error").value("Aanwezigheid met id '"+id+"' bestaat niet."));
+                .andExpect(
+                        jsonPath("$.Error")
+                                .value("Aanwezigheid met id '"+id+"' bestaat niet.")
+                );
     }
 
     @Test
@@ -521,7 +522,11 @@ class AttendanceControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "MANAGER")
     @DisplayName("get speakers of attendance as manager")
     void getSpeakersAsManager() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get("/attendances/{id}/speaker", attendance.getSession().getId())
+        RequestBuilder request =
+                MockMvcRequestBuilders.get(
+                        "/attendances/{id}/speaker",
+                        attendance.getSession().getId()
+                )
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -534,7 +539,10 @@ class AttendanceControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "ADMINISTRATOR")
     @DisplayName("get speakers of attendance as administrator")
     void getSpeakersAsAdministrator() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get("/attendances/{id}/speaker", attendance.getSession().getId())
+        RequestBuilder request = MockMvcRequestBuilders.get(
+                "/attendances/{id}/speaker",
+                attendance.getSession().getId()
+        )
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -547,7 +555,10 @@ class AttendanceControllerIntegrationTest {
     @WithMockUser(username = "TestUser", roles = "EMPLOYEE")
     @DisplayName("get speakers of attendance as employee")
     void getSpeakersAsEmployee() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get("/attendances/{id}/speaker", attendance.getSession().getId())
+        RequestBuilder request = MockMvcRequestBuilders.get(
+                "/attendances/{id}/speaker",
+                attendance.getSession().getId()
+        )
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)

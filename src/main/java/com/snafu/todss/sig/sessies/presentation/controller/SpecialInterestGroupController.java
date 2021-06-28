@@ -8,10 +8,8 @@ import com.snafu.todss.sig.sessies.presentation.dto.response.PersonCompactRespon
 import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import com.snafu.todss.sig.sessies.presentation.dto.response.SpecialInterestGroupResponse;
 import javassist.NotFoundException;
-import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.PermitAll;
@@ -69,7 +67,8 @@ public class SpecialInterestGroupController {
 
     @PermitAll
     @GetMapping("/{id}")
-    public ResponseEntity<SpecialInterestGroupResponse> getSpecialInterestGroup(@PathVariable UUID id) throws NotFoundException {
+    public ResponseEntity<SpecialInterestGroupResponse> getSpecialInterestGroup(
+            @PathVariable UUID id) throws NotFoundException {
         SpecialInterestGroup specialInterestGroup = this.SERVICE.getSpecialInterestGroupById(id);
 
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.OK);
@@ -95,7 +94,8 @@ public class SpecialInterestGroupController {
     public ResponseEntity<SpecialInterestGroupResponse> createSpecialInterestGroup(
             @Valid @RequestBody SpecialInterestGroupRequest specialInterestGroupRequest
     ) throws NotFoundException {
-        SpecialInterestGroup specialInterestGroup = this.SERVICE.createSpecialInterestGroup(specialInterestGroupRequest);
+        SpecialInterestGroup specialInterestGroup =
+                this.SERVICE.createSpecialInterestGroup(specialInterestGroupRequest);
 
         return new ResponseEntity<>(convertSpecialInterestGroupToResponse(specialInterestGroup), HttpStatus.CREATED);
     }

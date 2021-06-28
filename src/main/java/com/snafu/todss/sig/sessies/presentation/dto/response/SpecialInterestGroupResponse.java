@@ -13,7 +13,12 @@ public class SpecialInterestGroupResponse {
         //For Modelmapper to map domain class to this DTO
     }
 
-    public SpecialInterestGroupResponse(UUID id, String subject, PersonCompactResponse manager, List<PersonCompactResponse> organizers) {
+    public SpecialInterestGroupResponse(
+            UUID id,
+            String subject,
+            PersonCompactResponse manager,
+            List<PersonCompactResponse> organizers
+    ) {
         this.id = id;
         this.subject = subject;
         this.manager = manager;
