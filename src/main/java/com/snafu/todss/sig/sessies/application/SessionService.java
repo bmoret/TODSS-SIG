@@ -30,7 +30,11 @@ public class SessionService {
     private final UserService USER_SERVICE;
     private final PersonService personService;
 
-    public SessionService(SessionRepository sessionRepository, SpecialInterestGroupService sigService, UserService userService, PersonService personService) {
+    public SessionService(
+            SessionRepository sessionRepository,
+            SpecialInterestGroupService sigService,
+            UserService userService,
+            PersonService personService) {
         this.SESSION_REPOSITORY = sessionRepository;
         this.SIG_SERVICE = sigService;
         this.USER_SERVICE = userService;
@@ -49,7 +53,10 @@ public class SessionService {
                             person.getManagedSpecialInterestGroups().contains(session.getSig())) {
                         getsAdded = true;
                     }
-                } else if ((session.getState() != SessionState.TO_BE_PLANNED || session.getState() != SessionState.DRAFT)) {
+                } else if (
+                        (session.getState() != SessionState.TO_BE_PLANNED ||
+                        session.getState() != SessionState.DRAFT)
+                ) {
                     getsAdded = true;
                 }
             } else if (user.getRole() == UserRole.ROLE_SECRETARY) {
@@ -59,7 +66,10 @@ public class SessionService {
             } else if (user.getRole() == UserRole.ROLE_ADMINISTRATOR) {
                 getsAdded = true;
             } else {
-                if (!(session.getState().equals(SessionState.TO_BE_PLANNED)) && !(session.getState().equals(SessionState.DRAFT))) {
+                if (
+                        !(session.getState().equals(SessionState.TO_BE_PLANNED)) &&
+                        !(session.getState().equals(SessionState.DRAFT))
+                ) {
                     getsAdded = true;
                 }
             }
@@ -109,7 +119,11 @@ public class SessionService {
         this.SESSION_REPOSITORY.deleteById(sessionId);
     }
 
-    public Session planSession(UUID sessionId, LocalDateTime startDate, LocalDateTime endDate) throws NotFoundException {
+    public Session planSession(
+            UUID sessionId,
+            LocalDateTime startDate,
+            LocalDateTime endDate
+    ) throws NotFoundException {
         Session session = getSessionById(sessionId);
         if (session.getState() != SessionState.TO_BE_PLANNED) {
             throw new IllegalStateException("Session can only be planned if session state is TO_BE_PLANNED");
@@ -144,7 +158,10 @@ public class SessionService {
         final int MAXIMUM_SESSION_LENGTH_IN_MS = 604800000;
         if (Math.abs(Duration.between(endDate, startDate).toMillis()) > MAXIMUM_SESSION_LENGTH_IN_MS) {
             throw new IllegalArgumentException(
-                    String.format("Session duration cannot be longer than %s milliseconds", MAXIMUM_SESSION_LENGTH_IN_MS));
+                    String.format(
+                            "Session duration cannot be longer than %s milliseconds",
+                            MAXIMUM_SESSION_LENGTH_IN_MS)
+            );
         }
     }
 
@@ -184,15 +201,18 @@ public class SessionService {
         relatedSigs.addAll(user.getPerson().getManagedSpecialInterestGroups());
         return relatedSigs.stream().anyMatch(session.getSig()::equals)
                 || session.getState().equals(SessionState.TO_BE_PLANNED)
-                && (user.getRole().equals(UserRole.ROLE_SECRETARY) || user.getRole().equals(UserRole.ROLE_ADMINISTRATOR));
+                && (user.getRole().equals(UserRole.ROLE_SECRETARY) ||
+                user.getRole().equals(UserRole.ROLE_ADMINISTRATOR));
     }
 
     public List<Session> getAllFutureSessions(String username) {
         List<Session> sessions = this.SESSION_REPOSITORY.findAll().stream()
                 .filter(session -> (session.getDetails().getStartDate().isAfter(LocalDateTime.now())
-                        && (session.getState().equals(SessionState.PLANNED) || session.getState().equals(SessionState.ONGOING)))
+                        && (session.getState().equals(SessionState.PLANNED) ||
+                        session.getState().equals(SessionState.ONGOING)))
                         || isAuthorizedForSession(username, session)
-                        && (session.getState().equals(SessionState.TO_BE_PLANNED) || session.getState().equals(SessionState.DRAFT)))
+                        && (session.getState().equals(SessionState.TO_BE_PLANNED) ||
+                        session.getState().equals(SessionState.DRAFT)))
                 .sorted(Comparator.comparing(session -> session.getDetails().getStartDate()))
                 .collect(Collectors.toList());
         return sessions.subList(0, Math.min(sessions.size(), 15));
@@ -201,7 +221,9 @@ public class SessionService {
     public List<Session> getAllHistoricalSessions(String username) {
         return this.SESSION_REPOSITORY.findAll().stream()
                 .filter(session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now())
-                        && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).withMonth(1)))
+                        && session.getDetails().getStartDate().isAfter(
+                                LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).withMonth(1))
+                )
                 .filter(session -> !(session.getState().equals(SessionState.DRAFT)
                         || session.getState().equals(SessionState.TO_BE_PLANNED))
                         || isAuthorizedForSession(username, session))
@@ -219,7 +241,9 @@ public class SessionService {
         );
     }
 
-    public List<Session> getFutureSessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
+    public List<Session> getFutureSessionsOfPerson(
+            String username,
+            UUID personId) throws NotFoundException, IllegalAccessException {
         Person person = personService.getPerson(personId);
         if (isNotAuthorizedToUserResources(username, person)) {
             throw new IllegalAccessException("User is not allowed to access resources");
@@ -229,13 +253,17 @@ public class SessionService {
         return filterPersonsSessions(person, predicate);
     }
 
-    public List<Session> getHistorySessionsOfPerson(String username, UUID personId) throws NotFoundException, IllegalAccessException {
+    public List<Session> getHistorySessionsOfPerson(
+            String username,
+            UUID personId) throws NotFoundException, IllegalAccessException {
         Person person = personService.getPerson(personId);
         if (isNotAuthorizedToUserResources(username, person)) {
             throw new IllegalAccessException("User is not allowed to access resources");
         }
         Predicate<Session> predicate = session -> session.getDetails().getStartDate().isBefore(LocalDateTime.now())
-                && session.getDetails().getStartDate().isAfter(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).withMonth(1));
+                && session.getDetails().getStartDate().isAfter(
+                        LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).withMonth(1)
+        );
 
         return filterPersonsSessions(person, predicate);
     }

@@ -132,6 +132,7 @@ class FeedbackServiceIntegrationTest {
     @DisplayName("Deleting feedback deletes feedback")
     void deleteFeedback_DeletesFeedback() throws NotFoundException {
         feedbackService.deleteFeedback(testFeedback.getId());
+
         assertEquals(Collections.emptyList(), feedbackRepository.findAll());
     }
 
@@ -148,7 +149,4 @@ class FeedbackServiceIntegrationTest {
                 NotFoundException.class,
                 () -> feedbackService.deleteFeedback(UUID.randomUUID()));
     }
-
-
-
 }

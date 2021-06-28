@@ -38,7 +38,8 @@ class AttendanceServiceTest {
     private static final PersonService PERSON_SERVICE = mock(PersonService.class);
     private static final SessionService SESSION_SERVICE = mock(SessionService.class);
     private final AttendanceService MOCKSERVICE = mock(AttendanceService.class);
-    private final AttendanceService SERVICE = new AttendanceService(ATTENDANCE_REPOSITORY, PERSON_SERVICE, SESSION_SERVICE);
+    private final AttendanceService SERVICE =
+            new AttendanceService(ATTENDANCE_REPOSITORY, PERSON_SERVICE, SESSION_SERVICE);
 
     private static Attendance attendance;
     private static Person person;
@@ -269,7 +270,7 @@ class AttendanceServiceTest {
 
     @Test
     @DisplayName("update presence of attendance when has not begun")
-    void updatePresenceWhenSessionNotBegun() throws Exception {
+    void updatePresenceWhenSessionNotBegun() {
         Session session1 = new PhysicalSession(
                 new SessionDetails(now, nowPlusOneHour, subject, description),
                 SessionState.DRAFT,
@@ -293,7 +294,7 @@ class AttendanceServiceTest {
 
     @Test
     @DisplayName("update presence of attendance when attendee does shows up")
-    void updatePresenceToPresent() throws Exception {
+    void updatePresenceToPresent() {
         PresenceRequest request = new PresenceRequest();
         request.isPresent = true;
         Attendance updatedAttendance = new Attendance(PRESENT, false, person, session);
@@ -301,7 +302,9 @@ class AttendanceServiceTest {
         when(ATTENDANCE_REPOSITORY.findById(any())).thenReturn(Optional.of(attendance));
         when(ATTENDANCE_REPOSITORY.save(any(Attendance.class))).thenReturn(updatedAttendance);
 
-        Attendance actualUpdatedAttendance = SERVICE.updatePresence(UUID.randomUUID(), request);
+        Attendance actualUpdatedAttendance = assertDoesNotThrow(
+                () ->SERVICE.updatePresence(UUID.randomUUID(), request)
+        );
 
         assertEquals(PRESENT, actualUpdatedAttendance.getState());
         verify(ATTENDANCE_REPOSITORY, times(1)).save(any(Attendance.class));
@@ -351,13 +354,15 @@ class AttendanceServiceTest {
     @Test
     @DisplayName("check if attendance exists by looking for attendance containing session and person")
     void checkAttendanceBySessionAndPerson() {
-        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
+        when(ATTENDANCE_REPOSITORY.findAttendanceByIdContainingAndSessionAndPerson(session, person))
+                .thenReturn(Optional.of(attendance));
 
         assertDoesNotThrow(
                 () -> SERVICE.getAttendanceBySessionAndPerson(session, person)
         );
 
-        verify(ATTENDANCE_REPOSITORY, times(1)).findAttendanceByIdContainingAndSessionAndPerson(any(Session.class), any(Person.class));
+        verify(ATTENDANCE_REPOSITORY, times(1))
+                .findAttendanceByIdContainingAndSessionAndPerson(any(Session.class), any(Person.class));
     }
 
     @Test
@@ -366,8 +371,10 @@ class AttendanceServiceTest {
         AttendanceRequest request = new AttendanceRequest();
         request.state = PRESENT.toString();
         request.speaker = false;
+
         doNothing().when(SESSION_SERVICE).addAttendeeToSession(session, attendance);
         doNothing().when(PERSON_SERVICE).addAttendanceToPerson(person, attendance);
+
         when(SERVICE.getAttendanceBySessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
         when(ATTENDANCE_REPOSITORY.findById(attendance.getId())).thenReturn(Optional.of(attendance));
 
@@ -375,7 +382,8 @@ class AttendanceServiceTest {
                 () -> SERVICE.signUpForSession(person.getId(), session.getId(), request)
         );
 
-        verify(ATTENDANCE_REPOSITORY, times(2)).findAttendanceByIdContainingAndSessionAndPerson(any(), any());
+        verify(ATTENDANCE_REPOSITORY, times(2))
+                .findAttendanceByIdContainingAndSessionAndPerson(any(), any());
     }
 
     @Test
@@ -384,6 +392,7 @@ class AttendanceServiceTest {
         AttendanceRequest request = new AttendanceRequest();
         request.state = PRESENT.toString();
         attendance.setState(PRESENT);
+
         when(SERVICE.getAttendanceBySessionAndPerson(session, person)).thenReturn(Optional.of(attendance));
         when(ATTENDANCE_REPOSITORY.findById(attendance.getId())).thenReturn(Optional.of(attendance));
         when(SERVICE.updateAttendance(attendance.getId(), request)).thenReturn(attendance);

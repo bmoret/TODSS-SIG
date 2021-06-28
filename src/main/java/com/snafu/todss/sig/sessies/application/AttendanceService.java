@@ -25,7 +25,11 @@ public class AttendanceService {
     private final PersonService PERSON_SERVICE;
     private final SessionService SESSION_SERVICE;
 
-    public AttendanceService(SpringAttendanceRepository attendanceRepository, PersonService personService, SessionService sessionService) {
+    public AttendanceService(
+            SpringAttendanceRepository attendanceRepository,
+            PersonService personService,
+            SessionService sessionService
+    ) {
         ATTENDANCE_REPOSITORY = attendanceRepository;
         PERSON_SERVICE = personService;
         SESSION_SERVICE = sessionService;

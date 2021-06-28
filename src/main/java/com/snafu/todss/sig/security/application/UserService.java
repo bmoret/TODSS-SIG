@@ -27,7 +27,12 @@ public class UserService implements UserDetailsService {
     private final JwtGenerator JWT_GENERATOR;
     private final JwtValidator JWT_VALIDATOR;
 
-    public UserService(SpringUserRepository repository, PasswordEncoder passwordEncoder, JwtGenerator jwtGenerator, JwtValidator jwtValidator) {
+    public UserService(
+            SpringUserRepository repository,
+            PasswordEncoder passwordEncoder,
+            JwtGenerator jwtGenerator,
+            JwtValidator jwtValidator
+    ) {
         this.USER_REPOSITORY = repository;
         this.PASSSWORD_ENCODER = passwordEncoder;
         JWT_GENERATOR = jwtGenerator;

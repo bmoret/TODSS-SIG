@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 class SessionDetailsTest {
     private static SessionDetails details;
 
@@ -45,6 +44,7 @@ class SessionDetailsTest {
     void setEndDate(LocalDateTime endDate) {
         assertDoesNotThrow(() -> details.setEndDate(endDate));
     }
+
     static  Stream<Arguments> provideCorrectDateValues() {
         return Stream.of(
                 Arguments.of(LocalDateTime.now().plusSeconds(5)),

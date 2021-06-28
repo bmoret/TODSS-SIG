@@ -96,7 +96,14 @@ class SessionControllerIntegrationTest {
 
         userRepository.save(new User("TestUser", "password", supervisor));
 
-        sig = sigRepository.save(new SpecialInterestGroup("name", null, new ArrayList<>(), new ArrayList<>()));
+        sig = sigRepository.save(
+                new SpecialInterestGroup(
+                        "name",
+                        null,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                )
+        );
         Session session = repository.save(
                 new PhysicalSession(
                         new SessionDetails(nowPlusOneHour.plusMonths(2), now.plusMonths(2), subject, description),
@@ -213,8 +220,6 @@ class SessionControllerIntegrationTest {
     void createPhysicalSessionAsManager_ReturnsSession() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
-        System.out.println(now);
-        System.out.println(nowPlusOneHour);
         String subject = "Subject";
         String description = "Description";
         String address = "Address";
@@ -253,8 +258,6 @@ class SessionControllerIntegrationTest {
     void createPhysicalSessionAsSecretary_ReturnsSession() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
-        System.out.println(now);
-        System.out.println(nowPlusOneHour);
         String subject = "Subject1";
         String description = "Description";
         String address = "Address";
@@ -293,8 +296,6 @@ class SessionControllerIntegrationTest {
     void createPhysicalSessionAsOrganizer_ReturnsSession() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
-        System.out.println(now);
-        System.out.println(nowPlusOneHour);
         String subject = "Subject2";
         String description = "Description";
         String address = "Address";
@@ -333,8 +334,6 @@ class SessionControllerIntegrationTest {
     void createPhysicalSessionAsAdministrator_ReturnsSession() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
-        System.out.println(now);
-        System.out.println(nowPlusOneHour);
         String subject = "Subject2";
         String description = "Description";
         String address = "Address";
@@ -373,8 +372,6 @@ class SessionControllerIntegrationTest {
     void createPhysicalSessionAsEmployee() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
-        System.out.println(now);
-        System.out.println(nowPlusOneHour);
         String subject = "Subject";
         String description = "Description";
         String address = "Address";

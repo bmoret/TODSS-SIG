@@ -35,7 +35,6 @@ class UserServiceIntegrationTest {
     @Autowired
     private SpringPersonRepository personRepository;
 
-
     @Autowired
     private UserService userService;
 
@@ -75,7 +74,7 @@ class UserServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("Creating a user")
+    @DisplayName("Creating a user with role manager")
     void createUserManager() {
         supervisor.getDetails().setRole(Role.MANAGER);
         userService.register("TestUser1", "TestPassword", supervisor);
@@ -84,9 +83,10 @@ class UserServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("Creating a user iwth username null throws DRE")
+    @DisplayName("Creating a user with username null throws DRE")
     void createUserGuest() {
         supervisor.getDetails().setRole(Role.GUEST);
+
         assertThrows(
                 DuplicateRequestException.class,
                 () -> userService.register(null, "TestPassword", supervisor)
@@ -109,7 +109,7 @@ class UserServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("Get user by unknown username returns user")
+    @DisplayName("Get user by unknown username throws not found exception")
     void getUserByUnknownUsername_ReturnsUser() {
         assertThrows(
                 UsernameNotFoundException.class,
@@ -129,13 +129,12 @@ class UserServiceIntegrationTest {
     void changeUserRoleOfUnknownUser_Throws() {
         assertThrows(
                 UsernameNotFoundException.class,
-                () -> userService.setUserRole("RandomUsername", "ROLE_MANAGER"));
-
-
+                () -> userService.setUserRole("RandomUsername", "ROLE_MANAGER")
+        );
     }
 
     @Test
-    @DisplayName("Get all users returns list")
+    @DisplayName("Get all users returns list of all users")
     void getAllUsers() {
         List<User> users = userService.getAllUsers();
 
@@ -152,12 +151,10 @@ class UserServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deleting unknown user by username throws")
+    @DisplayName("Deleting user by unknown username throws not found exception")
     void deleteUnknownUser_Throws() {
         assertThrows(
                 NotFoundException.class,
                 () -> userService.removeUser("RandomUsername"));
     }
-
-
 }

@@ -26,7 +26,8 @@ class PhysicalSessionTest {
 
     @ParameterizedTest
     @EnumSource(SessionState.class)
-    @DisplayName("Testing constructor of physical session, the created instance returns all inital constructed parameters through getters")
+    @DisplayName("Testing constructor of physical session, " +
+            "the created instance returns all inital constructed parameters through getters")
     void physicalSessionConstructor_CreatesInstance(SessionState state) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);

@@ -308,5 +308,4 @@ class FeedbackControllerIntegrationTest {
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
     }
-
 }

@@ -52,7 +52,6 @@ public class AttendanceController {
         return new ResponseEntity<>(convertAttendanceToResponse(attendance), HttpStatus.OK);
     }
 
-    //todo: verplaats maybe
     private List<PersonResponse> convertPersonToListResponse(List<Person> attendances) {
         return attendances.stream().map(this::convertPersonToResponse).collect(Collectors.toList());
     }

@@ -81,6 +81,7 @@ class OnlineSessionTest {
 
         assertEquals(expectedNextState, session.getState());
     }
+
     static Stream<Arguments> provideSessionStates() {
         return Stream.of(
                 Arguments.of(SessionState.DRAFT, SessionState.TO_BE_PLANNED),

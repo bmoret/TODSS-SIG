@@ -1,12 +1,9 @@
 package com.snafu.todss.sig.sessies.presentation.dto.request.session;
 
-import com.snafu.todss.sig.sessies.domain.person.Person;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 
 public class PhysicalSessionRequest extends SessionRequest{
     @NotBlank
