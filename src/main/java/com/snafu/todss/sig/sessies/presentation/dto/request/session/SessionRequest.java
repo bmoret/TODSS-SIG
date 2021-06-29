@@ -2,7 +2,6 @@ package com.snafu.todss.sig.sessies.presentation.dto.request.session;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.snafu.todss.sig.sessies.domain.person.Person;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

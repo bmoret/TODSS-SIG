@@ -63,9 +63,15 @@ class SessionConverterTest {
                         )
                         .defaultAnswer(CALLS_REAL_METHODS)
         );
-        mockSession.addAttendee(new Attendance(AttendanceState.PRESENT, false, mock(Person.class), mockSession));
-        mockSession.addAttendee(new Attendance(AttendanceState.CANCELED, false, mock(Person.class), mockSession));
-        mockSession.addAttendee(new Attendance(AttendanceState.NO_SHOW, false, mock(Person.class), mockSession));
+        mockSession.addAttendee(
+                new Attendance(AttendanceState.PRESENT, false, mock(Person.class), mockSession)
+        );
+        mockSession.addAttendee(
+                new Attendance(AttendanceState.CANCELED, false, mock(Person.class), mockSession)
+        );
+        mockSession.addAttendee(
+                new Attendance(AttendanceState.NO_SHOW, false, mock(Person.class), mockSession)
+        );
         mockSessionResponse = new SessionResponse();
         mockSessionResponse.setType("UNKNOWN");
         mockSessionResponse.setDetails(mockSession.getDetails());

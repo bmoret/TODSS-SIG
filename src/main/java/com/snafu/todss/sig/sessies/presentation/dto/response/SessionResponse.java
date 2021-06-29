@@ -83,7 +83,8 @@ public class SessionResponse {
 
     public void setContactPerson(Person contactPerson) {
         if(contactPerson != null) {
-            this.contactPerson = new PersonCompactResponse(contactPerson.getId(), contactPerson.getDetails().getFirstname());
+            this.contactPerson =
+                    new PersonCompactResponse(contactPerson.getId(), contactPerson.getDetails().getFirstname());
         } else {
             this.contactPerson = null;
         }

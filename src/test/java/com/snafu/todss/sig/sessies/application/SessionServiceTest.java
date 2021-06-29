@@ -107,7 +107,15 @@ class SessionServiceTest {
                 testPerson
         );
         testPerson = new Person(
-                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                new PersonDetails(
+                        "",
+                        "",
+                        "",
+                        "",
+                        LocalDate.now(),
+                        Branch.AMSTERDAM,
+                        Role.MANAGER
+                ),
                 null,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -132,7 +140,6 @@ class SessionServiceTest {
         when(details.getRole()).thenReturn(Role.MANAGER);
 
         user = new User("TestUser", "TestPassword", supervisor);
-
     }
 
     @AfterEach
@@ -328,11 +335,13 @@ class SessionServiceTest {
 
         when(repository.findById(any())).thenReturn(Optional.of(testSession));
         when(repository.save(any(Session.class))).thenReturn(new OnlineSession());
-        when(sigService.getSpecialInterestGroupById(physicalSessionRequest.sigId)).thenReturn(new SpecialInterestGroup());
+        when(sigService.getSpecialInterestGroupById(physicalSessionRequest.sigId))
+                .thenReturn(new SpecialInterestGroup());
 
         Session resSession = service.updateSession(UUID.randomUUID(), physicalSessionRequest);
 
         assertNotNull(resSession);
+
         verify(sigService, times(1)).getSpecialInterestGroupById(any(UUID.class));
         verify(repository, times(1)).findById(any());
         verify(repository, times(1)).save(any(Session.class));
@@ -543,11 +552,30 @@ class SessionServiceTest {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusOneHour = LocalDateTime.now().plusHours(1);
         return Stream.of(
-                Arguments.of(List.of(createSession(now.minusHours(2), nowPlusOneHour.minusHours(1), SessionState.ENDED)), true),
-                Arguments.of(List.of(createSession(now.minusHours(2), nowPlusOneHour.minusHours(1), SessionState.PLANNED)), true),
-                Arguments.of(List.of(createSession(now.minusYears(2), nowPlusOneHour.minusYears(2), SessionState.ENDED)), false),
-                Arguments.of(List.of(createSession(now.minusHours(2), nowPlusOneHour.minusHours(1), SessionState.DRAFT)), false),
-                Arguments.of(List.of(createSession(now.minusHours(2), nowPlusOneHour.minusHours(1), SessionState.TO_BE_PLANNED)), false)
+                Arguments.of(
+                        List.of(createSession(now.minusHours(2), nowPlusOneHour.minusHours(1), SessionState.ENDED)),
+                        true)
+                ,
+                Arguments.of(
+                        List.of(createSession(now.minusHours(2), nowPlusOneHour.minusHours(1), SessionState.PLANNED)),
+                        true
+                ),
+                Arguments.of(
+                        List.of(createSession(now.minusYears(2), nowPlusOneHour.minusYears(2), SessionState.ENDED)),
+                        false
+                ),
+                Arguments.of(
+                        List.of(createSession(now.minusHours(2), nowPlusOneHour.minusHours(1), SessionState.DRAFT)),
+                        false
+                ),
+                Arguments.of(
+                        List.of(
+                                createSession(
+                                        now.minusHours(2), nowPlusOneHour.minusHours(1),
+                                        SessionState.TO_BE_PLANNED)
+                        ),
+                        false
+                )
         );
     }
 
@@ -698,7 +726,15 @@ class SessionServiceTest {
     @DisplayName("get future sessions of person as manager")
     void futureSessionsOfPersonAsManager() throws NotFoundException, IllegalAccessException {
         Person person = new Person(
-                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                new PersonDetails(
+                        "",
+                        "",
+                        "",
+                        "",
+                        LocalDate.now(),
+                        Branch.AMSTERDAM,
+                        Role.MANAGER
+                ),
                 null,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -720,7 +756,15 @@ class SessionServiceTest {
     @DisplayName("get future sessions of person not related")
     void futureSessionsOfPersonAsManagerNotRelated() throws NotFoundException {
         Person person = new Person(
-                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                new PersonDetails(
+                        "",
+                        "",
+                        "",
+                        "",
+                        LocalDate.now(),
+                        Branch.AMSTERDAM,
+                        Role.MANAGER
+                ),
                 null,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -743,7 +787,15 @@ class SessionServiceTest {
     @DisplayName("get future sessions of person not related null")
     void futureSessionsOfPersonAsManagerNotRelatedNull() throws NotFoundException {
         Person person = new Person(
-                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                new PersonDetails(
+                        "",
+                        "",
+                        "",
+                        "",
+                        LocalDate.now(),
+                        Branch.AMSTERDAM,
+                        Role.MANAGER
+                ),
                 null,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -751,7 +803,15 @@ class SessionServiceTest {
         );
         ReflectionTestUtils.setField(person, "id", UUID.randomUUID());
         Person person2 = new Person(
-                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                new PersonDetails(
+                        "",
+                        "",
+                        "",
+                        "",
+                        LocalDate.now(),
+                        Branch.AMSTERDAM,
+                        Role.MANAGER
+                ),
                 null,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -812,7 +872,15 @@ class SessionServiceTest {
         testSession.getDetails().setStartDate(LocalDateTime.now().minusHours(2));
         testSession.getDetails().setEndDate(LocalDateTime.now().minusHours(1));
         Person person = new Person(
-                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                new PersonDetails(
+                        "",
+                        "",
+                        "",
+                        "",
+                        LocalDate.now(),
+                        Branch.AMSTERDAM,
+                        Role.MANAGER
+                ),
                 null,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -836,7 +904,15 @@ class SessionServiceTest {
         testSession.getDetails().setStartDate(LocalDateTime.now().minusHours(2));
         testSession.getDetails().setEndDate(LocalDateTime.now().minusHours(1));
         Person person = new Person(
-                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                new PersonDetails(
+                        "",
+                        "",
+                        "",
+                        "",
+                        LocalDate.now(),
+                        Branch.AMSTERDAM,
+                        Role.MANAGER
+                ),
                 null,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -861,7 +937,15 @@ class SessionServiceTest {
         testSession.getDetails().setStartDate(LocalDateTime.now().minusHours(2));
         testSession.getDetails().setEndDate(LocalDateTime.now().minusHours(1));
         Person person = new Person(
-                new PersonDetails("", "", "", "", LocalDate.now(), Branch.AMSTERDAM, Role.MANAGER),
+                new PersonDetails(
+                        "",
+                        "",
+                        "",
+                        "",
+                        LocalDate.now(),
+                        Branch.AMSTERDAM,
+                        Role.MANAGER
+                ),
                 null,
                 new ArrayList<>(),
                 new ArrayList<>(),

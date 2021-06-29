@@ -80,7 +80,6 @@ class SpecialInterestGroupServiceIntegrationTest {
                     new ArrayList<>(),
                     new ArrayList<>()
         ));
-
     }
 
     @AfterEach
@@ -132,6 +131,7 @@ class SpecialInterestGroupServiceIntegrationTest {
     @DisplayName("Get special interest group by id returns special interest group")
     void getSpecialInterestGroupById_ReturnsSpecialInterestGroup() throws NotFoundException {
         SpecialInterestGroup sig = service.getSpecialInterestGroupById(specialInterestGroup.getId());
+
         assertEquals(sig, specialInterestGroup);
     }
 

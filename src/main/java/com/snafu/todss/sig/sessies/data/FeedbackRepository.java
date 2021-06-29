@@ -10,7 +10,5 @@ import java.util.UUID;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, UUID> {
-
     List<Feedback> findBySession(Session session);
-
 }

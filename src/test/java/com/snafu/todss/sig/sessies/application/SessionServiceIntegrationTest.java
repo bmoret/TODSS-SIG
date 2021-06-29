@@ -73,7 +73,6 @@ class SessionServiceIntegrationTest {
 
     private SpecialInterestGroup sig;
 
-
     @BeforeEach
     void setup() throws NotFoundException {
         PersonRequest dtoSupervisor = new PersonRequest();
@@ -179,7 +178,8 @@ class SessionServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("Get all sessions as a manager when they are both organizing and managing a SIG that has three sessions")
+    @DisplayName("Get all sessions as a manager when " +
+            "they are both organizing and managing a SIG that has three sessions")
     void getAllSessionsWhenOrganizingAndManagingSIG_AsManager(){
         user.setRole(UserRole.ROLE_MANAGER);
         user.getPerson().addOrganizer(sig);

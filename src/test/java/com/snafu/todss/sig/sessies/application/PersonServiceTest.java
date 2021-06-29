@@ -273,6 +273,7 @@ class PersonServiceTest {
                 service.getPersonByEmail("email2@email.com").getId(),
                 editRequest
         );
+
         assertEquals("email2@email.com", person.getDetails().getEmail());
         assertEquals("all", person.getDetails().getExpertise());
         assertEquals("second", service.getPersonByEmail("email2@email.com").getDetails().getFirstname());
@@ -285,6 +286,7 @@ class PersonServiceTest {
     void removePerson() throws NotFoundException {
         Person person = service.getPersonByEmail("email3@email.com");
         service.removePerson(person.getId());
+
         assertThrows(
                 NotFoundException.class,
                 () ->service.getPersonByEmail("email3@email.com")
@@ -305,6 +307,7 @@ class PersonServiceTest {
     @DisplayName("levenshtein result of person by getting levenshtein value by full, first and lastname")
     void getBestLevenshteinDistanceValue(String req) {
         List<Person> allPersons = this.repo.findAll();
+
         assertEquals(
                 req,
                 service.getBestLevenshteinDistanceValue(allPersons, req).get(0).getDetails().getFirstname()
@@ -340,6 +343,4 @@ class PersonServiceTest {
                 () -> service.searchPerson("")
         );
     }
-
-
 }

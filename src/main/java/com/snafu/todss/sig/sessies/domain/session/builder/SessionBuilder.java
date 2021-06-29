@@ -6,7 +6,6 @@ import com.snafu.todss.sig.sessies.domain.session.types.Session;
 
 import java.time.LocalDateTime;
 
-
 public interface SessionBuilder{
     SessionBuilder setSig(SpecialInterestGroup sig);
     SessionBuilder setStartDate(LocalDateTime startDate);
