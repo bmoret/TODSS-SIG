@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FeedbackTest {
 
-
     @Test
     @DisplayName("Valid constructor creates instance")
     void constructorCorrect() {

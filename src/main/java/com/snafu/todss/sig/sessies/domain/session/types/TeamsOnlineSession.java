@@ -1,6 +1,5 @@
 package com.snafu.todss.sig.sessies.domain.session.types;
 
-
 import com.snafu.todss.sig.sessies.domain.Attendance;
 import com.snafu.todss.sig.sessies.domain.Feedback;
 import com.snafu.todss.sig.sessies.domain.SpecialInterestGroup;

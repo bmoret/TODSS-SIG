@@ -1,5 +1,6 @@
 package com.snafu.todss.sig.sessies.presentation.controller;
 
+import com.snafu.todss.sig.security.application.UserService;
 import com.snafu.todss.sig.sessies.application.PersonService;
 import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
@@ -7,8 +8,11 @@ import com.snafu.todss.sig.sessies.presentation.dto.response.PersonResponse;
 import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.List;
@@ -19,9 +23,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/person")
 public class PersonController {
     private final PersonService SERVICE;
+    private final UserService userService;
 
-    public PersonController(PersonService service) {
+
+    public PersonController(PersonService service, UserService userService) {
         SERVICE = service;
+        this.userService = userService;
     }
 
     private PersonResponse convertPersonToResponse(Person person) {
@@ -32,10 +39,14 @@ public class PersonController {
         );
     }
 
-    @RolesAllowed({"ROLE_MANAGER", "ROLE_SECRETARY", "ROLE_ADMINISTRATOR"})
+    @PermitAll
     @GetMapping(path = "/{id}")
-    public ResponseEntity<PersonResponse> getPerson(@PathVariable("id") UUID id) throws NotFoundException {
-        Person person = SERVICE.getPerson(id);
+    public ResponseEntity<PersonResponse> getPerson(@PathVariable("id") UUID id, Authentication authentication) throws NotFoundException {
+        UserDetails user = (UserDetails) authentication.getPrincipal();
+        com.snafu.todss.sig.security.domain.User correctUser = userService.loadUserByUsername(user.getUsername());
+
+
+        Person person = SERVICE.getPerson(id, correctUser);
         return new ResponseEntity<>(convertPersonToResponse(person), HttpStatus.OK);
     }
 

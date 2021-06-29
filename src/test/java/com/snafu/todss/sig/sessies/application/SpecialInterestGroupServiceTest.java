@@ -6,7 +6,6 @@ import com.snafu.todss.sig.sessies.domain.person.Person;
 import com.snafu.todss.sig.sessies.domain.person.PersonBuilder;
 import com.snafu.todss.sig.sessies.domain.person.enums.Branch;
 import com.snafu.todss.sig.sessies.domain.person.enums.Role;
-import com.snafu.todss.sig.sessies.presentation.dto.request.PersonRequest;
 import com.snafu.todss.sig.sessies.presentation.dto.request.SpecialInterestGroupRequest;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
@@ -14,7 +13,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
-import org.springframework.security.core.parameters.P;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -51,7 +49,7 @@ class SpecialInterestGroupServiceTest {
         when(personService.getPersonByEmail(any()))
                 .thenReturn(person);
 
-        when(personService.getPerson(any()))
+        when(personService.getPersonById(any()))
                 .thenReturn(person);
 
         specialInterestGroup = new SpecialInterestGroup(
@@ -67,7 +65,6 @@ class SpecialInterestGroupServiceTest {
         List<UUID> uuids = new ArrayList<>();
         uuids.add(person.getId());
         request.organizerIds = uuids;
-
     }
 
     @BeforeEach
@@ -162,7 +159,7 @@ class SpecialInterestGroupServiceTest {
         SpecialInterestGroup specialInterestGroup = service.createSpecialInterestGroup(request);
 
         assertNotNull(specialInterestGroup);
-        verify(personService, times(2)).getPerson(any());
+        verify(personService, times(2)).getPersonById(any());
         verify(repository, times(1)).save(any(SpecialInterestGroup.class));
     }
 

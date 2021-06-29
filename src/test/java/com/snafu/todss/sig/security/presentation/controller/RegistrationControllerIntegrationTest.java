@@ -161,10 +161,10 @@ class RegistrationControllerIntegrationTest {
                 .andExpect(status().isOk()).andReturn();
     }
 
-    private User createDefaultTestUser() {
+    private void createDefaultTestUser() {
         Person person = personRepository.save(new PersonBuilder().setRole(Role.MANAGER).build());
         User user = new User("TestUser", passwordEncoder.encode("TestPassword"), person);
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     @Test

@@ -77,7 +77,6 @@ class PersonDetailsTest {
         assertEquals(Role.MANAGER, pd.getRole());
     }
 
-
     @Test
     void testEquals() {
         assertEquals(pd, pd);

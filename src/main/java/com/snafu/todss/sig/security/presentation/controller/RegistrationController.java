@@ -40,7 +40,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/authenticate/refresh")
-    public ResponseEntity<Object> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) throws NotFoundException {
+    public ResponseEntity<Object> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
         Map<String, String> authorization = this.userService.refreshUserToken(refreshTokenRequest);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setAll(authorization);

@@ -22,7 +22,10 @@ import static com.snafu.todss.sig.sessies.util.InputValidations.inputNotNull;
 public abstract class Session {
     @Id
     @GeneratedValue(generator="generator")
-    @GenericGenerator(name="generator", strategy="com.snafu.todss.sig.sessies.domain.idgenerator.FilterIdentifierGenerator")
+    @GenericGenerator(
+            name="generator",
+            strategy="com.snafu.todss.sig.sessies.domain.idgenerator.FilterIdentifierGenerator"
+    )
     @Column(unique=true, nullable=false)
     private UUID id;
 

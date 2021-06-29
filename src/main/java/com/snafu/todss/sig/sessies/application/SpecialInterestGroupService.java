@@ -40,24 +40,33 @@ public class SpecialInterestGroupService {
         return people;
     }
 
-    public SpecialInterestGroup createSpecialInterestGroup(SpecialInterestGroupRequest sigRequest) throws NotFoundException {
-        Person manager = this.PERSON_SERVICE.getPerson(sigRequest.managerId);
+    public SpecialInterestGroup createSpecialInterestGroup(SpecialInterestGroupRequest sigRequest)
+            throws NotFoundException {
+        Person manager = this.PERSON_SERVICE.getPersonById(sigRequest.managerId);
         List<Person> organizers = getOrganizersWithIds(sigRequest.organizerIds);
-        SpecialInterestGroup specialInterestGroup = new SpecialInterestGroup(sigRequest.subject, manager, organizers, new ArrayList<>());
+        SpecialInterestGroup specialInterestGroup = new SpecialInterestGroup(
+                sigRequest.subject,
+                manager,
+                organizers,
+                new ArrayList<>()
+        );
         return SIG_REPOSITORY.save(specialInterestGroup);
     }
 
     private List<Person> getOrganizersWithIds(List<UUID> organizerIds) throws NotFoundException {
         List<Person> organizers = new ArrayList<>();
         for (UUID id : organizerIds) {
-            organizers.add(PERSON_SERVICE.getPerson(id));
+            organizers.add(PERSON_SERVICE.getPersonById(id));
         }
         return organizers;
     }
 
-    public SpecialInterestGroup updateSpecialInterestGroup(UUID id, SpecialInterestGroupRequest specialInterestGroupRequest) throws NotFoundException {
+    public SpecialInterestGroup updateSpecialInterestGroup(
+            UUID id,
+            SpecialInterestGroupRequest specialInterestGroupRequest
+    ) throws NotFoundException {
         SpecialInterestGroup specialInterestGroup = getSpecialInterestGroupById(id);
-        Person manager = this.PERSON_SERVICE.getPerson(specialInterestGroupRequest.managerId);
+        Person manager = this.PERSON_SERVICE.getPersonById(specialInterestGroupRequest.managerId);
         specialInterestGroup.setSubject(specialInterestGroupRequest.subject);
         specialInterestGroup.setManager(manager);
         return this.SIG_REPOSITORY.save(specialInterestGroup);

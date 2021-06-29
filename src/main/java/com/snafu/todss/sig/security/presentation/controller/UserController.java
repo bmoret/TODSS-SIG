@@ -23,7 +23,7 @@ public class UserController {
 
     @GetMapping
     @RolesAllowed({"ROLE_MANAGER","ROLE_ADMINISTRATOR"})
-    public ResponseEntity<List<UserDTOResponse>> getUsers() throws NotFoundException {
+    public ResponseEntity<List<UserDTOResponse>> getUsers() {
         List<User> users = this.USER_SERVICE.getAllUsers();
         List<UserDTOResponse> userDTOResponses = new ArrayList<>();
 

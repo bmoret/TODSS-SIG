@@ -119,5 +119,4 @@ class AttendanceTest {
         attendance.setSession(session);
         assertNotNull(attendance.getSession());
     }
-
 }
